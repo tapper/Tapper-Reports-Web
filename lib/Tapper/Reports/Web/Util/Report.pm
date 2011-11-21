@@ -49,6 +49,11 @@ sub prepare_simple_reportlist
                          peeraddr              => $report->peeraddr,
                          peerhost              => $report->peerhost,
                         };
+
+                # --- scheduling state ---
+                my $testrun_scheduling = model('TestrunDB')->resultset('TestrunScheduling')->search({testrun_id => $rgt_id})->first;
+                $r->{testrunscheduling_status} = $testrun_scheduling->status if $testrun_scheduling;
+
                 # --- arbitrary ---
                 if ($rga_id and $rga_primary)
                 {
