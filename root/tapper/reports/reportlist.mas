@@ -59,7 +59,7 @@
                                                <% $report->{rga_id} %>
 %                                        }
 %                                        if ($report->{rgt_id}) {
-                                               <a href="/tapper/testruns/id/<% $report->{rgt_id} %>">testrun <% $report->{rgt_id} %></a><% ($report->{testrunscheduling_status} && $report->{testrunscheduling_status} ne 'finished') ? " (unfinished)" : "" %>
+                                               <a href="/tapper/testruns/id/<% $report->{rgt_id} %>">testrun <% $report->{rgt_id} %></a><% ($report->{testrunscheduling_status} && $report->{testrunscheduling_status} ne 'finished') ? " (".$report->{testrunscheduling_status}.")" : "" %>
 %                                        }
 %                         }
                         </td>
