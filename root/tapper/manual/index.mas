@@ -3,6 +3,7 @@
 <div class="node">
 <a name="Top"></a>
 <p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Synopsis">Synopsis</a>,
 Previous:&nbsp;<a rel="previous" accesskey="p" href="#dir">(dir)</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
 
@@ -91,60 +92,67 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
 </li></ul>
 <li><a name="toc_Test-Suite-Wrappers" href="#Test-Suite-Wrappers">4 Test Suite Wrappers</a>
 <ul>
-<li><a href="#Test-Suite-Wrappers">4.1 Available test suite wrappers</a>
+<li><a href="#Available-test-suite-wrappers">4.1 Available test suite wrappers</a>
 <ul>
-<li><a href="#Test-Suite-Wrappers">4.1.1 tapper-testsuite-autotest</a>
+<li><a href="#Available-test-suite-wrappers">4.1.1 tapper-testsuite-autotest</a>
 </li></ul>
-<li><a href="#Test-Suite-Wrappers">4.2 Environment variables</a>
+<li><a href="#Environment-variables">4.2 Environment variables</a>
 </li></ul>
 <li><a name="toc_Preconditions" href="#Preconditions">5 Preconditions</a>
 <ul>
-<li><a href="#Preconditions">5.1 SYNOPSIS</a>
-<li><a href="#Preconditions">5.2 Layers of preconditions</a>
+<li><a href="#SYNOPSIS">5.1 SYNOPSIS</a>
+<li><a href="#SYNOPSIS">5.2 Layers of preconditions</a>
+<li><a href="#SYNOPSIS">5.3 Precondition repository</a>
+<li><a href="#SYNOPSIS">5.4 Overview Precondition Types</a>
+<li><a href="#SYNOPSIS">5.5 Details Precondition Types</a>
+<li><a href="#SYNOPSIS">5.6 Macro Preconditions</a>
+<li><a href="#SYNOPSIS">5.7 Testplans</a>
+<li><a href="#SYNOPSIS">5.8 Precondition Producers</a>
+<li><a href="#Layers-of-preconditions">5.9 Layers of preconditions</a>
 <ul>
-<li><a href="#Preconditions">5.2.1 Normal preconditions</a>
-<li><a href="#Preconditions">5.2.2 Macro preconditions</a>
-<li><a href="#Preconditions">5.2.3 Testplans</a>
+<li><a href="#Layers-of-preconditions">5.9.1 Normal preconditions</a>
+<li><a href="#Layers-of-preconditions">5.9.2 Macro preconditions</a>
+<li><a href="#Layers-of-preconditions">5.9.3 Testplans</a>
 </li></ul>
-<li><a href="#Preconditions">5.3 Precondition repository</a>
-<li><a href="#Preconditions">5.4 Overview: Precondition Types</a>
+<li><a href="#Precondition-repository">5.10 Precondition repository</a>
+<li><a href="#Overview-Precondition-Types">5.11 Overview Precondition Types</a>
 <ul>
-<li><a href="#Preconditions">5.4.1 Overview: Action precondition types</a>
-<li><a href="#Preconditions">5.4.2 Overview: Highlevel precondition types</a>
+<li><a href="#Overview-Precondition-Types">5.11.1 Overview: Action precondition types</a>
+<li><a href="#Overview-Precondition-Types">5.11.2 Overview: Highlevel precondition types</a>
 </li></ul>
-<li><a href="#Preconditions">5.5 Details: Precondition Types</a>
+<li><a href="#Details-Precondition-Types">5.12 Details Precondition Types</a>
 <ul>
-<li><a href="#Preconditions">5.5.1 installer_stop</a>
-<li><a href="#Preconditions">5.5.2 grub</a>
-<li><a href="#Preconditions">5.5.3 package</a>
-<li><a href="#Preconditions">5.5.4 copyfile</a>
-<li><a href="#Preconditions">5.5.5 fstab</a>
-<li><a href="#Preconditions">5.5.6 image</a>
-<li><a href="#Preconditions">5.5.7 repository</a>
-<li><a href="#Preconditions">5.5.8 type: prc</a>
-<li><a href="#Preconditions">5.5.9 type: exec</a>
-<li><a href="#Preconditions">5.5.10 type: hint</a>
-<li><a href="#Preconditions">5.5.11 quote subtleties</a>
-<li><a href="#Preconditions">5.5.12 type: reboot</a>
-<li><a href="#Preconditions">5.5.13 type: autoinstall</a>
-<li><a href="#Preconditions">5.5.14 type: testprogram</a>
-<li><a href="#Preconditions">5.5.15 type: virt</a>
-<li><a href="#Preconditions">5.5.16 General precondition keys &ldquo;mountfile&rdquo;</a>
+<li><a href="#Details-Precondition-Types">5.12.1 installer_stop</a>
+<li><a href="#Details-Precondition-Types">5.12.2 grub</a>
+<li><a href="#Details-Precondition-Types">5.12.3 package</a>
+<li><a href="#Details-Precondition-Types">5.12.4 copyfile</a>
+<li><a href="#Details-Precondition-Types">5.12.5 fstab</a>
+<li><a href="#Details-Precondition-Types">5.12.6 image</a>
+<li><a href="#Details-Precondition-Types">5.12.7 repository</a>
+<li><a href="#Details-Precondition-Types">5.12.8 type: prc</a>
+<li><a href="#Details-Precondition-Types">5.12.9 type: exec</a>
+<li><a href="#Details-Precondition-Types">5.12.10 type: hint</a>
+<li><a href="#Details-Precondition-Types">5.12.11 quote subtleties</a>
+<li><a href="#Details-Precondition-Types">5.12.12 type: reboot</a>
+<li><a href="#Details-Precondition-Types">5.12.13 type: autoinstall</a>
+<li><a href="#Details-Precondition-Types">5.12.14 type: testprogram</a>
+<li><a href="#Details-Precondition-Types">5.12.15 type: virt</a>
+<li><a href="#Details-Precondition-Types">5.12.16 General precondition keys &ldquo;mountfile&rdquo;</a>
 </li></ul>
-<li><a href="#Macro-Preconditions">5.6 Macro Preconditions</a>
+<li><a href="#Macro-Preconditions">5.13 Macro Preconditions</a>
 <ul>
-<li><a href="#A-real-live-example-_002d-kernel-boot-test">5.6.1 A real live example - kernel boot test</a>
+<li><a href="#A-real-live-example-_002d-kernel-boot-test">5.13.1 A real live example - kernel boot test</a>
 </li></ul>
-<li><a href="#Testplans">5.7 Testplans</a>
-<li><a href="#Testplans">5.8 Precondition Producers</a>
+<li><a href="#Testplans">5.14 Testplans</a>
+<li><a href="#Precondition-Producers">5.15 Precondition Producers</a>
 <ul>
-<li><a href="#Testplans">5.8.1 Lazy precondition</a>
-<li><a href="#Testplans">5.8.2 Producer API</a>
-<li><a href="#Testplans">5.8.3 Existing producers</a>
-<li><a href="#Testplans">5.8.4 Example: &ldquo;Kernel&rdquo; precondition producer</a>
+<li><a href="#Precondition-Producers">5.15.1 Lazy precondition</a>
+<li><a href="#Precondition-Producers">5.15.2 Producer API</a>
+<li><a href="#Precondition-Producers">5.15.3 Existing producers</a>
+<li><a href="#Precondition-Producers">5.15.4 Example: &ldquo;Kernel&rdquo; precondition producer</a>
 <ul>
-<li><a href="#Testplans">5.8.4.1 Lazy precondition</a>
-<li><a href="#Testplans">5.8.4.2 Resulting preconditions</a>
+<li><a href="#Precondition-Producers">5.15.4.1 Lazy precondition</a>
+<li><a href="#Precondition-Producers">5.15.4.2 Resulting preconditions</a>
 </li></ul>
 </li></ul>
 </li></ul>
@@ -161,12 +169,12 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
 </li></ul>
 <li><a name="toc_Web-User-Interface" href="#Web-User-Interface">7 Web User Interface</a>
 <ul>
-<li><a href="#Web-User-Interface">7.1 Usage</a>
-<li><a href="#Web-User-Interface">7.2 Understanding Tapper Details</a>
+<li><a href="#Usage">7.1 Usage</a>
+<li><a href="#Understanding-Tapper-Details">7.2 Understanding Tapper Details</a>
 <ul>
-<li><a href="#Web-User-Interface">7.2.1 Part 1 Overview</a>
-<li><a href="#Web-User-Interface">7.2.2 Part 2 Details</a>
-<li><a href="#Web-User-Interface">7.2.3 Part 3 Testrun</a>
+<li><a href="#Understanding-Tapper-Details">7.2.1 Part 1 Overview</a>
+<li><a href="#Understanding-Tapper-Details">7.2.2 Part 2 Details</a>
+<li><a href="#Understanding-Tapper-Details">7.2.3 Part 3 Testrun</a>
 </li></ul>
 </li></ul>
 <li><a name="toc_Reports-API" href="#Reports-API">8 Reports API</a>
@@ -217,19 +225,19 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
 </li></ul>
 <li><a name="toc_Complete-Use-Cases" href="#Complete-Use-Cases">9 Complete Use Cases</a>
 <ul>
-<li><a href="#Complete-Use-Cases">9.1 Automatic Xen testing</a>
+<li><a href="#Automatic-Xen-testing">9.1 Automatic Xen testing</a>
 <ul>
-<li><a href="#Complete-Use-Cases">9.1.1 Paths</a>
-<li><a href="#Complete-Use-Cases">9.1.2 Choose an image for Dom0 and images for each guest</a>
-<li><a href="#Complete-Use-Cases">9.1.3 PRC configuration</a>
+<li><a href="#Automatic-Xen-testing">9.1.1 Paths</a>
+<li><a href="#Automatic-Xen-testing">9.1.2 Choose an image for Dom0 and images for each guest</a>
+<li><a href="#Automatic-Xen-testing">9.1.3 PRC configuration</a>
 <ul>
-<li><a href="#Complete-Use-Cases">9.1.3.1 Guest Start Configuration</a>
-<li><a href="#Complete-Use-Cases">9.1.3.2 Testsuite Configuration</a>
+<li><a href="#Automatic-Xen-testing">9.1.3.1 Guest Start Configuration</a>
+<li><a href="#Automatic-Xen-testing">9.1.3.2 Testsuite Configuration</a>
 </li></ul>
-<li><a href="#Complete-Use-Cases">9.1.4 Preconditions</a>
-<li><a href="#Complete-Use-Cases">9.1.5 Resulting YAML config</a>
-<li><a href="#Complete-Use-Cases">9.1.6 Grub</a>
-<li><a href="#Complete-Use-Cases">9.1.7 Order Testrun</a>
+<li><a href="#Automatic-Xen-testing">9.1.4 Preconditions</a>
+<li><a href="#Automatic-Xen-testing">9.1.5 Resulting YAML config</a>
+<li><a href="#Automatic-Xen-testing">9.1.6 Grub</a>
+<li><a href="#Automatic-Xen-testing">9.1.7 Order Testrun</a>
 </li></ul>
 </li></ul>
 </li></ul>
@@ -1670,6 +1678,20 @@ TAPPER_REPORT_PORT
 <p>are set the wrappers report their results by piping their TAP output
 there, else they print to STDOUT.
 
+<ul class="menu">
+<li><a accesskey="1" href="#Available-test-suite-wrappers">Available test suite wrappers</a>
+<li><a accesskey="2" href="#Environment-variables">Environment variables</a>
+</ul>
+
+<div class="node">
+<a name="Available-test-suite-wrappers"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Environment-variables">Environment variables</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Test-Suite-Wrappers">Test Suite Wrappers</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Test-Suite-Wrappers">Test Suite Wrappers</a>
+
+</div>
+
 <h3 class="section">4.1 Available test suite wrappers</h3>
 
 <p>Originally we have a lot of direct wrappers available but haven't them
@@ -1684,6 +1706,14 @@ aka. <em>Tapper-Testsuite-AutoTest</em>. You should look at that.
 and sends the resulting TAP archives to Tapper server.
 
 <p>That is the primary testsuite wrapper for OS testing.
+
+<div class="node">
+<a name="Environment-variables"></a>
+<p><hr>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Available-test-suite-wrappers">Available test suite wrappers</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Test-Suite-Wrappers">Test Suite Wrappers</a>
+
+</div>
 
 <h3 class="section">4.2 Environment variables</h3>
 
@@ -1742,7 +1772,41 @@ or scripts be executed.
 tree of preconditions that will be installed from the leaves to the
 top.
 
+<ul class="menu">
+<li><a accesskey="1" href="#SYNOPSIS">SYNOPSIS</a>
+<li><a accesskey="2" href="#Layers-of-preconditions">Layers of preconditions</a>
+<li><a accesskey="3" href="#Precondition-repository">Precondition repository</a>
+<li><a accesskey="4" href="#Overview-Precondition-Types">Overview Precondition Types</a>
+<li><a accesskey="5" href="#Details-Precondition-Types">Details Precondition Types</a>
+<li><a accesskey="6" href="#Macro-Preconditions">Macro Preconditions</a>
+<li><a accesskey="7" href="#Testplans">Testplans</a>
+<li><a accesskey="8" href="#Precondition-Producers">Precondition Producers</a>
+</ul>
+
+<div class="node">
+<a name="SYNOPSIS"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Layers-of-preconditions">Layers of preconditions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Preconditions">Preconditions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Preconditions">Preconditions</a>
+
+</div>
+
 <h3 class="section">5.1 SYNOPSIS</h3>
+
+<h3 class="section">5.2 Layers of preconditions</h3>
+
+<h3 class="section">5.3 Precondition repository</h3>
+
+<h3 class="section">5.4 Overview Precondition Types</h3>
+
+<h3 class="section">5.5 Details Precondition Types</h3>
+
+<h3 class="section">5.6 Macro Preconditions</h3>
+
+<h3 class="section">5.7 Testplans</h3>
+
+<h3 class="section">5.8 Precondition Producers</h3>
 
      <ul>
 <li>Create a (maybe temporary) file
@@ -1757,11 +1821,20 @@ top.
 
 </ul>
 
-<h3 class="section">5.2 Layers of preconditions</h3>
+<div class="node">
+<a name="Layers-of-preconditions"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Precondition-repository">Precondition repository</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#SYNOPSIS">SYNOPSIS</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Preconditions">Preconditions</a>
+
+</div>
+
+<h3 class="section">5.9 Layers of preconditions</h3>
 
 <p>There are &ldquo;normal preconditions&rdquo; and &ldquo;macro preconditions&rdquo;.
 
-<h4 class="subsection">5.2.1 Normal preconditions</h4>
+<h4 class="subsection">5.9.1 Normal preconditions</h4>
 
 <p>We store preconditions in the database and assign <em>testruns</em> to
 them (also in the database).
@@ -1781,7 +1854,7 @@ preconditions by referring to IDs and creating trees of
 preconditions. This reuse is usually too complex. <strong>What you
 typically want are Macro Preconditions</strong>.
 
-<h4 class="subsection">5.2.2 Macro preconditions</h4>
+<h4 class="subsection">5.9.2 Macro preconditions</h4>
 
 <p>There is another mechanism on top of normal preconditions: <dfn>Macro
 Preconditions</dfn>. These allow to bundle <strong>multiple</strong> preconditions
@@ -1798,21 +1871,39 @@ they are much easier to handle.
 in the precondition repository, as only the finally resulting
 preconditions are stored in the database.
 
-<h4 class="subsection">5.2.3 Testplans</h4>
+<h4 class="subsection">5.9.3 Testplans</h4>
 
 <p>Testplans are a variant of macro preconditions to control multiple
 testruns and queue them to particular hosts and queues. They are
 mostly useful to provide end-users with complex but polished frontend
 use-cases where they can define values to prepared parameters.
 
-<h3 class="section">5.3 Precondition repository</h3>
+<div class="node">
+<a name="Precondition-repository"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Overview-Precondition-Types">Overview Precondition Types</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Layers-of-preconditions">Layers of preconditions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Preconditions">Preconditions</a>
+
+</div>
+
+<h3 class="section">5.10 Precondition repository</h3>
 
 <p>Macro preconditions can be stored in
 
 <pre class="verbatim">/data/tapper/live/repository/macropreconditions/
 </pre>
 
-<h3 class="section">5.4 Overview: Precondition Types</h3>
+<div class="node">
+<a name="Overview-Precondition-Types"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Details-Precondition-Types">Details Precondition Types</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Precondition-repository">Precondition repository</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Preconditions">Preconditions</a>
+
+</div>
+
+<h3 class="section">5.11 Overview Precondition Types</h3>
 
 <p>There are two variants of preconditions: <em>Action preconditions</em>
 and <em>Highlevel preconditions</em>. Action preconditions describe
@@ -1826,7 +1917,7 @@ YAML block with all the details (think of an object instance). Such a
 block is of a &ldquo;precondition type&rdquo; which defines its allowed
 structure (think of a class).
 
-<h4 class="subsection">5.4.1 Overview: Action precondition types</h4>
+<h4 class="subsection">5.11.1 Overview: Action precondition types</h4>
 
 <p>The following <dfn>action</dfn> precondition types are allowed:
 
@@ -1864,7 +1955,7 @@ Requests a reboot test and states how often to reboot.
 
 </dl>
 
-<h4 class="subsection">5.4.2 Overview: Highlevel precondition types</h4>
+<h4 class="subsection">5.11.2 Overview: Highlevel precondition types</h4>
 
 <p>Currently only the following <dfn>high level</dfn> precondition type is
 allowed:
@@ -1883,7 +1974,16 @@ a defined root image in the high level precondition is always
 installed first. All other preconditions are installed in the order
 defined by its tree structure (depth-first).
 
-<h3 class="section">5.5 Details: Precondition Types</h3>
+<div class="node">
+<a name="Details-Precondition-Types"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Macro-Preconditions">Macro Preconditions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Overview-Precondition-Types">Overview Precondition Types</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Preconditions">Preconditions</a>
+
+</div>
+
+<h3 class="section">5.12 Details Precondition Types</h3>
 
 <p>We describe preconditions in YAML files (<a href="http://www.yaml.org/">http://www.yaml.org/</a>).
 
@@ -1900,7 +2000,7 @@ defined by its tree structure (depth-first).
 </pre>
 <p>then the remaining keys depend on the TYPE.
 
-<h4 class="subsection">5.5.1 installer_stop</h4>
+<h4 class="subsection">5.12.1 installer_stop</h4>
 
 <p>stop run after system installer
 
@@ -1908,7 +2008,7 @@ defined by its tree structure (depth-first).
      precondition_type: installer_stop
 </pre>
 </pre>
-<h4 class="subsection">5.5.2 grub</h4>
+<h4 class="subsection">5.12.2 grub</h4>
 
 <p>overwrite automatically generated grub config
 
@@ -1936,7 +2036,7 @@ start them with |, a newline and some indentation
 
 </ul>
 
-<h4 class="subsection">5.5.3 package</h4>
+<h4 class="subsection">5.12.3 package</h4>
 
 <pre class="example"><pre class="verbatim">     ---
      precondition_type: package
@@ -1957,7 +2057,7 @@ start them with |, a newline and some indentation
 
 </ul>
 
-<h4 class="subsection">5.5.4 copyfile</h4>
+<h4 class="subsection">5.12.4 copyfile</h4>
 
 <p>a file that just needs to be scp or copied:
 
@@ -1981,7 +2081,7 @@ start them with |, a newline and some indentation
 
 </ul>
 
-<h4 class="subsection">5.5.5 fstab</h4>
+<h4 class="subsection">5.12.5 fstab</h4>
 
 <p>a line to add to /etc/fstab, e.g., to enable mounts once the system boots
 
@@ -1990,7 +2090,7 @@ start them with |, a newline and some indentation
      line: "165.204.85.14:/vol/osrc_vol0 /home nfs auto,defaults 0 0"
 </pre>
 </pre>
-<h4 class="subsection">5.5.6 image</h4>
+<h4 class="subsection">5.12.6 image</h4>
 
 <p>usually the root image that is unpacked to a partition
 (this is in contrast to a guest file that's just there)
@@ -2025,7 +2125,7 @@ and mounted to mount afterwards
 
 </ul>
 
-<h4 class="subsection">5.5.7 repository</h4>
+<h4 class="subsection">5.12.7 repository</h4>
 
 <pre class="example"><pre class="verbatim">     ---
      precondition_type: repository
@@ -2046,7 +2146,7 @@ to root directory &lsquo;<samp><span class="samp">/</span></samp>&rsquo;).
 
 </ul>
 
-<h4 class="subsection">5.5.8 type: prc</h4>
+<h4 class="subsection">5.12.8 type: prc</h4>
 
 <p>Is typically contained implicitely with the abstract precondition
 <em>virt</em>. But can also be defined explicitely, e.g., for kernel
@@ -2092,7 +2192,7 @@ killed (SIGINT, SIGKILL).
 guest which defines how a guest is started. Can be a SVM file for Xen
 or an executable for KVM.
 
-<h4 class="subsection">5.5.9 type: exec</h4>
+<h4 class="subsection">5.12.9 type: exec</h4>
 
      <p>Defines which program to run at the installation phase.
 
@@ -2107,7 +2207,7 @@ or an executable for KVM.
      <p>The quotes in this example are actually wrong but left in so you learn
 the following lesson:
 
-<h4 class="subsection">5.5.10 type: hint</h4>
+<h4 class="subsection">5.12.10 type: hint</h4>
 
      <p>Such a precondition provides hints where normal behaviour needs to be
 changed. It contains any hash keys needed for the special handling. The
@@ -2123,7 +2223,7 @@ for what you specify here.
           </pre>
 </pre>
      </pre>
-     <h4 class="subsection">5.5.11 quote subtleties</h4>
+     <h4 class="subsection">5.12.11 quote subtleties</h4>
 
      <p>Please note some subtlety about quotes.
 
@@ -2190,7 +2290,7 @@ usually <strong>not</strong> what you want.
 </pre>
           </ul>
 
-<h4 class="subsection">5.5.12 type: reboot</h4>
+<h4 class="subsection">5.12.12 type: reboot</h4>
 
      <p>Requests a reboot test and states how often to reboot.
 
@@ -2201,7 +2301,7 @@ the first boot is always counted as number 0.
           count: 2
      </pre>
 </pre>
-     <h4 class="subsection">5.5.13 type: autoinstall</h4>
+     <h4 class="subsection">5.12.13 type: autoinstall</h4>
 
      <p>Install a system using autoinstall scripts. The filename denotes the
 grub config to be used. It is mandatory and can be given as absolut
@@ -2214,7 +2314,7 @@ is used.
           timeout: 1800
      </pre>
 </pre>
-     <h4 class="subsection">5.5.14 type: testprogram</h4>
+     <h4 class="subsection">5.12.14 type: testprogram</h4>
 
      <p>Define which test program to run. This way of defining a test program
 should be prefered to using the <strong>PRC</strong> type precondition. Only the
@@ -2234,7 +2334,7 @@ of the program.
           - --verbose
      </pre>
 </pre>
-     <h4 class="subsection">5.5.15 type: virt</h4>
+     <h4 class="subsection">5.12.15 type: virt</h4>
 
      <p>A virtualization environment.
 
@@ -2308,7 +2408,7 @@ American English (virtualization) is expected
 
 </ul>
 
-<h4 class="subsection">5.5.16 General precondition keys &ldquo;mountfile&rdquo;</h4>
+<h4 class="subsection">5.12.16 General precondition keys &ldquo;mountfile&rdquo;</h4>
 
 <p>These 2 options are possible in each precondition. With that you can
 execute the precondition inside guest images:
@@ -2337,11 +2437,12 @@ only the given partition
 <a name="Macro-Preconditions"></a>
 <p><hr>
 Next:&nbsp;<a rel="next" accesskey="n" href="#Testplans">Testplans</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Details-Precondition-Types">Details Precondition Types</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Preconditions">Preconditions</a>
 
 </div>
 
-<h3 class="section">5.6 Macro Preconditions</h3>
+<h3 class="section">5.13 Macro Preconditions</h3>
 
 <p>This section describes macro precondition files as they are stored in
 <code>/data/tapper/live/repository/macropreconditions/</code>.
@@ -2406,7 +2507,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Macro-Preconditions">Macro Preconditio
 
 </div>
 
-<h4 class="subsection">5.6.1 A real live example - kernel boot test</h4>
+<h4 class="subsection">5.13.1 A real live example - kernel boot test</h4>
 
      <ul>
 <li>Macroprecondition
@@ -2498,12 +2599,13 @@ is this command line:
 <div class="node">
 <a name="Testplans"></a>
 <p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Precondition-Producers">Precondition Producers</a>,
 Previous:&nbsp;<a rel="previous" accesskey="p" href="#Macro-Preconditions">Macro Preconditions</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Preconditions">Preconditions</a>
 
 </div>
 
-<h3 class="section">5.7 Testplans</h3>
+<h3 class="section">5.14 Testplans</h3>
 
 <p>This section describes testplan files as they are stored in
 <code>/data/tapper/live/testplans/</code>.
@@ -2620,7 +2722,15 @@ execute such a testplan according to the project plan.
 known-good sanity tests without a changed feature and some for the
 actual tested feature.
 
-<h3 class="section">5.8 Precondition Producers</h3>
+<div class="node">
+<a name="Precondition-Producers"></a>
+<p><hr>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Testplans">Testplans</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Preconditions">Preconditions</a>
+
+</div>
+
+<h3 class="section">5.15 Precondition Producers</h3>
 
 <p>Sometimes, parameters for preconditions shall be defined when the
 testrun, this precondition is assigned to, is choosen for
@@ -2642,7 +2752,7 @@ module and may contain additional parameters. The producer will
 substitute the &lsquo;<samp><span class="samp">producer</span></samp>&rsquo; precondition with a normal precondition
 that has values assigned to all parameters.
 
-<h4 class="subsection">5.8.1 Lazy precondition</h4>
+<h4 class="subsection">5.15.1 Lazy precondition</h4>
 
 <p>Lets assume for example that you want to include the newest kernel
 package into your test. This can be achieved with the existing
@@ -2657,7 +2767,7 @@ to your testrun.
 <p>This precondition will be substituted with a package precondition that
 has the latest Sysint kernel build set as filename.
 
-<h4 class="subsection">5.8.2 Producer API</h4>
+<h4 class="subsection">5.15.2 Producer API</h4>
 
 <p>Producer are modules loaded into the scheduler. Thus they need to be
 written in Perl and reside inside the
@@ -2674,7 +2784,7 @@ hash key <code>error</code> is set, the associated error string is reported
 and the testrun is cancled. In this case the other hash keys are not
 evaluated.
 
-<h4 class="subsection">5.8.3 Existing producers</h4>
+<h4 class="subsection">5.15.3 Existing producers</h4>
 
 <p>Currently the following producers exist:
 
@@ -2702,7 +2812,7 @@ a given directory.
 
 </ul>
 
-<h4 class="subsection">5.8.4 Example: &ldquo;Kernel&rdquo; precondition producer</h4>
+<h4 class="subsection">5.15.4 Example: &ldquo;Kernel&rdquo; precondition producer</h4>
 
 <p>The kernel producer returns a package precondition that contains the
 latest kernel package from the kernel package path. Furthermore, it
@@ -2726,7 +2836,7 @@ path are used.
 
 </ul>
 
-<h5 class="subsubsection">5.8.4.1 Lazy precondition</h5>
+<h5 class="subsubsection">5.15.4.1 Lazy precondition</h5>
 
 <p>The lazy precondition, pointing to the &ldquo;Kernel&rdquo; precondition
 producer:
@@ -2738,7 +2848,7 @@ producer:
      stable: 1
 </pre>
 </pre>
-<h5 class="subsubsection">5.8.4.2 Resulting preconditions</h5>
+<h5 class="subsubsection">5.15.4.2 Resulting preconditions</h5>
 
 <p>The resulting preconditions may look like this:
 
@@ -3027,12 +3137,34 @@ allows to zoom into details of single reports.
 look into the <em>DPath Query Language</em> that is part of the
 <a href="#Reports-API">Reports API</a>.
 
+<ul class="menu">
+<li><a accesskey="1" href="#Usage">Usage</a>
+<li><a accesskey="2" href="#Understanding-Tapper-Details">Understanding Tapper Details</a>
+</ul>
+
+<div class="node">
+<a name="Usage"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Understanding-Tapper-Details">Understanding Tapper Details</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Web-User-Interface">Web User Interface</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Web-User-Interface">Web User Interface</a>
+
+</div>
+
 <h3 class="section">7.1 Usage</h3>
 
 <p>The main URL is typically somerthing like
 
 <pre class="example">     <a href="http://tapper/tapper">http://tapper/tapper</a>
 </pre>
+<div class="node">
+<a name="Understanding-Tapper-Details"></a>
+<p><hr>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Usage">Usage</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Web-User-Interface">Web User Interface</a>
+
+</div>
+
 <h3 class="section">7.2 Understanding Tapper Details</h3>
 
 <h4 class="subsection">7.2.1 Part 1 Overview</h4>
@@ -3844,6 +3976,18 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <p>In this chapter we describe how the single features are put together
 into whole use-cases.
+
+<ul class="menu">
+<li><a accesskey="1" href="#Automatic-Xen-testing">Automatic Xen testing</a>
+</ul>
+
+<div class="node">
+<a name="Automatic-Xen-testing"></a>
+<p><hr>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Complete-Use-Cases">Complete Use Cases</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Complete-Use-Cases">Complete Use Cases</a>
+
+</div>
 
 <h3 class="section">9.1 Automatic Xen testing</h3>
 
