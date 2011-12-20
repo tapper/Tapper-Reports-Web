@@ -2537,7 +2537,7 @@ Temaplte Toolkit and loop to create multiple testruns.
 
 <p>It additionally allows to embed self-documentation which can be viewd
 with the command <code>tapper-testrun newtestplan --guide --file
-myfile.tp</code>.
+my-testplan-file</code>.
 
 <p>To take parameters and create multiple testruns, you could use it like
 this:
@@ -2579,7 +2579,7 @@ this:
 
 <p>Show self-doc:
 
-<pre class="example"><pre class="verbatim">      $ tapper-testrun newtestplan --guide --file my-testplan.tp
+<pre class="example"><pre class="verbatim">      $ tapper-testrun newtestplan --guide --file my-testplan
      
         This is an example testplan
         Allowed params:
@@ -2591,7 +2591,7 @@ this:
 <p>Start a new testplan consisting of potentially many testruns:
 
 <pre class="example"><pre class="verbatim">      $ tapper-testrun newtestplan --verbose \
-                       --file my-testplan.tp \
+                       --file my-testplan \
                        -Dqueue=TrackWorkload \
                        -Dtests=hackbench,dbench
      
@@ -2599,8 +2599,8 @@ this:
           id:
           241
           url: http://tapper/tapper/testplan/id/241
-          path: topic/osrc/kernel/track-workload/track-workload_autoinstall
-          file: /data/tapper/[...]topic/osrc/kernel/[...]/my-testplan.tp
+          path: topic/kernel/misc/my-testplan
+          file: /data/tapper/topic/kernel/misc/my-testplan
 </pre>
 </pre>
 <p>Whenever you want to provide a polished use-case to an end-user
