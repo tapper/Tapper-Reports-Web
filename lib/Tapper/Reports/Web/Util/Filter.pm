@@ -62,8 +62,8 @@ sub date
         my $requested_day;
         my $one_day_later;
         eval {
-                $requested_day = DateTime::Format::DateParse->parse_datetime( $date );
-                $one_day_later = DateTime::Format::DateParse->parse_datetime( $date )->add(days => 1);
+                $requested_day = DateTime::Format::DateParse->parse_datetime( $date, 'GMT' );
+                $one_day_later = DateTime::Format::DateParse->parse_datetime( $date, 'GMT' )->add(days => 1);
         };
         if (not defined $requested_day) {
                 push @{$filter_condition->{error}}, "Can not parse date '$date'";
@@ -88,7 +88,7 @@ sub days
                 return $filter_condition;
         }
         $filter_condition->{days} = $days;
-        my $parser = new DateTime::Format::Natural;
+        my $parser = DateTime::Format::Natural->new(time_zone => 'GMT');
         my $requested_day  = $parser->parse_datetime("today at midnight");
         $self->requested_day($requested_day);
 
