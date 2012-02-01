@@ -65,17 +65,43 @@ sub prepare_path
 
 
 # Configure the application.
-__PACKAGE__->config( name => 'Tapper::Reports::Web' );
+__PACKAGE__->config( name => 'Tapper::Reports::Web',
+                    'Plugin::Authentication' => {
+                                                 'realms' => {
+                                                              'default' => {
+                                                                            'credential' => {
+                                                                                             'class' => 'Authen::Simple',
+                                                                                             'authen' => [
+                                                                                                          {
+                                                                                                           'class' => 'PAM',
+                                                                                                           args => {
+                                                                                                                    service => 'login'
+                                                                                                                   },
+                                                                                                          },
+                                                                                                         ]
+                                                                                            }
+                                                                           }
+                                                             }
+                                                }
+
+                   );
+
 __PACKAGE__->config->{static}->{dirs} = [
                                          'tapper/static',
                                         ];
 
+
+
 # Start the application
 __PACKAGE__->setup(qw/-Debug
                       ConfigLoader
+
+                      Authentication
                       Static::Simple Session
                       Session::State::Cookie
-                      Session::Store::File/);
+                      Session::Store::File/,
+
+                  );
 
 
 =head1 NAME
