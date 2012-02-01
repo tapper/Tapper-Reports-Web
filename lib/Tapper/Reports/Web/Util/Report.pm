@@ -3,6 +3,8 @@ package Tapper::Reports::Web::Util::Report;
 use Moose;
 use Tapper::Model 'model';
 
+extends 'Tapper::Reports::Web::Util';
+
 use common::sense;
 
 

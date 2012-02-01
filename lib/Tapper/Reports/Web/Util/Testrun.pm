@@ -5,6 +5,8 @@ use Tapper::Model 'model';
 
 use common::sense;
 
+extends 'Tapper::Reports::Web::Util';
+
 =head2 prepare_testrunlist
 
 For each of the given testruns generate a hash describing the

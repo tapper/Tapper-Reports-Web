@@ -28,7 +28,68 @@
 </head>
 <body>
 
+<%args>
+   $top_menu => {}
+</%args>
+
+<div id="header">
+
+	<div id="header_inner" class="fluid">
+
+<& /tapper/logo.mas &>
+
+		<div id="menu">
+			<ul>
+% foreach my $element  ( @{$top_menu} ) {
+
+                                <li><a href="<% $element->{uri} %>"
+%     if ($element->{active}) {
+                                     class="active"
+%     }
+% #    Keep the closing > in the followin line. It closes the < href above.
+                                    ><% $element->{text} %></a></li>
+% }
+			</ul>
+		</div>
+
+	</div>
+</div>
+
+<div id="main">
+
+	<div id="main_inner" class="fluid">
+
+		<div id="primaryContent_2columns">
+
+			<div id="columnA_2columns">
+
+				<br class="clear" />
+
+				<div class="post">
+
 % $m->call_next;
+
+				</div>
+
+			</div>
+
+		</div>
+
+		<div id="secondaryContent_2columns">
+
+			<div id="columnC_2columns">
+
+<& /tapper/testruns/navi.mas &>
+
+			</div>
+
+		</div>
+
+		<br class="clear" />
+
+	</div>
+
+</div>
 
 <& /tapper/footer.mas &>
 
