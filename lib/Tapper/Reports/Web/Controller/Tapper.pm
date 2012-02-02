@@ -43,7 +43,7 @@ sub auto :Private
 
 
         my (undef, $action) = split '/', $c->req->action;
-        my $top_menu : Stash = $util->prepare_top_menu(ucfirst($action));
+        my $top_menu : Stash = $util->prepare_top_menu($action);
         if ($c->user_exists()) {
                 my $username = $c->user->username;
                 map {do {$_->{text} = "Logout $username"; $_->{uri} = '/tapper/user/logout'} if $_->{text} eq 'Login'} @$top_menu;

@@ -33,21 +33,21 @@ sub prepare_top_menu
 {
         my ($self, $active) = @_;
         my $top_menu = [
-                        {text => 'Start',       uri => "/tapper/start/"}, 
-                        {text => 'Testruns',    uri => "/tapper/testruns/days/2/"},
-                        {text => 'Reports',     uri => "/tapper/reports/days/2"},
-                        {text => 'Testplans',   uri => "/tapper/testplan/"},
-                        {text => 'Login',       uri => "/tapper/user/login"}, 
-                        {text => 'Metareports', uri => "/tapper/metareports/"},
-                        {text => 'Manual',      uri => "/tapper/manual/"},
+                        {key => 'start',       text => 'Start',       uri => "/tapper/start/"},
+                        {key => 'testruns',    text => 'Testruns',    uri => "/tapper/testruns/days/2/"},
+                        {key => 'reports',     text => 'Reports',     uri => "/tapper/reports/days/2"},
+                        {key => 'testplans',   text => 'Testplans',   uri => "/tapper/testplan/"},
+                        {key => 'user',        text => 'Login',       uri => "/tapper/user/login"},
+                        {key => 'metareports', text => 'Metareports', uri => "/tapper/metareports/"},
+                        {key => 'manual',      text => 'Manual',      uri => "/tapper/manual/"},
                        ];
 
         # Some keys may be singular with their actions being named in plural or vice versa. Unify this.
-        $active = ucfirst($active);
+        $active = lc($active);
         (my $active_singular) = $active =~ m/^(.+)s$/;
         (my $active_plural) = $active."s";
 
-        map {$_->{active} = 1 if $_->{text} eq any($active, $active_singular, $active_plural) } @$top_menu;
+        map {$_->{active} = 1 if $_->{key} eq any($active, $active_singular, $active_plural) } @$top_menu;
         return $top_menu;
 }
 
