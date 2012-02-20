@@ -7,6 +7,7 @@ use 5.010;
 
 use Catalyst::Runtime '5.70';
 use Hash::Merge;
+use Tapper::Config;
 
 use Class::C3::Adopt::NEXT;
 
@@ -39,6 +40,8 @@ sub finalize_config
                                       $c->config->{ $env } || {} ,
                                      )
                   );
+        $c->config->{tapper_config} = Tapper::Config->subconfig;
+
 
         return;
 }
