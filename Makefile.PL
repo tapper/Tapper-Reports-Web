@@ -24,6 +24,7 @@ requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::Controller::BindLex';
 requires 'Catalyst::Controller::HTML::FormFu';
 requires 'Catalyst::Model::DBIC::Schema';
+requires 'Catalyst::Plugin::Authentication';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Session' => "0.31";
 requires 'Catalyst::Plugin::Session::State::Cookie' => "0.17";
