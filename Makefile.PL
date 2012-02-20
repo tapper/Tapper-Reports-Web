@@ -19,6 +19,9 @@ author_requires 'Module::Install::WriteAll';
 
 recommends 'DBD::mysql';
 
+feature 'Auth', -default => 1, 'Catalyst::Authentication::Credential::Authen::Simple' => 0;
+feature 'PAM', -default => 1, 'Authen::Simple::PAM' => 0;
+
 requires 'HTML::FromANSI';
 requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::Controller::BindLex';
