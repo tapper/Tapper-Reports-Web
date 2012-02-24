@@ -7,7 +7,7 @@
         $name
         $value
   </%args>
-% if (defined $value) {
+% if ($value) {
 <tr>
         <th><% $name %>:</th>
         <td>
