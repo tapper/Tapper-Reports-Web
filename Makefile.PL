@@ -15,7 +15,7 @@ build_requires 'Test::Perl::Critic';
 build_requires 'Test::Deep';
 
 author_requires 'Module::Install::WriteAll';
-#author_requires 'Module::Install::Catalyst';
+BEGIN {author_requires 'Catalyst::Devel'; }
 
 recommends 'DBD::mysql';
 
