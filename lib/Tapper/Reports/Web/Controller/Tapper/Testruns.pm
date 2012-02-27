@@ -55,6 +55,22 @@ sub index :Path :Args()
         return;
 }
 
+=head2 get_test_list_from_precondition
+
+Utility function to extract testprograms from a given (sub-) precondition.
+
+=cut
+
+sub get_test_list_from_precondition {
+        my ($precond) = @_;
+
+        return grep { defined } (
+                                 $precond->{testprogram}{execname},
+                                 map {
+                                      join( " ", $_->{program}, @{$_->{parameters}} )
+                                     } @{$precond->{testprogram_list}},
+                                );
+}
 
 =head2 get_testrun_overview
 
@@ -88,13 +104,14 @@ sub get_testrun_overview : Private
                         $retval->{name}  = $precondition->{name} || "Virtualisation Test";
                         $retval->{arch}  = $precondition->{host}->{root}{arch};
                         $retval->{image} = $precondition->{host}->{root}{image} || $precondition->{host}->{root}{name}; # can be an image or copyfile or package
-                        ($retval->{xen_package}) = grep { m!/data/bancroft/tapper/[^/]+/repository/packages/xen/builds! } @{ $precondition ~~ dpath '/host/preconditions//filename' };
-                        push (@{$retval->{test}}, basename($precondition->{host}->{testprogram}{execname})) if $precondition->{host}->{testprogram}{execname};
+                        ($retval->{xen_package}) = grep { m!repository/packages/xen/builds! } @{ $precondition ~~ dpath '/host/preconditions//filename' };
+                        push @{$retval->{test}}, get_test_list_from_precondition($precondition->{host});
+
                         foreach my $guest (@{$precondition->{guests}}) {
                                 my $guest_summary;
                                 $guest_summary->{arch}  = $guest->{root}{arch};
                                 $guest_summary->{image} = $guest->{root}{image} || $guest->{root}{name}; # can be an image or copyfile or package
-                                push @{$guest_summary->{test}}, basename($guest->{testprogram}{execname}) if $guest->{testprogram}{execname};
+                                push @{$guest_summary->{test}}, get_test_list_from_precondition($guest);
                                 push @{$retval->{guests}}, $guest_summary;
                         }
                         # can stop here because virt preconditions usually defines everything we need for a summary
