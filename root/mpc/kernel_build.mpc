@@ -1,8 +1,12 @@
-# tapper-description: Build a kernel from git and test it with autotest
+# tapper-description: Build a kernel from git and test it with autotest (without Buildbot)
 # tapper-mandatory-fields: giturl
 # tapper-optional-fields: gitchangeset
 # tapper-config-file: tests.yml
-### Usecase: "Build a kernel from git and test it by rebooting"
+### Usecase: Build a kernel from git and test it by rebooting
+### This use case does not use Buildbot but instead tries to build the
+##  kernel with a separate build module in Tapper Installer. It is less well
+### supported and tested than Buildbot. The only advantage is that you can build
+### from any git repository that the test machine can access.
 ###
 ### Mandatory fields:
 ###
@@ -27,7 +31,7 @@
 ###                      - DBench     - DBench benchmark suite
 ---
 arch: linux64
-image: suse/suse_sles10_sp2_64b_smp_raw_new.tar.gz
+image: debian_base64.tgz
 mount: /
 partition: sda2
 precondition_type: image
@@ -41,7 +45,7 @@ changeset: HEAD
 [% END %]
 ---
 precondition_type: testprogram
-program: /bin/autotest-perl
+program: /opt/tapper/perl/perls/current/bin/tapper-testsuite-autotest
 parameters:
 [% IF (Tests.qemu_iotests) or (Tests == 'qemu_iotests') %]
   - -t
