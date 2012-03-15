@@ -12,7 +12,10 @@
         <th><% $name %>:</th>
         <td>
 %       if ($name =~ /url$/) {
-            <a href="<% $value %>"><% $value %></a>
+%           my @urls = split(qr/\s+/, $value);
+%           foreach my $url (@urls) {
+                <a href="<% $url %>"><% $url %></a>
+%           }
 %       } else {
             <% $value %>
 %       }
