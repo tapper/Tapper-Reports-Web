@@ -48,10 +48,11 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
 <li><a href="#Adding-a-new-host-into-automation">2.1 Adding a new host into automation</a>
 <ul>
 <li><a href="#Make-machine-remote-hard-resetable">2.1.1 Make machine remote hard resetable</a>
-<li><a href="#Make-machine-PXE-boot-aware">2.1.2 Make machine PXE boot aware</a>
-<li><a href="#Configure-TFTP-on-central-MCP-machine">2.1.3 Configure TFTP on central MCP machine</a>
-<li><a href="#Make-the-hosts-known-in-the-TestrunDB">2.1.4 Make the hosts known in the TestrunDB</a>
-<li><a href="#Optionally-enable-temare-to-generate-tests-for-this-host">2.1.5 Optionally: enable &lsquo;<samp><span class="samp">temare</span></samp>&rsquo; to generate tests for this host</a>
+<li><a href="#Machine-specific-configuration">2.1.2 Machine specific configuration</a>
+<li><a href="#Make-machine-PXE-boot-aware">2.1.3 Make machine PXE boot aware</a>
+<li><a href="#Configure-TFTP-on-central-MCP-machine">2.1.4 Configure TFTP on central MCP machine</a>
+<li><a href="#Make-the-hosts-known-in-the-TestrunDB">2.1.5 Make the hosts known in the TestrunDB</a>
+<li><a href="#Optionally-enable-temare-to-generate-tests-for-this-host">2.1.6 Optionally: enable &lsquo;<samp><span class="samp">temare</span></samp>&rsquo; to generate tests for this host</a>
 </li></ul>
 </li></ul>
 <li><a name="toc_Test-Protocol" href="#Test-Protocol">3 Test Protocol</a>
@@ -568,6 +569,7 @@ first example test run.
 <div class="node">
 <a name="Adding-a-new-host-into-automation"></a>
 <p><hr>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Technical-Infrastructure">Technical Infrastructure</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Technical-Infrastructure">Technical Infrastructure</a>
 
 </div>
@@ -579,16 +581,17 @@ machine into the Tapper test scheduling rotation.
 
 <ul class="menu">
 <li><a accesskey="1" href="#Make-machine-remote-hard-resetable">Make machine remote hard resetable</a>
-<li><a accesskey="2" href="#Make-machine-PXE-boot-aware">Make machine PXE boot aware</a>
-<li><a accesskey="3" href="#Configure-TFTP-on-central-MCP-machine">Configure TFTP on central MCP machine</a>
-<li><a accesskey="4" href="#Make-the-hosts-known-in-the-TestrunDB">Make the hosts known in the TestrunDB</a>
-<li><a accesskey="5" href="#Optionally-enable-temare-to-generate-tests-for-this-host">Optionally enable temare to generate tests for this host</a>
+<li><a accesskey="2" href="#Machine-specific-configuration">Machine specific configuration</a>
+<li><a accesskey="3" href="#Make-machine-PXE-boot-aware">Make machine PXE boot aware</a>
+<li><a accesskey="4" href="#Configure-TFTP-on-central-MCP-machine">Configure TFTP on central MCP machine</a>
+<li><a accesskey="5" href="#Make-the-hosts-known-in-the-TestrunDB">Make the hosts known in the TestrunDB</a>
+<li><a accesskey="6" href="#Optionally-enable-temare-to-generate-tests-for-this-host">Optionally enable temare to generate tests for this host</a>
 </ul>
 
 <div class="node">
 <a name="Make-machine-remote-hard-resetable"></a>
 <p><hr>
-Next:&nbsp;<a rel="next" accesskey="n" href="#Make-machine-PXE-boot-aware">Make machine PXE boot aware</a>,
+Next:&nbsp;<a rel="next" accesskey="n" href="#Machine-specific-configuration">Machine specific configuration</a>,
 Previous:&nbsp;<a rel="previous" accesskey="p" href="#Adding-a-new-host-into-automation">Adding a new host into automation</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Adding-a-new-host-into-automation">Adding a new host into automation</a>
 
@@ -628,15 +631,132 @@ and password of the multi-socket outlet.
 <code>Tapper::MCP::Net::Reset::PM211MIP</code> to get inspiration.
 
 <div class="node">
-<a name="Make-machine-PXE-boot-aware"></a>
+<a name="Machine-specific-configuration"></a>
 <p><hr>
-Next:&nbsp;<a rel="next" accesskey="n" href="#Configure-TFTP-on-central-MCP-machine">Configure TFTP on central MCP machine</a>,
+Next:&nbsp;<a rel="next" accesskey="n" href="#Make-machine-PXE-boot-aware">Make machine PXE boot aware</a>,
 Previous:&nbsp;<a rel="previous" accesskey="p" href="#Make-machine-remote-hard-resetable">Make machine remote hard resetable</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Adding-a-new-host-into-automation">Adding a new host into automation</a>
 
 </div>
 
-<h4 class="subsection">2.1.2 Make machine PXE boot aware</h4>
+<h4 class="subsection">2.1.2 Machine specific configuration</h4>
+
+<p>Tapper configuration happens in <code>/etc/tapper.cfg</code> which contains
+everything that needs to be overwritten from the default values that
+come with the library <code>Tapper::Config</code>.
+
+<p>Config entries for <code>grub</code> can be configured for defaults like
+this:
+
+<pre class="verbatim">mcp:
+  installer:
+    default_grub: |
+      serial --unit=0 --speed=115200
+      terminal serial
+      default 0
+      timeout 2
+      title Test run (Install)
+        tftpserver $TAPPER_TFTPSERVER
+        kernel $TAPPER_KERNEL root=/dev/nfs reboot=force ro ip=dhcp \
+               nfsroot=$TAPPER_NFSROOT $TAPPER_OPTIONS $HOSTOPTIONS
+  test:
+    default_grub: |
+      default 0
+      timeout 2
+      title Test run (Execute)
+        root $grubroot
+        kernel /boot/vmlinuz root=$root reboot=force ip=dhcp noapic \
+               $TAPPER_OPTIONS $HOSTOPTIONS
+        $initrd_options
+</pre>
+
+<p>You can see two entries, one for the installer to boot from TFTP, and
+one for the actual test run after the machine was installed. Usually
+the second part (for test run) is defined in a precondition because it
+needs special needs.
+
+<p>In these grub entries the MCP substitutes several variables before the
+actual grub entry is written:
+
+     <ul>
+<li><code>$grubroot</code>
+
+     <p>Substituted with something like <code>(hd0,1)</code>.
+
+     <li><code>$root</code>
+
+     <p>Substituted with something like <code>/dev/sda2</code>.
+
+     <li><code>$TAPPER_TFTPSERVER</code>
+
+     <p>Substituted with tfptserver IP address as configured in
+<code>/etc/tapper.cfg</code>, like:
+
+     <pre class="verbatim">     tftp_server_address:     165.204.15.222
+</pre>
+
+     <li><code>$TAPPER_KERNEL</code>
+
+     <p>Substituted with kernel image file as configured in
+<code>/etc/tapper.cfg</code>, like:
+
+     <pre class="verbatim">     files:
+       # kernel for installer
+       installer_kernel: /tftpboot/bzImage
+</pre>
+
+     <li><code>$TAPPER_NFSROOT</code>
+
+     <p>Substituted with NFS root filesystem as configured in
+<code>/etc/tapper.cfg</code>, like:
+
+     <pre class="verbatim">     paths:
+        # Path to installer nfs root as set in PXE grub config
+        # (IP of central host "tapper")
+        nfsroot: 165.204.15.222:/data/tapper/live/nfsroot/
+</pre>
+
+     <li><code>$TAPPER_OPTIONS</code>
+
+     <p>Substituted with something like <code>tapper_ip=165.204.15.222
+tapper_port=1337 testrun=777777 tapper_host=tapper
+tapper_environment=live</code> (as one single line), where &ldquo;tapper_ip&rdquo; and
+&ldquo;tapper_port&rdquo; are the host and port to send status messages to, the
+&ldquo;testrun&rdquo; is the testrun id of the current run, &ldquo;tapper_host&rdquo; a
+hostname alternative to &ldquo;tapper_ip&rdquo; and &ldquo;tapper_environment&rdquo; sets
+the context (&ldquo;live&rdquo; or &ldquo;development&rdquo;).
+
+     <li><code>$HOSTOPTIONS</code>
+
+     <p>This substitution is controlled by another entry in
+<code>/etc/tapper.cfg</code>:
+
+     <pre class="verbatim">     grub_completion_HOSTOPTIONS:
+       _default:
+         earlyprintk=serial,ttyS0,115200 console=ttyS0,115200
+       capalus:
+         earlyprintk=serial,ttyS4,115200 console=ttyS4,115200
+       garcia:
+         0xAFFE
+</pre>
+
+     <p>There you see a default value and two entries for the hosts
+&ldquo;capalus&rdquo; (defining a different serial interface for console) and
+&ldquo;garcia&rdquo; (defining something completely different without any
+console usage).
+
+</ul>
+
+<div class="node">
+<a name="Make-machine-PXE-boot-aware"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Configure-TFTP-on-central-MCP-machine">Configure TFTP on central MCP machine</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Machine-specific-configuration">Machine specific configuration</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Adding-a-new-host-into-automation">Adding a new host into automation</a>
+
+</div>
+
+<h4 class="subsection">2.1.3 Make machine PXE boot aware</h4>
 
      <ul>
 <li>Set booting order in BIOS to network first
@@ -696,7 +816,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Adding-a-new-host-into-automation">Add
 
 </div>
 
-<h4 class="subsection">2.1.3 Configure TFTP on central MCP machine</h4>
+<h4 class="subsection">2.1.4 Configure TFTP on central MCP machine</h4>
 
 <p>The MCP server is also acting as a TFTP server, so it has to be
 configured as such:
@@ -740,7 +860,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Adding-a-new-host-into-automation">Add
 
 </div>
 
-<h4 class="subsection">2.1.4 Make the hosts known in the TestrunDB</h4>
+<h4 class="subsection">2.1.5 Make the hosts known in the TestrunDB</h4>
 
 <pre class="verbatim"> $ tapper-testrun newhost --name=sarahconnor --active=1
  $ tapper-testrun newhost --name=johnconnor  --active=1
@@ -759,7 +879,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Adding-a-new-host-into-automation">Add
 
 </div>
 
-<h4 class="subsection">2.1.5 Optionally: enable &lsquo;<samp><span class="samp">temare</span></samp>&rsquo; to generate tests for this host</h4>
+<h4 class="subsection">2.1.6 Optionally: enable &lsquo;<samp><span class="samp">temare</span></samp>&rsquo; to generate tests for this host</h4>
 
 <p>&lsquo;<samp><span class="samp">Temare</span></samp>&rsquo; is an utility that generates preconditions according to
 a test matrix of host/guest virtualization scenarios (but not yet
