@@ -57,7 +57,7 @@ sub prepare_this_weeks_reportlists : Private
             ref($filter_condition->{early}) eq 'HASH' ;
 
         # how long is "last weeks"
-        my $lastday = $filter_condition->{days} ? $filter_condition->{days} - 1 : 6;
+        my $lastday = $filter_condition->{days} ? $filter_condition->{days} : 7;
 
         # ----- general -----
 

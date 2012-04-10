@@ -7,7 +7,7 @@
 </%args>
 
 % my $days = $c->stash->{days} || 7;
-% my $lastday = $days - 1;
+% my $lastday = $days ;
 
         <ul class="post_info">
 		<li class="comments">        <% $list_count_all     %> reports</li>
