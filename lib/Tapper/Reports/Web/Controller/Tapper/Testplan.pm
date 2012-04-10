@@ -46,7 +46,11 @@ sub index :Path :Args()
         # testplans after "today at midnight"
         # handling them special makes later code more readable
         {
-                my $todays_instances = model('TestrunDB')->resultset('TestplanInstance')->search($filter_condition->{early});
+                my $todays_instances = model('TestrunDB')->resultset('TestplanInstance')->search
+                 (
+                  $filter_condition->{early},
+                  { order_by => 'me.id desc' }
+                 );
                 $todays_instances = $todays_instances->search({created_at => { '>' => $dtf->format_datetime($today) }});
 
                 my @details = $self->get_testrun_details($todays_instances);
@@ -60,7 +64,10 @@ sub index :Path :Args()
         for my $date (1..($days-1)) {
                 my $yesterday = $today->clone->subtract( days => 1 );
 
-                my $todays_instances = model('TestrunDB')->resultset('TestplanInstance')->search($filter_condition->{early});
+                my $todays_instances = model('TestrunDB')->resultset('TestplanInstance')->search
+                 ($filter_condition->{early},
+                  { order_by => 'me.id desc' }
+                 );
                 $todays_instances = $todays_instances->search({'-and' => [{created_at => { '>' => $dtf->format_datetime($yesterday) }},
                                                                           {created_at => {'<=' => $dtf->format_datetime($today) }},
                                                                          ]});
