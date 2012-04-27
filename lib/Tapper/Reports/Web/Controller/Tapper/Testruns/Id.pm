@@ -28,13 +28,13 @@ sub index :Path :Args(1)
                 $c->response->body(qq(No testrun with id "$testrun_id" found in the database!));
                 return;
         }
-        $c->stash->{title} = "Testrun id $testrun_id, ". $testrun->topic_name;
 
         return unless $testrun->testrun_scheduling;
 
         $time     = $testrun->starttime_testrun ? "started at ".$testrun->starttime_testrun : "Scheduled for ".$testrun->starttime_earliest;
         $hostname = $testrun->testrun_scheduling->host ? $testrun->testrun_scheduling->host->name : "unknown";
 
+        $c->stash->{title} = "Testrun $testrun_id: ". $testrun->topic_name . " @ $hostname";
         $overview = $c->forward('/tapper/testruns/get_testrun_overview', [ $testrun ]);
 
         my $rgt_reports = $c->model('ReportsDB')->resultset('Report')->search

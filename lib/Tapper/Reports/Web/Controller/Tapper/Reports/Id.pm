@@ -112,7 +112,8 @@ sub index :Path :Args(1)
         }
 
         my $suite_name = $report->suite->name;
-        $c->stash->{title} = "Report ID $report_id, $suite_name";
+        my $machine_name = $report->machine_name;
+        $c->stash->{title} = "Report $report_id: $suite_name @ $machine_name";
 
         my $util_report = Tapper::Reports::Web::Util::Report->new();
 
