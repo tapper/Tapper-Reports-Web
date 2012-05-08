@@ -1,3 +1,10 @@
+BEGIN {
+  unless ($ENV{TEST_DEPRECATED_STUFF}) {
+    require Test::More;
+    Test::More::plan(skip_all => 'these tests are deprecated');
+  }
+}
+
 use strict;
 use warnings;
 use Test::More;
