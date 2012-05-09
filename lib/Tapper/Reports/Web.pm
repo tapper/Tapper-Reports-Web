@@ -1,4 +1,5 @@
 package Tapper::Reports::Web;
+# ABSTRACT: Tapper - Frontend web application based on Catalyst
 
 use strict;
 use warnings;
@@ -20,8 +21,6 @@ use Class::C3::Adopt::NEXT;
 #                 directory
 
 use parent qw/Catalyst/;
-
-our $VERSION = '3.000010';
 
 # used by Catalyst::Plugin::ConfigLoader
 sub finalize_config
@@ -105,32 +104,5 @@ __PACKAGE__->setup(qw/-Debug
                       Session::Store::File/,
 
                   );
-
-
-=head1 NAME
-
-Tapper::Reports::Web - Tapper - Frontend web application based on Catalyst
-
-=head1 SYNOPSIS
-
-    script/tapper_reports_web_server.pl
-
-=head1 DESCRIPTION
-
-[enter your description here]
-
-=head1 SEE ALSO
-
-L<Tapper::Reports::Web::Controller::Root>, L<Catalyst>
-
-=head1 AUTHOR
-
-Copyright 2008-2011 AMD OSRC Tapper Team, all rights reserved.
-
-=head1 LICENSE
-
-This program is released under the following license: proprietary
-
-=cut
 
 1;
