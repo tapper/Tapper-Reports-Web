@@ -9,7 +9,7 @@ sub index :Path :Args(1)
 {
         my ( $self, $c, $id ) = @_;
         my $precondition : Stash;
-        
+
         my $precond_search = $c->model('TestrunDB')->resultset('Precondition')->find($id);
         if (not $precond_search) {
                 $c->response->body(qq(No precondition with id "$id" found in the database!));
@@ -19,29 +19,5 @@ sub index :Path :Args(1)
         $precondition->{id} = $precond_search->id;
         return;
 }
-
-=head1 NAME
-
-Tapper::Reports::Web::Controller::Tapper::Preconditions - Catalyst Controller
-
-=head1 DESCRIPTION
-
-Catalyst Controller.
-
-=head1 METHODS
-
-=head2 index 
-
-
-
-=head1 AUTHOR
-
-Steffen Schwigon,,,
-
-=head1 LICENSE
-
-This program is released under the following license: freebsd
-
-=cut
 
 1;

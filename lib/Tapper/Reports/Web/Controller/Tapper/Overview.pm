@@ -14,7 +14,7 @@ sub auto :Private
 
 
 # Filter suite list so that only recently used suites are given.
-# 
+#
 # @param suite result set - unfiltered suites
 # @param int/string       - duration
 #
@@ -78,7 +78,7 @@ sub prepare_navi : Private
                                          href  => "/tapper/overview/host",
                                         },
                                        ],
-                            
+
                            },
                            {
                             title => 'Suites used in the last..',
@@ -100,7 +100,7 @@ sub prepare_navi : Private
                                          href  => "/tapper/overview/suite/12",
                                         },
                                        ],
-                            
+
                            },
                            {
                             title => 'All suites',

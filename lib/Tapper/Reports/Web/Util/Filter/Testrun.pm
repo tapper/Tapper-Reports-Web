@@ -55,7 +55,7 @@ sub host
 {
         my ($self, $filter_condition, $host) = @_;
         my $host_result = model('TestrunDB')->resultset('Host')->search({name => $host})->first;
-        
+
         # (XXX) do we need to throw an error when someone filters for an
         # unknown host?
         if (not $host_result) {
@@ -142,6 +142,5 @@ sub owner
 
         return $filter_condition;
 }
-
 
 1;

@@ -25,7 +25,7 @@ EOF
         $c->response->body($body);
 }
 
-=head auto
+=head2 auto
 
 This function is called. It creates the datastructure for the associated
 autohandler template to generate the navigation links. This

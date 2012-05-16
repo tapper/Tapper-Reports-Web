@@ -22,7 +22,7 @@ sub index :Path :Args(0)
         $rule->start("$path/");
         use Data::Dumper;
         my %categories;
-	use Cwd;
+        use Cwd;
         while (my $category = $rule->match) {
                 my $short;
                 {

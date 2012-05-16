@@ -18,7 +18,7 @@ use Tapper::Reports::Web;
 
 my $help = 0;
 my ( $listen, $nproc, $pidfile, $manager, $detach, $keep_stderr );
- 
+
 GetOptions(
     'help|?'      => \$help,
     'listen|l=s'  => \$listen,
@@ -31,13 +31,13 @@ GetOptions(
 
 pod2usage(1) if $help;
 
-Tapper::Reports::Web->run( 
-    $listen, 
+Tapper::Reports::Web->run(
+    $listen,
     {   nproc   => $nproc,
-        pidfile => $pidfile, 
+        pidfile => $pidfile,
         manager => $manager,
         detach  => $detach,
-	keep_stderr => $keep_stderr,
+        keep_stderr => $keep_stderr,
     }
 );
 
@@ -50,7 +50,7 @@ tapper_reports_web_fastcgi_live.pl - Catalyst FastCGI
 =head1 SYNOPSIS
 
 tapper_reports_web_fastcgi_live.pl [options]
- 
+
  Options:
    -? -help      display this help and exits
    -l -listen    Socket path to listen on
