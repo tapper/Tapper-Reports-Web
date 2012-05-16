@@ -1,6 +1,25 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - *lots* of rework, bugfixes, and optical junkfood
+        - new testplan view
+        - allow multiple URLs in report meta info
+        - added login/logout functionality
+        - PAM authentication as optional dependency
+        - timezone GMT everywhere
+        - show actual scheduling status
+        - show status "unfinished" near report_ids
+        - RSS feeds: cleanup + fixes
+        - more details searched from reports
+        - more configurable elements to better personalize webgui
+        - more concise issue summary, covering all reports of group
+        - verbose but more lax error handling
+        - show moreinfo-url
+        - URLs of attachments contain hint to context
+        - allow add/delete of filters (reports, testruns, testplans)
+        - suite overview URLs can use names
+        - ansi2txt/ansi2html rework
+        - CSS now with UNIX line endings
         - big Dist::Zilla roundhouse kick
 
 2011-04-07  Steffen Schwigon  <steffen.schwigon@amd.com>
