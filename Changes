@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - explicit deps
 
 4.0.1     2012-05-16
         - *lots* of rework, bugfixes, and optical junkfood
