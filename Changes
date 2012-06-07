@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+4.0.4     2012-06-07
         - and more deps
           ("Mühsam ernährt sich das Eichhörnchen")
 
