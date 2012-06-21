@@ -9,6 +9,7 @@ use 5.010;
 use Catalyst::Runtime '5.70';
 use Hash::Merge;
 use Tapper::Config;
+use File::ShareDir ':ALL';
 
 use Class::C3::Adopt::NEXT;
 
@@ -40,7 +41,6 @@ sub finalize_config
                                      )
                   );
         $c->config->{tapper_config} = Tapper::Config->subconfig;
-
 
         return;
 }
@@ -88,21 +88,22 @@ __PACKAGE__->config( name => 'Tapper::Reports::Web',
 
                    );
 
-__PACKAGE__->config->{static}->{dirs} = [
-                                         'tapper/static',
-                                        ];
-
-
+__PACKAGE__->config->{"Plugin::Static::Simple"}->{dirs} = [
+                                                           'tapper/static',
+                                                          ];
+__PACKAGE__->config->{"Plugin::Static::Simple"}->{include_path} = [
+                                                                   dist_dir('Tapper-Reports-Web'),
+                                                                   __PACKAGE__->config->{root},
+                                                                   "./root/",
+                                                                  ];
 
 # Start the application
 __PACKAGE__->setup(qw/-Debug
                       ConfigLoader
-
                       Authentication
                       Static::Simple Session
                       Session::State::Cookie
                       Session::Store::File/,
-
                   );
 
 1;
