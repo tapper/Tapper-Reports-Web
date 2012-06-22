@@ -34,12 +34,12 @@ sub prepare_top_menu
         my ($self, $active) = @_;
         my $top_menu = [
                         {key => 'start',       text => 'Start',       uri => "/tapper/start/"},
-                        {key => 'testruns',    text => 'Testruns',    uri => "/tapper/testruns/days/2/"},
-                        {key => 'reports',     text => 'Reports',     uri => "/tapper/reports/days/2"},
+                        {key => 'reports',     text => 'Reports',     uri => "/tapper/reports/days/1"},
+                        {key => 'testruns',    text => 'Testruns',    uri => "/tapper/testruns/days/1"},
                         {key => 'testplans',   text => 'Testplans',   uri => "/tapper/testplan/"},
-                        {key => 'user',        text => 'Login',       uri => "/tapper/user/login"},
                         {key => 'metareports', text => 'Metareports', uri => "/tapper/metareports/"},
                         {key => 'manual',      text => 'Manual',      uri => "/tapper/manual/"},
+                        {key => 'user',        text => 'Login',       uri => "/tapper/user/login"},
                        ];
 
         # Some keys may be singular with their actions being named in plural or vice versa. Unify this.
