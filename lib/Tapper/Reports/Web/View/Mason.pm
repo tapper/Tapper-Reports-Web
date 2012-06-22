@@ -4,6 +4,8 @@ use strict;
 use warnings;
 
 use Tapper::Reports::Web;
+use File::ShareDir ':ALL';
+use Cwd;
 
 use base 'Catalyst::View::Mason';
 
@@ -12,7 +14,9 @@ __PACKAGE__->config( template_extension => '.mas' );
 __PACKAGE__->config( use_match          => 0      );
 __PACKAGE__->config( dynamic_comp_root  => 1      );
 __PACKAGE__->config( comp_root          => [
-                                            [ tapperroot => Tapper::Reports::Web->config->{root}.'' ],
+                                            [ tapperroot1 => Tapper::Reports::Web->config->{root}.'' ],
+                                            [ tapperroot2 => dist_dir('Tapper-Reports-Web') ],
+                                            [ tapperroot3 => getcwd."/root" ],
                                            ]
                    );
 __PACKAGE__->config( default_escape_flags => [ 'h' ]);
