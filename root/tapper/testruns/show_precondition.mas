@@ -1,19 +1,12 @@
 <%args>
-$testrun
 
+$testrun
 </%args>
 
-% my $id = $testrun->id;
-% if (not $force){
-<H3>Do you really want to delete Testrun <% $id %>?</h3>
-<ul class="additional_table">
-  <li><a href="/tapper/testruns/delete/<% $id %>/force/">Really delete Testrun <% $id %></a></li>
-  <li><a href="/tapper/testruns/id/<% $id %>">Go back to overview of Testrun <% $id %></a></li>
-</ul>
-% } else {
+<h3>Not implemented</h3>
+If yo want to show preconditions of testrun <% $testrun->id %> use
+<a href="/tapper/testruns/<% $testrun->id %>/preconditions/yaml">this link</a>.
 
-<h1>Testrun <% $id %> deleted</h1>
-% }
 %# Local Variables:
 %# buffer-file-coding-system: utf-8
 %# End:
