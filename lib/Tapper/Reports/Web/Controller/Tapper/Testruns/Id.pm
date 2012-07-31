@@ -114,6 +114,7 @@ sub prepare_navi : Private
                                          {
                                           title  => "Rerun this Testrun",
                                           href   => "/tapper/testruns/$testrun_id/rerun",
+                                          confirm => 'Do you really want to re-start this testrun?',
                                          },
                                          {
                                           title  => "Create new Testrun",
