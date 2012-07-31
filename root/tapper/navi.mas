@@ -7,7 +7,11 @@
 %           if ($subnavi) {
                 <span>
 %           }
+% if ($nav->{confirm}) {
+            <a class="navilink" href="" onclick="do_really('<% $nav->{href}%>','<% $nav->{confirm} %>')"><% $nav->{title} %></a>
+% } else {
             <a class="navilink" href="<% $nav->{href} %>"><% $nav->{title} %></a>
+%}
 %           if ($nav->{image}) {
               <a class="navilink" href="<% $nav->{href} %>"><img src="<% $nav->{image} %>"></a>
 
@@ -46,19 +50,5 @@
             <strong><% $metareport{headline} %></strong>
         </div>
 % }
-
-  <SCRIPT language="JavaScript">
-    <!--
-      function do_really(url, msg) {
-        var where_to = confirm(msg);
-        if (where_to == true) {
-          window.location=url;
-        } else {
-          window.location="#";
-        }
-
-      }
-       //-->
-  </SCRIPT>
 
 <& SELF:navi &>

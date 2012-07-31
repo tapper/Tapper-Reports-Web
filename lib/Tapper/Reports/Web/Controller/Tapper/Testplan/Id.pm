@@ -128,6 +128,7 @@ sub prepare_navi :Private
 
         push @$navi, { title => 'Rerun this testplan',
                        href  => "/tapper/testplan/$id/rerun",
+                       confirm => 'Do you want to reapply this test plan?',
                      };
 }
 
