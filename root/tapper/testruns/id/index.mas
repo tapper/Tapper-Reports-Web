@@ -41,7 +41,12 @@ $time
     <!-- ************************************************************ -->
 
     <h4>Details</h4>
-    <a href="/tapper/testruns/<% $testrun->id %>/preconditions/yaml/">Preconditions in raw YAML</a>
+    <ul style="list-style-type:disc;">
+      <li style="margin-left: 1em;"><a href="/tapper/testruns/<% $testrun->id %>/preconditions/yaml/">Preconditions in raw YAML</a></li>
+% if ($testrun->testplan_id) {
+      <li style="margin-left: 1em;"><a href="/tapper/testplan/id/<% $testrun->testplan_id %>">Associated testplan</a></li>
+% }
+   </ul>
 
     <!-- ************************************************************ -->
 
