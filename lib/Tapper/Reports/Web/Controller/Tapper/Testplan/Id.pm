@@ -11,6 +11,14 @@ use Data::DPath 'dpath';
 use File::Basename 'basename';
 use YAML::Syck 'Load';
 
+sub auto :Private
+{
+        my ( $self, $c ) = @_;
+        $c->forward('/tapper/testplan/id/prepare_navi');
+}
+
+
+
 =head2 parse_testrun
 
 Generate an overview of a testplan element from testrun description.
@@ -107,7 +115,21 @@ sub index :Path :Args(1)
         return;
 }
 
+sub prepare_navi :Private
+{
+        my ( $self, $c, $id ) = @_;
+        my $navi : Stash;
 
+        # When showing testplans by ID no filters are active so we
+        # remove the wrong filters Testplan::prepare_navi already added
+        my @navi = grep {$_->{title} ne "Active Filters"} @$navi;
+        $navi = \@navi;
+
+
+        push @$navi, { title => 'Rerun this testplan',
+                       href  => "/tapper/testplan/$id/rerun",
+                     };
+}
 
 
 =head1 NAME
