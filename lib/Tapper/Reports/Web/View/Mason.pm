@@ -15,7 +15,7 @@ __PACKAGE__->config( use_match          => 0      );
 __PACKAGE__->config( dynamic_comp_root  => 1      );
 __PACKAGE__->config( comp_root          => [
                                             [ tapperroot1 => Tapper::Reports::Web->config->{root}.'' ],
-                                            [ tapperroot2 => dist_dir('Tapper-Reports-Web') ],
+                                            [ tapperroot2 => (eval {dist_dir("Tapper-Reports-Web")} || getcwd."/root") ],
                                             [ tapperroot3 => getcwd."/root" ],
                                            ]
                    );
