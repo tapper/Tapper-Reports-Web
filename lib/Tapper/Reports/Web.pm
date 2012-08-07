@@ -23,43 +23,26 @@ sub debug
 }
 
 # Configure the application.
-__PACKAGE__->config( name => 'Tapper::Reports::Web',
-                    'Plugin::Authentication' => {
-                                                 'realms' => {
-                                                              'default' => {
-                                                                            'credential' => {
-                                                                                             'class' => 'Authen::Simple',
-                                                                                             'authen' => [
-                                                                                                          {
-                                                                                                           'class' => 'PAM',
-                                                                                                           args => {
-                                                                                                                    service => 'login'
-                                                                                                                   },
-                                                                                                          },
-                                                                                                         ]
-                                                                                            }
-                                                                           }
-                                                             }
-                                                }
-
-                   );
-
-__PACKAGE__->config->{"Plugin::Static::Simple"}->{dirs} = [
-                                                           'tapper/static',
-                                                          ];
-__PACKAGE__->config->{"Plugin::Static::Simple"}->{include_path} = [
-                                                                   dist_dir('Tapper-Reports-Web'),
-                                                                   __PACKAGE__->config->{root},
-                                                                   "./root/",
+__PACKAGE__->config( name => 'Tapper::Reports::Web' );
+__PACKAGE__->config->{tapper_config} = Tapper::Config->subconfig;
+__PACKAGE__->config->{"Plugin::Static::Simple"}->{dirs} = [ 'tapper/static', ];
+__PACKAGE__->config->{"Plugin::Static::Simple"}->{include_path} = [ (eval {dist_dir("Tapper-Reports-Web")}||"./root/"),
+                                                                    __PACKAGE__->config->{root},
+                                                                    "./root/",
                                                                   ];
+__PACKAGE__->config('Plugin::Authentication' => { realms => { default => { credential => { class  => 'Authen::Simple',
+                                                                                                   authen => [{ class => 'PAM',
+                                                                                                                args  => { service => 'login' }}]}}}})
+ if __PACKAGE__->config->{tapper_config}{web}{use_authentication};
+
+my @plugins = (qw(ConfigLoader
+                  Static::Simple Session
+                  Session::State::Cookie
+                  Session::Store::File));
+push @plugins, "-Debug"         if __PACKAGE__->debug;
+push @plugins, "Authentication" if __PACKAGE__->config->{use_authentication};
 
 # Start the application
-__PACKAGE__->setup(qw/-Debug
-                      ConfigLoader
-                      Authentication
-                      Static::Simple Session
-                      Session::State::Cookie
-                      Session::Store::File/,
-                  );
+__PACKAGE__->setup(@plugins);
 
 1;
