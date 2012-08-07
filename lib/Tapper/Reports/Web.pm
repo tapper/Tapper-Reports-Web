@@ -16,7 +16,10 @@ use File::ShareDir ':ALL';
 
 sub debug
 {
-        return $ENV{TAPPER_REPORTS_WEB_LIVE} || $ENV{HARNESS_ACTIVE} ? 0 : 1;
+        return 1 if $ENV{TAPPER_DEBUG};
+        return 0 if $ENV{HARNESS_ACTIVE};
+        return 0 if $ENV{TAPPER_REPORTS_WEB_LIVE};
+        return 1;
 }
 
 # Configure the application.
