@@ -30,12 +30,7 @@
 %                                } else {
                                     &nbsp;&nbsp;&nbsp;&nbsp;
 %                                }
-% if ($snav->{confirm}) {
-                                <a href="" onclick="do_really('<% $snav->{href}%>','<% $snav->{confirm} %>')"><% $snav->{title} %></a><br /></li>
-% } else {
                                 <a href="<% $snav->{href} %>" ><% $snav->{title} %></a><br /></li>
-
-%}
 %                       }
                         </ul>
 %               }
