@@ -83,12 +83,16 @@ sub suite
 
 sub host
 {
-        my ( $self, $c ) = @_;
+        my ( $self, $c, $filter_condition ) = @_;
         my $overviews : Stash;
-        my $reports = $c->model('ReportsDB')->resultset('Report')->search({},
+
+        my $reports = $c->model('ReportsDB')->resultset('Report')->search($filter_condition->{early},
                                                                           { columns => [ qw/machine_name/ ],
-                                                                            distinct => 1});
-        $overviews = { map{$_->machine_name, '/tapper/reports/host/'.$_->machine_name} $reports->all };
+                                                                            distinct => 1,
+                                                                          });
+        while ( my $report = $reports->next ) {
+                $overviews->{$report->machine_name} = '/tapper/reports/host/'.$report->machine_name;
+        }
         $c->stash->{title} = "Tapper report hosts";
 }
 
