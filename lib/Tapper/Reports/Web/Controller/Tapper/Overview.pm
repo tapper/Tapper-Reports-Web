@@ -99,65 +99,67 @@ sub prepare_navi : Private
         my ( $self, $c ) = @_;
 
         my $navi : Stash = [{
-                            title => 'Overview of',
-                            subnavi => [
-                                        {
-                                         title => 'Suites',
-                                         href  => "/tapper/overview/suite/weeks/2",
-                                        },
-                                        {
-                                         title => 'Hosts',
-                                         href  => "/tapper/overview/host/weeks/2",
-                                        },
-                                       ],
+                             title => 'Overview of',
+                             subnavi => [
+                                         {
+                                          title => 'Suites',
+                                          href  => "/tapper/overview/suite/weeks/2",
+                                         },
+                                         {
+                                          title => 'Hosts',
+                                          href  => "/tapper/overview/host/weeks/2",
+                                         },
+                                        ],
 
-                           },
-                           {
-                            title => 'Suites used in the last..',
-                            subnavi => [
-                                        {
-                                         title => '1 week',
-                                         href  => "/tapper/overview/suite/weeks/1",
-                                        },
-                                        {
-                                         title => '2 weeks',
-                                         href  => "/tapper/overview/suite/weeks/2",
-                                        },
-                                        {
-                                         title => '6 weeks',
-                                         href  => "/tapper/overview/suite/weeks/6",
-                                        },
-                                        {
-                                         title => '12 weeks',
-                                         href  => "/tapper/overview/suite/weeks/12",
-                                        },
-                                       ],
-                            title => 'Hosts used in the last..',
-                            subnavi => [
-                                        {
-                                         title => '1 week',
-                                         href  => "/tapper/overview/host/weeks/1",
-                                        },
-                                        {
-                                         title => '2 weeks',
-                                         href  => "/tapper/overview/host/weeks/2",
-                                        },
-                                        {
-                                         title => '6 weeks',
-                                         href  => "/tapper/overview/host/weeks/6",
-                                        },
-                                        {
-                                         title => '12 weeks',
-                                         href  => "/tapper/overview/host/weeks/12",
-                                        },
-                                       ],
+                            },
+                            {
+                             title => 'Suites used in the last..',
+                             subnavi => [
+                                         {
+                                          title => '1 week',
+                                          href  => "/tapper/overview/suite/weeks/1",
+                                         },
+                                         {
+                                          title => '2 weeks',
+                                          href  => "/tapper/overview/suite/weeks/2",
+                                         },
+                                         {
+                                          title => '6 weeks',
+                                          href  => "/tapper/overview/suite/weeks/6",
+                                         },
+                                         {
+                                          title => '12 weeks',
+                                          href  => "/tapper/overview/suite/weeks/12",
+                                         },
+                                        ],
+                            },
+                            {
+                             title => 'Hosts used in the last..',
+                             subnavi => [
+                                         {
+                                          title => '1 week',
+                                          href  => "/tapper/overview/host/weeks/1",
+                                         },
+                                         {
+                                          title => '2 weeks',
+                                          href  => "/tapper/overview/host/weeks/2",
+                                         },
+                                         {
+                                          title => '6 weeks',
+                                          href  => "/tapper/overview/host/weeks/6",
+                                         },
+                                         {
+                                          title => '12 weeks',
+                                          href  => "/tapper/overview/host/weeks/12",
+                                         },
+                                        ],
 
-                           },
-                           {
-                            title => 'All suites',
-                            href  => '/tapper/overview/suite/all',
-                           }
-                          ];
+                            },
+                            {
+                             title => 'All suites',
+                             href  => '/tapper/overview/suite/all',
+                            }
+                           ];
 }
 
 1;
