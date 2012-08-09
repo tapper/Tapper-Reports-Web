@@ -33,6 +33,7 @@ sub BUILD{
                         merge($self->dispatch,
                               {like    => \&like,
                                weeks  => \&weeks,
+                               hostname  => \&hostname,
                               })
                        );
 }
@@ -83,5 +84,29 @@ sub like
 
         return $filter_condition;
 }
+
+=head2 hostname
+
+Add like for the hostname filters to early filters. Note that the expected
+regular expression is not a real regexp. Instead * as wildcard is
+accepted.
+
+@param hash ref - current version of filters
+@param string   - like regexp
+
+@return hash ref - updated filters
+
+=cut
+
+sub hostname
+{
+        my ($self, $filter_condition, $regexp) = @_;
+
+        $regexp =~ tr/*/%/;
+        $filter_condition->{early}->{machine_name} = { 'like', $regexp} ;
+
+        return $filter_condition;
+}
+
 
 1;
