@@ -5,7 +5,7 @@ use warnings;
 
 use Tapper::Config;
 
-use base 'Catalyst::Model::DBIC::Schema';
+use parent 'Catalyst::Model::DBIC::Schema';
 
 __PACKAGE__->config(
                     schema_class => 'Tapper::Schema::ReportsDB',

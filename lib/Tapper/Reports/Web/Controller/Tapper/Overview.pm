@@ -40,7 +40,6 @@ sub recently_used_suites
 sub index :Path  :Args()
 {
         my ( $self, $c, $type, @args  ) = @_;
-        my $error_msg : Stash;
 
         my $filter = Tapper::Reports::Web::Util::Filter::Overview->new(context => $c);
         my $filter_condition;
@@ -49,7 +48,7 @@ sub index :Path  :Args()
         }
 
         if ($filter_condition->{error}) {
-                $error_msg = join("; ", @{$filter_condition->{error}});
+                $c->stash->{error_msg} = join("; ", @{$filter_condition->{error}});
                 $c->res->redirect("/tapper/overview/");
         }
         $filter_condition->{early} =  {} unless
@@ -62,21 +61,19 @@ sub index :Path  :Args()
         }
 }
 
-sub suite 
+sub suite
 {
         my ( $self, $c, $filter_condition ) = @_;
 
-        my $overviews : Stash;
-
         my %search_options    = ( prefetch => ['reports'] );
-        
+
         my $suite_rs = $c->model('ReportsDB')->resultset('Suite')->search($filter_condition->{early}, { %search_options } );
         foreach my $filter (@{$filter_condition->{late}}) {
                 $suite_rs = $suite_rs->search($filter);
         }
-        $overviews = {};
+        $c->stash->{overviews} = {};
         while ( my $suite = $suite_rs->next ) {
-                $overviews->{$suite->name} = '/tapper/reports/suite/'.($suite->name =~ /[^\w\d_.-]/ ? $suite->id : $suite->name);
+                $c->stash->{overviews}{$suite->name} = '/tapper/reports/suite/'.($suite->name =~ /[^\w\d_.-]/ ? $suite->id : $suite->name);
         }
         $c->stash->{title} = "Tapper report suites";
 }
@@ -84,14 +81,13 @@ sub suite
 sub host
 {
         my ( $self, $c, $filter_condition ) = @_;
-        my $overviews : Stash;
 
         my $reports = $c->model('ReportsDB')->resultset('Report')->search($filter_condition->{early},
                                                                           { columns => [ qw/machine_name/ ],
                                                                             distinct => 1,
                                                                           });
         while ( my $report = $reports->next ) {
-                $overviews->{$report->machine_name} = '/tapper/reports/host/'.$report->machine_name;
+                $c->stash->{overviews}{$report->machine_name} = '/tapper/reports/host/'.$report->machine_name;
         }
         $c->stash->{title} = "Tapper report hosts";
 }
@@ -102,7 +98,7 @@ sub prepare_navi : Private
 {
         my ( $self, $c ) = @_;
 
-        my $navi : Stash = [{
+        $c->stash->{navi}= [{
                              title => 'Overview of',
                              subnavi => [
                                          {

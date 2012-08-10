@@ -3,9 +3,7 @@ package Tapper::Reports::Web::Controller::Tapper::Manual;
 use strict;
 use warnings;
 
-use parent 'Catalyst::Controller::BindLex';
-__PACKAGE__->config->{bindlex}{Param} = sub { $_[0]->req->params };
-__PACKAGE__->config->{unsafe_bindlex_ok} = 1;
+use parent 'Tapper::Reports::Web::Controller::Base';
 
 sub auto :Private
 {
@@ -22,10 +20,8 @@ sub index :Path :Args(0)
 sub prepare_navi : Private
 {
         my ( $self, $c ) = @_;
-        my $navi : Stash = [];
 
- 
-        $navi = [
+        $c->stash->{navi} = [
                  {
                   title  => "Download PDF",
                   href => "/tapper/static/manual/tapper-manual.pdf",

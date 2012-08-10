@@ -42,13 +42,11 @@ sub index :Path :Args()
 {
         my ( $self, $c, @args ) = @_;
 
-        my $error_msg : Flash;
-
         my $filter = Tapper::Reports::Web::Util::Filter::Testrun->new(context => $c);
         my $filter_condition = $filter->parse_filters(\@args);
 
         if ($filter_condition->{error}) {
-                $error_msg = join("; ", @{$filter_condition->{error}});
+                $c->flash->{error_msg} = join("; ", @{$filter_condition->{error}});
                 $c->res->redirect("/tapper/testruns/days/2");
         }
         $c->forward('/tapper/testruns/prepare_testrunlists', [ $filter_condition, $filter->requested_day ]);
@@ -496,8 +494,6 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
 {
         my ($self, $c) = @_;
         my $form       = $c->stash->{form};
-        my $description_text : Stash;
-        my $all_testruns : Stash;
         my $position   = $form->get_element({type => 'Submit'});
         my $file       = $c->session->{usecase_file};
         my %macros;
@@ -508,7 +504,7 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
         # adding these elements to the form has to be done both before
         # and _after_ submit. Otherwise FormFu won't see the constraint
         # (required) in the form
-        $description_text = $config->{description_text};
+        $c->stash->{description_text} = $config->{description_text};
         foreach my $element (@{$config->{required}}) {
                 $element->{label} .= '*'; # mark field as required
                 $form->element($element);
@@ -540,7 +536,7 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
                         @testhosts = map { $_->[0] } @{get_hostnames()};
                 }
 
-                $all_testruns = [];
+                $c->stash->{all_testruns} = [];
         HOST:
                 for( my $i=0; $i < @testhosts; $i++) {
                         my $host = $testhosts[$i];
@@ -550,23 +546,23 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
                         my %testrun_settings     = %$testrun_data;
                         $testrun_settings{queue} = Tapper::Config->subconfig->{new_testrun_queue};
 
-                        $all_testruns->[$i]->{host} = $host;
+                        $c->stash->{all_testruns}[$i]{host} = $host;
 
                         $testrun_settings{requested_hosts} = [ requested_hosts => $host ];
                         my $cmd = Tapper::Cmd::Testrun->new();
                         eval { $config->{testrun_id} = $cmd->add(\%testrun_settings)};
                         if ($@) {
-                                $all_testruns->[$i]->{ error } = @_;
+                                $c->stash->{all_testruns}[$i]{ error } = @_;
                                 next HOST;
                         }
-                        $all_testruns->[$i]->{id} = $config->{testrun_id};
+                        $c->stash->{all_testruns}[$i]{id} = $config->{testrun_id};
 
                         $config->{file} = $file;
                         my $preconditions = $self->handle_precondition($c, $config);
                         if (ref($preconditions) eq 'ARRAY') {
-                                $all_testruns->[$i]->{ preconditions } = $preconditions;
+                                $c->stash->{all_testruns}[$i]{ preconditions } = $preconditions;
                         } else {
-                                $all_testruns->[$i]->{ error } = $preconditions;
+                                $c->stash->{all_testruns}[$i]{ error } = $preconditions;
                         }
 
                 }
@@ -579,15 +575,13 @@ sub prepare_testrunlists : Private
         my ( $self, $c, $filter_condition, $requested_day ) = @_;
 
         $filter_condition = {} unless ref $filter_condition eq 'HASH';
-        my @requested_testrunlists : Stash = ();
-        my %groupstats             : Stash = ();
 
         # requested time period
-        my $days   : Stash  = $filter_condition->{days};
-        my $date   : Stash  = $filter_condition->{date};
+        $c->stash->{days}   = $filter_condition->{days};
+        $c->stash->{date}   = $filter_condition->{date};
         $requested_day ||= DateTime::Format::Natural->new->parse_datetime("today at midnight");
 
-        my $lastday = $days ? $days - 1 : 6;
+        my $lastday = $c->stash->{days} ? $c->stash->{days} - 1 : 6;
         my $util    = Tapper::Reports::Web::Util::Testrun->new();
         # ----- general -----
 
@@ -610,10 +604,10 @@ sub prepare_testrunlists : Private
 
         # ----- today -----
         my $day0_testruns = $testruns->search ( { '-or' => [ { created_at => { '>', $dtf->format_datetime($day[0]) }}, { starttime_testrun => { '>', $dtf->format_datetime($day[0]) }}] });
-        push @requested_testrunlists, {
-                                       day => $day[0],
-                                       (testruns => $util->prepare_testrunlist( $day0_testruns ) ),
-                                      };
+        push @{$c->stash->{requested_testrunlists}}, {
+                                                      day => $day[0],
+                                                      (testruns => $util->prepare_testrunlist( $day0_testruns ) ),
+                                                     };
         # ----- last week days -----
         foreach (1..$lastday) {
                 my $day_testruns = $testruns->search ({-or => [
@@ -622,12 +616,12 @@ sub prepare_testrunlists : Private
                                                                { -and => [ starttime_testrun => { '>', $dtf->format_datetime($day[$_])     },
                                                                            starttime_testrun => { '<', $dtf->format_datetime($day[$_ - 1]) } ] },
                                                               ]} );
-                push @requested_testrunlists, {
-                                               day => $day[$_],
-                                               ( testruns => $util->prepare_testrunlist( $day_testruns ) ),
-                                              };
+                push @{$c->stash->{requested_testrunlists}}, {
+                                                              day => $day[$_],
+                                                              ( testruns => $util->prepare_testrunlist( $day_testruns ) ),
+                                                             };
         }
-        $c->stash->{title} = "Testruns of last $days days";
+        $c->stash->{title} = "Testruns of last ".$c->stash->{days}." days";
 
 }
 
@@ -636,7 +630,7 @@ sub prepare_navi : Private
         my ( $self, $c ) = @_;
         my %args = @{$c->req->arguments};
 
-        my $navi : Stash = [
+        $c->stash->{navi} =[
                             {
                              title  => "Testruns by date",
                              href   => "/tapper/testruns/days/2",
@@ -680,7 +674,7 @@ sub prepare_navi : Private
                                         ],
                             },
                            ];
-        push @$navi, {title   => 'Active Filters',
+        push @{$c->stash->{navi}}, {title   => 'Active Filters',
                       subnavi => [
                                   map {
                                           { title => "$_: ".$args{$_},

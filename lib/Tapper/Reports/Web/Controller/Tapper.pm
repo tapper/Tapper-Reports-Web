@@ -43,11 +43,11 @@ sub auto :Private
 
 
         my (undef, $action) = split '/', $c->req->action;
-        my $top_menu : Stash = $util->prepare_top_menu($action);
+        $c->stash->{top_menu} = $util->prepare_top_menu($action);
         if ($c->config->{use_authentication}) {
                 if ($c->user_exists()) {
                         my $username = $c->user->username;
-                        foreach (@$top_menu) {
+                        foreach (@{$c->stash->{top_menu}}) {
                                 if ($_->{text} eq 'Login') {
                                         $_->{text} = "Logout $username";
                                         $_->{uri} = '/tapper/user/logout';
