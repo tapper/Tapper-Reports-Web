@@ -42,7 +42,9 @@ number of days.
 sub prepare_filter_path
 {
         my ($self, $c, $days) = @_;
-        my %args = @{$c->req->arguments};
+        my @args = @{$c->req->arguments};
+        my %args;
+        %args = @args if (int @args % 2 == 0);
 
         $args{days} = $days if $days;
 

@@ -9,6 +9,12 @@ use Tapper::Config;
 
 use 5.010;
 
+sub auto :Private
+{
+        my ( $self, $c ) = @_;
+        $c->forward('/tapper/metareports/prepare_navi');
+}
+
 
 sub index :Path :Args(0)
 {
@@ -93,6 +99,27 @@ sub report_name : Chained('base') PathPart('') Args(3)
         $c->stash(img_files => \@img_files,
                   html_files => \@html_files,
                  );
+}
+
+=head2 prepare_navi
+
+Generate data structure that describes the navigation part.
+
+=cut
+
+sub prepare_navi : Private
+{
+        my ( $self, $c ) = @_;
+        my $navi : Stash = [];
+
+
+        $navi = [
+                 {
+                  title  => "Metareports",
+                  href => "/tapper/metareports/",
+                 },
+                ];
+
 }
 
 

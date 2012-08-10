@@ -8,6 +8,14 @@ use Tapper::Reports::Web::Util::Testrun;
 
 use parent 'Tapper::Reports::Web::Controller::Base';
 
+
+sub auto :Private
+{
+        my ( $self, $c ) = @_;
+        $c->forward('/tapper/testruns/idlist/prepare_navi');
+}
+
+
 =head2 index
 
 Index function for /tapper/testruns/idlist/. Expects a comma separated
@@ -47,6 +55,17 @@ sub index :Path :Args(1)
 
         %testrunlist = (testruns => $util->prepare_testrunlist($testruns) );
 
+}
+
+sub prepare_navi :Private
+{
+        my ( $self, $c, $id ) = @_;
+        my $navi : Stash;
+
+        # When showing test by ID no filters are active so we
+        # remove the wrong filters Testrun::prepare_navi already added
+        my @navi = grep {$_->{title} ne "Active Filters"} @$navi;
+        $navi = \@navi;
 }
 
 

@@ -8,12 +8,40 @@ use common::sense;
 use DateTime::Format::Natural;
 use Tapper::Reports::Web::Util::Filter::Testplan;
 use Tapper::Model 'model';
+use Tapper::Cmd::Testplan;
 
 sub auto :Private
 {
         my ( $self, $c ) = @_;
 
         $c->forward('/tapper/testplan/prepare_navi');
+}
+
+
+sub base : Chained PathPrefix CaptureArgs(0) { }
+
+sub id : Chained('base') PathPart('') CaptureArgs(1)
+{
+        my ( $self, $c, $id ) = @_;
+        $c->stash(testplan => $c->model('TestrunDB')->resultset('TestplanInstance')->find($id));
+        if (not $c->stash->{testplan}) {
+                $c->response->body(qq(No testplan instance with id "$id" found in the database!));
+                return;
+        }
+
+}
+
+sub rerun : Chained('id') PathPart('rerun') Args(0)
+{
+        my ( $self, $c ) = @_;
+
+        my $cmd = Tapper::Cmd::Testplan->new();
+        my $retval = $cmd->rerun($c->stash->{testplan}->id);
+        if (not $retval) {
+                $c->response->body(qq(Can not rerun testplan));
+                return;
+        }
+        $c->stash(testplan => $c->model('TestrunDB')->resultset('TestplanInstance')->find($retval));
 }
 
 
@@ -31,6 +59,7 @@ sub index :Path :Args()
         my $filter = Tapper::Reports::Web::Util::Filter::Testplan->new(context => $c);
         my $filter_condition = $filter->parse_filters(\@args, ['days', 'date', 'path', 'name']);
         $c->stash->{title} = "Testplan list";
+        $c->stash->{testplan_id} = undef;
 
         if ($filter_condition->{error}) {
                 $error_msg = join("; ", @{$filter_condition->{error}});
@@ -191,12 +220,12 @@ sub prepare_navi : Private
         push @$navi, {title   => 'Active Filters',
                       subnavi => [
                                   map {
-                                          { title => "$_: ".$args{$_},
-                                              href => "/tapper/reports/".$self->reduced_filter_path(\%args, $_),
-                                                image  => "/tapper/static/images/minus.png",
-                                          }
+                                          {
+                                                  title => "$_: ".$args{$_},
+                                                    href => "/tapper/reports/".$self->reduced_filter_path(\%args, $_),
+                                                      image  => "/tapper/static/images/minus.png",
+                                              }
                                   } keys %args ]};
-
 }
 
 

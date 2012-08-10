@@ -2,9 +2,7 @@
 $testrun
 </%args>
 
-% use Data::Dumper;
-
-<h1>Restarted <a href="/tapper/testruns/id/<% $testrun->id %>/">Testrun with ID <% $testrun->id %></a></h1>
+<h2>Restarted <a href="/tapper/testruns/id/<% $testrun->id %>/">Testrun with ID <% $testrun->id %></a></h2>
 %# Local Variables:
 %# buffer-file-coding-system: utf-8
 %# End:

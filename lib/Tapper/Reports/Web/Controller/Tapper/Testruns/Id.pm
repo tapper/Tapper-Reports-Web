@@ -10,6 +10,14 @@ use Tapper::Reports::Web::Util::Report;
 use parent 'Tapper::Reports::Web::Controller::Base';
 
 
+sub auto :Private
+{
+        my ( $self, $c ) = @_;
+
+        $c->forward('/tapper/testruns/id/prepare_navi');
+}
+
+
 sub index :Path :Args(1)
 {
         my ( $self, $c, $testrun_id ) = @_;
@@ -60,9 +68,61 @@ sub index :Path :Args(1)
             join => [ 'reportgrouptestrun', ]
            }
            );
+}
 
+sub prepare_navi : Private
+{
+        my ( $self, $c, $testrun_id ) = @_;
 
-
+        my $navi : Stash = [
+                            {
+                             title  => "Testruns by date",
+                             href   => "/tapper/testruns/days/2",
+                             active => 0,
+                             subnavi => [
+                                         {
+                                          title  => "today",
+                                          href   => "/tapper/testruns/days/1",
+                                         },
+                                         {
+                                          title  => "1 week",
+                                          href   => "/tapper/testruns/days/7",
+                                         },
+                                         {
+                                          title  => "2 weeks",
+                                          href   => "/tapper/testruns/days/14",
+                                         },
+                                         {
+                                          title  => "3 weeks",
+                                          href   => "/tapper/testruns/days/21",
+                                         },
+                                         {
+                                          title  => "1 month",
+                                          href   => "/tapper/testruns/days/30",
+                                         },
+                                         {
+                                          title  => "2 months",
+                                          href   => "/tapper/testruns/days/60",
+                                         },
+                                        ],
+                            },
+                            {
+                             title  => "Control",
+                             href   => "",
+                             active => 0,
+                             subnavi => [
+                                         {
+                                          title  => "Rerun this Testrun",
+                                          href   => "/tapper/testruns/$testrun_id/rerun",
+                                          confirm => 'Do you really want to re-start this testrun?',
+                                         },
+                                         {
+                                          title  => "Create new Testrun",
+                                          href   => "/tapper/testruns/create/",
+                                         },
+                                        ],
+                            },
+                           ];
 }
 
 
