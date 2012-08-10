@@ -284,7 +284,7 @@ sub get_topic_names
 sub get_owner_names
 {
         my ($self) = @_;
-        my @all_owners = model("TestrunDB")->resultset('User')->all();
+        my @all_owners = model("TestrunDB")->resultset('Owner')->all();
         my @owners;
         foreach my $owner (sort {$a->name cmp $b->name} @all_owners) {
                 if ($owner->login eq 'tapper') {
