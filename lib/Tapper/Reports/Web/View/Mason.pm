@@ -3,7 +3,6 @@ package Tapper::Reports::Web::View::Mason;
 use strict;
 use warnings;
 
-use Tapper::Reports::Web;
 use File::ShareDir ':ALL';
 use Cwd;
 

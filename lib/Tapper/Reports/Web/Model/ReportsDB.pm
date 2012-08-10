@@ -3,7 +3,6 @@ package Tapper::Reports::Web::Model::ReportsDB;
 use strict;
 use warnings;
 
-use Tapper::Reports::Web;
 use Tapper::Config;
 
 use base 'Catalyst::Model::DBIC::Schema';
