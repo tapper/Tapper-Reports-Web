@@ -13,33 +13,30 @@ with 'Tapper::Reports::Web::Role::BehaviourModifications::Path';
 
 use Tapper::Config;
 use File::ShareDir ':ALL';
+use Cwd;
 
-sub debug
-{
-        return 1 if $ENV{TAPPER_DEBUG};
-        return 0 if $ENV{HARNESS_ACTIVE};
-        return 0 if $ENV{TAPPER_REPORTS_WEB_LIVE};
-        return 1;
-}
+my $root_dir = eval { dist_dir("Tapper-Reports-Web") } || getcwd."/root";
 
-# Configure the application.
+# Configure the application
 __PACKAGE__->config( name => 'Tapper::Reports::Web' );
 __PACKAGE__->config->{tapper_config} = Tapper::Config->subconfig;
-__PACKAGE__->config->{"Plugin::Static::Simple"}->{dirs} = [ 'tapper/static', ];
-__PACKAGE__->config->{"Plugin::Static::Simple"}->{include_path} = [ (eval {dist_dir("Tapper-Reports-Web")}||"./root/"),
-                                                                    __PACKAGE__->config->{root},
-                                                                    "./root/",
-                                                                  ];
-__PACKAGE__->config('Plugin::Authentication' => { realms => { default => { credential => { class  => 'Authen::Simple',
+
+# Configure plugins
+__PACKAGE__->config("Plugin::Static::Simple" => { dirs               => [ 'tapper/static' ],
+                                                  include_path       => [ $root_dir ]});
+if (__PACKAGE__->config->{tapper_config}{web}{use_authentication}) {
+        __PACKAGE__->config("Plugin::Authentication" => { realms => { default => { credential => { class  => 'Authen::Simple',
                                                                                                    authen => [{ class => 'PAM',
-                                                                                                                args  => { service => 'login' }}]}}}})
- if __PACKAGE__->config->{tapper_config}{web}{use_authentication};
+                                                                                                                args  =>
+                                                                                                                {
+                                                                                                                 service => 'login'
+                                                                                                                }}]}}}});
+}
 
 my @plugins = (qw(ConfigLoader
                   Static::Simple Session
                   Session::State::Cookie
                   Session::Store::File));
-push @plugins, "-Debug"         if __PACKAGE__->debug;
 push @plugins, "Authentication" if __PACKAGE__->config->{use_authentication};
 
 # Start the application
