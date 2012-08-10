@@ -45,6 +45,19 @@ sub rerun : Chained('id') PathPart('rerun') Args(0)
 }
 
 
+sub delete : Chained('id') PathPart('delete')
+{
+        my ( $self, $c, $force) = @_;
+
+        my $cmd = Tapper::Cmd::Testplan->new();
+        my $retval = $cmd->del($c->stash->{testplan}->id);
+        if ($retval) {
+                $c->response->body(qq(Can not delete testplan: $retval));
+                return;
+        }
+}
+
+
 =head2 index
 
 
