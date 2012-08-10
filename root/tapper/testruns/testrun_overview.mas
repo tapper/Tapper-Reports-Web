@@ -8,7 +8,7 @@ $overview
       <tbody>
         <tr>
           <td><h5>Name</h5></td>
-          <td><% ucfirst($overview->{name}) %></td>
+          <td><% ucfirst($overview->{name} || '') %></td>
         </tr>
 % if ($overview->{shortname}) {
         <tr>
@@ -19,14 +19,18 @@ $overview
         <tr>
           <td colspan="2"><h5>Host</h5></td>
         </tr>
+%   if ($overview->{arch}) {
         <tr>
           <th>Architecture</th>
           <td><% $overview->{arch} %></td>
         </tr>
+%   }
+%   if ($overview->{image}) {
         <tr>
           <th>Root image</th>
           <td><% $overview->{image} %></td>
         </tr>
+%   }
 %   if ($overview->{xen_package}) {
         <tr>
           <th>Xen package</th>

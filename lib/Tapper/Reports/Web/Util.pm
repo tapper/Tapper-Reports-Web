@@ -43,11 +43,12 @@ sub prepare_top_menu
                        ];
 
         # Some keys may be singular with their actions being named in plural or vice versa. Unify this.
-        $active = lc($active);
-        (my $active_singular) = $active =~ m/^(.+)s$/;
-        (my $active_plural) = $active."s";
-
-        map {$_->{active} = 1 if $_->{key} eq any($active, $active_singular, $active_plural) } @$top_menu;
+        if ($active) {
+                $active = lc($active);
+                (my $active_singular) = ($active =~ m/^(.+)s$/) // '';
+                (my $active_plural)   = $active."s" // '';
+                foreach (@$top_menu) { $_->{active} = 1 if $_->{key} eq any($active, $active_singular, $active_plural) }
+        }
         return $top_menu;
 }
 

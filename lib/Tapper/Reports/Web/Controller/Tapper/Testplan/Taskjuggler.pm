@@ -20,7 +20,7 @@ sub index :Path :Args(0)
         my ( $self, $c ) = @_;
         my $taskjuggler = Tapper::Testplan::Plugins::Taskjuggler->new(cfg => Tapper::Config->subconfig->{testplans}{reporter}{plugin});
         my $reporter    = Tapper::Testplan::Reporter->new();
-        my $platforms : Stash = $taskjuggler->prepare_task_data();
+        $c->stash->{platforms} = $taskjuggler->prepare_task_data();
         $c->stash->{title} = "Testplan Taskjuggler matrix";
 
         return;

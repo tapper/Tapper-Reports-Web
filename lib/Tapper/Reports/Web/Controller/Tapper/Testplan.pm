@@ -67,7 +67,6 @@ sub delete : Chained('id') PathPart('delete')
 sub index :Path :Args()
 {
         my ( $self, $c, @args ) = @_;
-        my $error_msg : Flash;
 
         my $filter = Tapper::Reports::Web::Util::Filter::Testplan->new(context => $c);
         my $filter_condition = $filter->parse_filters(\@args, ['days', 'date', 'path', 'name']);
@@ -75,13 +74,13 @@ sub index :Path :Args()
         $c->stash->{testplan_id} = undef;
 
         if ($filter_condition->{error}) {
-                $error_msg = join("; ", @{$filter_condition->{error}});
+                $c->flash->{error_msg} = join("; ", @{$filter_condition->{error}});
                 $c->res->redirect("/tapper/testplan/days/2");
         }
 
         my $days = $filter_condition->{days} || 6;
 
-        my $testplan_days : Stash = [];
+        $c->stash->{testplan_days} = [];
         my $today = DateTime::Format::Natural->new->parse_datetime("today at midnight");
         my $dtf = $c->model("ReportsDB")->storage->datetime_parser;
 
@@ -97,9 +96,9 @@ sub index :Path :Args()
 
                 my @details = $self->get_testrun_details($todays_instances);
                 if (@details) {
-                        push @$testplan_days, { date               => $today,
-                                                testplan_instances => \@details,
-                                              };
+                        push @{$c->stash->{testplan_days}}, { date               => $today,
+                                                              testplan_instances => \@details,
+                                                            };
                 }
         }
 
@@ -115,9 +114,9 @@ sub index :Path :Args()
                                                                          ]});
                 my @details = $self->get_testrun_details($todays_instances);
                 if (@details) {
-                        push @$testplan_days, { date               => $today,
-                                                testplan_instances => \@details,
-                                              };
+                        push @{$c->stash->{testplan_days}}, { date               => $today,
+                                                              testplan_instances => \@details,
+                                                            };
                 }
                 $today = $yesterday;
         }
@@ -172,11 +171,11 @@ sub get_testrun_details
 sub prepare_navi : Private
 {
         my ( $self, $c ) = @_;
-        my $navi : Stash = [];
+        $c->stash->{navi} = [];
 
         my %args = @{$c->req->arguments};
 
-        $navi = [
+        $c->stash->{navi} = [
                  {
                   title  => "Matrix Overview",
                   href => "/tapper/testplan/taskjuggler/",
@@ -230,7 +229,7 @@ sub prepare_navi : Private
                  },
                 ];
 
-        push @$navi, {title   => 'Active Filters',
+        push @{$c->stash->{navi}}, {title   => 'Active Filters',
                       subnavi => [
                                   map {
                                           {

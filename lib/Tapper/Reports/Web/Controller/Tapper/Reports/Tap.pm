@@ -8,7 +8,8 @@ use parent 'Tapper::Reports::Web::Controller::Base';
 sub index :Path :Args(1)
 {
         my ( $self, $c, $report_id ) = @_;
-        my $report : Stash = $c->model('ReportsDB')->resultset('Report')->find($report_id);
+
+        my $report = $c->model('ReportsDB')->resultset('Report')->find($report_id);
 
         if ($report) {
                 if ($report->tap->tap_is_archive) {

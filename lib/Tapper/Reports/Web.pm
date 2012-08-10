@@ -1,109 +1,45 @@
 package Tapper::Reports::Web;
 # ABSTRACT: Tapper - Frontend web application based on Catalyst
 
+use 5.010;
 use strict;
 use warnings;
 
-use 5.010;
+use Moose;
+use Catalyst::Runtime;
 
-use Catalyst::Runtime '5.70';
-use Hash::Merge;
+extends 'Catalyst';
+with 'Tapper::Reports::Web::Role::BehaviourModifications::Path';
+
 use Tapper::Config;
 use File::ShareDir ':ALL';
+use Cwd;
 
-use Class::C3::Adopt::NEXT;
+my $root_dir = eval { dist_dir("Tapper-Reports-Web") } || getcwd."/root";
 
-# Set flags and add plugins for the application
-#
-#         -Debug: activates the debug mode for very useful log messages
-#   ConfigLoader: will load the configuration from a Config::General file in the
-#                 application's home directory
-# Static::Simple: will serve static files from the application's root
-#                 directory
+# Configure the application
+__PACKAGE__->config( name => 'Tapper::Reports::Web' );
+__PACKAGE__->config->{tapper_config} = Tapper::Config->subconfig;
 
-use parent qw/Catalyst/;
-
-# used by Catalyst::Plugin::ConfigLoader
-sub finalize_config
-{
-        my $c = shift;
-
-        $c->NEXT::ACTUAL::finalize_config;
-        my $env =
-            $ENV{HARNESS_ACTIVE}                 ? 'test'
-                : $ENV{TAPPER_REPORTS_WEB_LIVE} ? 'live'
-                    : 'development';
-        Hash::Merge::set_behavior('RIGHT_PRECEDENT');
-        $c->config(
-                   Hash::Merge::merge(
-                                      $c->config,
-                                      $c->config->{ $env } || {} ,
-                                     )
-                  );
-        $c->config->{tapper_config} = Tapper::Config->subconfig;
-
-        return;
+# Configure plugins
+__PACKAGE__->config("Plugin::Static::Simple" => { dirs               => [ 'tapper/static' ],
+                                                  include_path       => [ $root_dir ]});
+if (__PACKAGE__->config->{tapper_config}{web}{use_authentication}) {
+        __PACKAGE__->config("Plugin::Authentication" => { realms => { default => { credential => { class  => 'Authen::Simple',
+                                                                                                   authen => [{ class => 'PAM',
+                                                                                                                args  =>
+                                                                                                                {
+                                                                                                                 service => 'login'
+                                                                                                                }}]}}}});
 }
 
-sub debug
-{
-        return $ENV{TAPPER_REPORTS_WEB_LIVE} || $ENV{HARNESS_ACTIVE} ? 0 : 1;
-}
-
-# I am sick of getting relocated/rebase on our local path!
-# Cut away a trailing 'tapper/' from base and prepend it to path.
-# All conditionally only when this annoying environment is there.
-sub prepare_path
-{
-        my $c = shift;
-
-        $c->NEXT::prepare_path(@_);
-
-        my $base        =  $c->req->{base}."";
-        $base           =~ s,tapper/$,, if $base;
-        $c->req->{base} =  bless( do{\(my $o = $base)}, 'URI::http' );
-        $c->req->path('tapper/'.$c->req->path) unless ( $c->req->path =~ m,^tapper/?,);
-}
-
-
-# Configure the application.
-__PACKAGE__->config( name => 'Tapper::Reports::Web',
-                    'Plugin::Authentication' => {
-                                                 'realms' => {
-                                                              'default' => {
-                                                                            'credential' => {
-                                                                                             'class' => 'Authen::Simple',
-                                                                                             'authen' => [
-                                                                                                          {
-                                                                                                           'class' => 'PAM',
-                                                                                                           args => {
-                                                                                                                    service => 'login'
-                                                                                                                   },
-                                                                                                          },
-                                                                                                         ]
-                                                                                            }
-                                                                           }
-                                                             }
-                                                }
-
-                   );
-
-__PACKAGE__->config->{"Plugin::Static::Simple"}->{dirs} = [
-                                                           'tapper/static',
-                                                          ];
-__PACKAGE__->config->{"Plugin::Static::Simple"}->{include_path} = [
-                                                                   dist_dir('Tapper-Reports-Web'),
-                                                                   __PACKAGE__->config->{root},
-                                                                   "./root/",
-                                                                  ];
+my @plugins = (qw(ConfigLoader
+                  Static::Simple Session
+                  Session::State::Cookie
+                  Session::Store::File));
+push @plugins, "Authentication" if __PACKAGE__->config->{use_authentication};
 
 # Start the application
-__PACKAGE__->setup(qw/-Debug
-                      ConfigLoader
-                      Authentication
-                      Static::Simple Session
-                      Session::State::Cookie
-                      Session::Store::File/,
-                  );
+__PACKAGE__->setup(@plugins);
 
 1;

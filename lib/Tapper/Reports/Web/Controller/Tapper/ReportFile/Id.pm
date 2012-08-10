@@ -14,15 +14,15 @@ our $ANSI2HTML_POST = '</body>';
 sub index :Path :CaptureArgs(2)
 {
         my ( $self, $c, $file_id, $viewmode ) = @_;
-        my $reportfile : Stash = $c->model('ReportsDB')->resultset('ReportFile')->find($file_id);
+        $c->stash->{reportfile} = $c->model('ReportsDB')->resultset('ReportFile')->find($file_id);
 
-        if (not $reportfile)
+        if (not $c->stash->{reportfile})
         {
                 $c->response->content_type ("text/plain");
                 $c->response->header ("Content-Disposition" => 'inline; filename="nonexistent.reportfile.'.$file_id.'"');
                 $c->response->body ("Error: File with id $file_id does not exist.");
         }
-        elsif (not $reportfile->filecontent)
+        elsif (not $c->stash->{reportfile}->filecontent)
         {
                 $c->response->content_type ("text/plain");
                 $c->response->header ("Content-Disposition" => 'inline; filename="empty.reportfile.'.$file_id.'"');
@@ -30,27 +30,27 @@ sub index :Path :CaptureArgs(2)
         }
         else
         {
-                my $contenttype = $reportfile->contenttype eq 'plain' ? 'text/plain' : $reportfile->contenttype;
+                my $contenttype = $c->stash->{reportfile}->contenttype eq 'plain' ? 'text/plain' : $c->stash->{reportfile}->contenttype;
                 my $disposition = $contenttype =~ /plain/ ? 'inline' : 'attachment';
                 $c->response->content_type ($contenttype || 'application/octet-stream');
 
-                my $filename = $reportfile->filename;
+                my $filename = $c->stash->{reportfile}->filename;
                 my @filecontent;
                 my $content_disposition;
 
                 if ( $viewmode eq 'ansi2txt' ) {
                         $filename    =~ s,[./],_,g if $disposition eq 'inline';
                         $filename   .=  '.txt';
-                        @filecontent =  ansi_to_txt($reportfile->filecontent);
+                        @filecontent =  ansi_to_txt($c->stash->{reportfile}->filecontent);
 
                 } elsif ( $viewmode eq 'ansi2html' ) {
                         $filename    =~ s,[./],_,g if $disposition eq 'inline';
                         $filename   .=  '.html';
                         my $a2h = HTML::FromANSI->new(style => '', font_face => '');
-                        @filecontent =  $ANSI2HTML_PRE.$a2h->ansi_to_html($reportfile->filecontent).$ANSI2HTML_POST;
+                        @filecontent =  $ANSI2HTML_PRE.$a2h->ansi_to_html($c->stash->{reportfile}->filecontent).$ANSI2HTML_POST;
                         $c->response->content_type('text/html');
                 } else {
-                        @filecontent =  $reportfile->filecontent;
+                        @filecontent =  $c->stash->{reportfile}->filecontent;
                 }
                 my $filecontent = join '', @filecontent;
                 $filecontent    =~ s/ +$//mg if $viewmode eq 'ansi2html' or $viewmode eq 'ansi2txt';

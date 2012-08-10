@@ -2,4 +2,6 @@
 !.gitignore
 Tapper-Reports-Web-*
 Debian_CPANTS.txt
-*.sqlite
+t/tapper_schema_reportsdb_test.sqlite
+t/tapper_schema_testrundb_test.sqlite
+>>>>>>> ebf3a8024c4e5551c4dbc48a7dcc6dfe909ba0f4

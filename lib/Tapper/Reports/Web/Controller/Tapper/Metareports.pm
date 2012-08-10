@@ -110,10 +110,8 @@ Generate data structure that describes the navigation part.
 sub prepare_navi : Private
 {
         my ( $self, $c ) = @_;
-        my $navi : Stash = [];
 
-
-        $navi = [
+        $c->stash->{navi} = [
                  {
                   title  => "Metareports",
                   href => "/tapper/metareports/",

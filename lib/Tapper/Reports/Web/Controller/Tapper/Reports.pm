@@ -21,7 +21,6 @@ sub auto :Private
 sub index :Path :Args()
 {
         my ( $self, $c, @args ) = @_;
-        my $error_msg : Flash;
 
         exit 0 if $args[0] eq 'exit';
 
@@ -29,12 +28,12 @@ sub index :Path :Args()
         my $filter_condition = $filter->parse_filters(\@args);
 
         if ($filter_condition->{error}) {
-                $error_msg = join("; ", @{$filter_condition->{error}});
+                $c->flash->{error_msg} = join("; ", @{$filter_condition->{error}});
                 $c->res->redirect("/tapper/reports/days/2");
 
         }
 
-        my $requested_day : Stash =
+        $c->stash->{requested_day} =
           $filter->requested_day || DateTime::Format::Natural->new->parse_datetime("today at midnight");
 
         $filter->{early}->{-or} = [{rga_primary => 1}, {rgt_primary => 1}];
@@ -46,11 +45,9 @@ sub prepare_this_weeks_reportlists : Private
 {
         my ( $self, $c, $filter_condition ) = @_;
 
-
-        my @this_weeks_reportlists : Stash = ();
-        my $requested_day          : Stash;
-        my $days                   : Stash = $filter_condition->{days};
-        my $date                   : Stash = $filter_condition->{date};
+        $c->stash->{this_weeks_reportlists} = [];
+        $c->stash->{days}                   = $filter_condition->{days};
+        $c->stash->{date}                   = $filter_condition->{date};
 
         $filter_condition->{early} =  {} unless
           defined($filter_condition->{early}) and
@@ -93,45 +90,45 @@ sub prepare_this_weeks_reportlists : Private
 
         my $util_report = Tapper::Reports::Web::Util::Report->new();
 
-        my @day    = ( $requested_day );
-        push @day, $requested_day->clone->subtract( days => $_ ) foreach 1..$lastday;
+        my @day    = ( $c->stash->{requested_day} );
+        push @day, $c->stash->{requested_day}->clone->subtract( days => $_ ) foreach 1..$lastday;
 
         my $dtf = $c->model("ReportsDB")->storage->datetime_parser;
 
         # ----- today -----
         my $day0_reports = $reports->search ( { created_at => { '>', $dtf->format_datetime($day[0]) } } );
-        push @this_weeks_reportlists, {
-                                       day => $day[0],
-                                       %{ $util_report->prepare_simple_reportlist($c, $day0_reports) }
-                                      };
+        push @{$c->stash->{this_weeks_reportlists}}, {
+                                                      day => $day[0],
+                                                      %{ $util_report->prepare_simple_reportlist($c, $day0_reports) }
+                                                     };
 
         # ----- last week days -----
         foreach (1..$lastday) {
                 my $day_reports = $reports->search ({ -and => [ created_at => { '>', $dtf->format_datetime($day[$_])     },
                                                                 created_at => { '<', $dtf->format_datetime($day[$_ - 1]) },
                                                               ]});
-                push @this_weeks_reportlists, {
-                                               day => $day[$_],
-                                               %{ $util_report->prepare_simple_reportlist($c, $day_reports) }
-                                              };
+                push @{$c->stash->{this_weeks_reportlists}}, {
+                                                              day => $day[$_],
+                                                              %{ $util_report->prepare_simple_reportlist($c, $day_reports) }
+                                                             };
         }
 
 
-        my $list_count_all     : Stash = 0;
-        my $list_count_pass    : Stash = 0;
-        my $list_count_fail    : Stash = 0;
-        my $list_count_unknown : Stash = 0;
+        $c->stash->{list_count_all}     = 0;
+        $c->stash->{list_count_pass}    = 0;
+        $c->stash->{list_count_fail}    = 0;
+        $c->stash->{list_count_unknown} = 0;
 
         foreach (0..$lastday) {
-                my $reportlist = $this_weeks_reportlists[$_];
-                $list_count_all += @{$reportlist->{all_reports}};
+                my $reportlist = $c->stash->{this_weeks_reportlists}[$_];
+                $c->stash->{list_count_all} += @{$reportlist->{all_reports}};
                 foreach my $report (@{$reportlist->{all_reports}}) {
-                        if    ($report->{successgrade} eq 'PASS') { $list_count_pass++    }
-                        elsif ($report->{successgrade} eq 'FAIL') { $list_count_fail++    }
-                        else                                      { $list_count_unknown++ }
+                        if    ($report->{successgrade} eq 'PASS') { $c->stash->{list_count_pass}++    }
+                        elsif ($report->{successgrade} eq 'FAIL') { $c->stash->{list_count_fail}++    }
+                        else                                      { $c->stash->{list_count_unknown}++ }
                 }
         }
-        $c->stash->{title} = "Reports of last $days days";
+        $c->stash->{title} = "Reports of last ".$c->stash->{days}." days";
 
 }
 
@@ -139,14 +136,14 @@ sub prepare_this_weeks_reportlists : Private
 sub prepare_navi : Private
 {
         my ( $self, $c ) = @_;
-        my $navi : Stash = [];
+        $c->stash->{navi} = [];
 
         my %args = @{$c->req->arguments};
 
         if ( (grep { /^date$/ } keys %args) or                    # "/date" can not be combined usefully with generic filters
              ($c->req->path =~ m,tapper/reports/(id|idlist|tap),) # these controller paths are special, not generic filters
             ) {
-                 $navi = [
+                 $c->stash->{navi} = [
                           {
                            title  => "reports by date",
                            href   => "/tapper/overview/date",
@@ -204,7 +201,7 @@ sub prepare_navi : Private
                           },
                          ];
         } else {
-                $navi = [
+                $c->stash->{navi} = [
                          {
                           title  => "reports by date",
                           href   => "/tapper/overview/date",
@@ -271,7 +268,7 @@ sub prepare_navi : Private
                           active => 0,
                          },
                         ];
-                push @$navi, {title   => 'Active Filters',
+                push @{$c->stash->{navi}}, {title   => 'Active Filters',
                               subnavi => [
                                           map {
                                                { title => "$_: ".$args{$_},

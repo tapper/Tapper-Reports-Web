@@ -130,15 +130,14 @@ sub owner
 {
         my ($self, $filter_condition, $owner) = @_;
 
-        my $owner_result = model('TestrunDB')->resultset('User')->search({login => $owner})->first;
+        my $owner_result = model('TestrunDB')->resultset('Owner')->search({login => $owner})->first;
 
         if (not $owner_result) {
-                $filter_condition->{error} = "No user with login '$owner' found";
+                $filter_condition->{error} = "No owner with login '$owner' found";
                 return $filter_condition;
         }
 
-
-        $filter_condition->{early}->{owner_user_id} = $owner_result->id;
+        $filter_condition->{early}->{owner_id} = $owner_result->id;
 
         return $filter_condition;
 }

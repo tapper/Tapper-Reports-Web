@@ -24,7 +24,7 @@ not name these two parameters explicitly.
 
 
 
-=cut 
+=cut
 
 sub index :Path :Args(0)
 {
