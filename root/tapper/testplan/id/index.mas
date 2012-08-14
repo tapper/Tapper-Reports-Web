@@ -1,6 +1,6 @@
 <%args>
 $instance => {}
-$error
+$error    => ''
 </%args>
 
 % if($error) {
