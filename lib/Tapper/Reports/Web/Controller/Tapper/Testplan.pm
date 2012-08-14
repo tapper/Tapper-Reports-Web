@@ -50,11 +50,15 @@ sub delete : Chained('id') PathPart('delete')
         my ( $self, $c, $force) = @_;
 
         my $cmd = Tapper::Cmd::Testplan->new();
-        my $retval = $cmd->del($c->stash->{testplan}->id);
-        if ($retval) {
-                $c->response->body(qq(Can not delete testplan: $retval));
-                return;
+        if ($force) {
+                $c->stash->{force} = 1;
+                my $retval = $cmd->del($c->stash->{testplan}->id);
+                if ($retval) {
+                        $c->response->body(qq(Can not delete testplan: $retval));
+                        return;
+                }
         }
+
 }
 
 
