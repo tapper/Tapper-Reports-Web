@@ -65,7 +65,7 @@
 % # ----------------------------------------------------------------------
 % #
 % #
-% my @testruns = @{$testrunlist{testruns}};
+% my @testruns = @{$testrunlist{testruns} || []};
 % if (@testruns) {
 
     <table class="reportlist">

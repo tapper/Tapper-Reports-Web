@@ -2,6 +2,7 @@
 $path
 $overview
 </%args>
+% no warnings 'uninitialized';
   <h5>Path: <strong><% $path %></strong></h5>
   <br/>
 % if ($overview and ref $overview eq 'ARRAY') {
