@@ -29,6 +29,7 @@
         </thead>
         <tbody>
 %    foreach my $instance (@{$day->{testplan_instances} || [] }) {
+%    no warnings 'uninitialized';
 %    my $sum              = $instance->{count_pass} + $instance->{count_fail} + $instance->{count_unfinished};
 %    my $width_pass       = $sum ? $instance->{count_pass} / $sum : 0;
 %    my $width_fail       = $sum ? $instance->{count_fail} / $sum : 0;
