@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - fix script/ -> bin/
 
 4.0.4     2012-06-07
         - and more deps
