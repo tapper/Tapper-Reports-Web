@@ -23,7 +23,7 @@ tapper_reports_web_create.pl [options] model|view|controller name [helper] [opti
 
  Examples:
    tapper_reports_web_create.pl controller My::Controller
-   tapper_reports_web_create.pl -mechanize controller My::Controller
+   tapper_reports_web_create.pl --mechanize controller My::Controller
    tapper_reports_web_create.pl view My::View
    tapper_reports_web_create.pl view HTML TT
    tapper_reports_web_create.pl model My::Model
