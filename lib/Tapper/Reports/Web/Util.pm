@@ -36,7 +36,7 @@ sub prepare_top_menu
                         {key => 'start',       text => 'Start',       uri => "/tapper/start/"},
                         {key => 'reports',     text => 'Reports',     uri => "/tapper/reports/days/1"},
                         {key => 'testruns',    text => 'Testruns',    uri => "/tapper/testruns/days/1"},
-                        {key => 'testplans',   text => 'Testplans',   uri => "/tapper/testplan/"},
+                        {key => 'testplans',   text => 'Testplans',   uri => "/tapper/testplan/days/2"},
                         {key => 'metareports', text => 'Metareports', uri => "/tapper/metareports/"},
                         {key => 'manual',      text => 'Manual',      uri => "/tapper/manual/"},
                         {key => 'user',        text => 'Login',       uri => "/tapper/user/login"},
