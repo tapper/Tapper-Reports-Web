@@ -83,6 +83,7 @@ sub index :Path :Args()
         }
 
         my $days = $filter_condition->{days} || 6;
+        $c->stash->{days} = $days;
 
         $c->stash->{testplan_days} = [];
         my $today = DateTime::Format::Natural->new->parse_datetime("today at midnight");
