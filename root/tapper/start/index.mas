@@ -12,7 +12,7 @@
                   <td>&bull;&nbsp;<a href="/tapper/testruns/days/1">Testruns</a></td><td>Overview of automated testruns.</td>
                 </tr>
                 <tr>
-                  <td>&bull;&nbsp;<a href="/tapper/testplan">Testplans</a></td><td>Overview of complex test plans.</td>
+                  <td>&bull;&nbsp;<a href="/tapper/testplan/days/2">Testplans</a></td><td>Overview of complex test plans.</td>
                 </tr>
                 <tr>
                   <td>&bull;&nbsp;<a href="/tapper/overview/suite">Test Suites</a></td><td>Overview of all test suites.</td>

@@ -1,6 +1,13 @@
 <%args>
         $testplan_days => []
 </%args>
+
+% my $days = $c->stash->{days} || ('unknown');
+<h3>Testplans of last <% $days %> days</h3>
+
+This list shows <b>testplans</b>. Note: For this testplan listing finished testruns are considered "FAIL"
+unless its success state is exactly 100%.
+
 % if ($c->flash->{error_msg}) {
 <pre>
 
