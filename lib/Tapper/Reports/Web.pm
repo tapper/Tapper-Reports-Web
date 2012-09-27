@@ -32,6 +32,9 @@ if (__PACKAGE__->config->{tapper_config}{web}{use_authentication}) {
                                                                                                                  service => 'login'
                                                                                                                 }}]}}}});
 }
+__PACKAGE__->config( 'Controller::HTML::FormFu' => {
+                                                    constructor => { config_file_path => [ "$root_dir/forms", 'root/forms/' ] },
+                                                   } );
 
 my @plugins = (qw(ConfigLoader
                   Static::Simple Session

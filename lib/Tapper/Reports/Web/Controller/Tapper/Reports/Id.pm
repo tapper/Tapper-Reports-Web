@@ -53,7 +53,7 @@ sub generate_metareport_link
         }
         use Data::Dumper;
         my $suite;
-        $suite = $config->{suite}->{$report->{suite}} || $config->{suite}->{$report->{group_suite}};
+        { no warnings 'uninitialized'; $suite = $config->{suite}->{$report->{suite}} || $config->{suite}->{$report->{group_suite}};}
         if ($suite) {
                 my $category    = $suite->{category};
                 my $subcategory = $suite->{subcategory};

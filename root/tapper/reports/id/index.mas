@@ -10,7 +10,7 @@
 <script type="text/javascript" src="/tapper/static/js/tap_formatter_html.js"></script>
 
 % use Tapper::TAP::Harness;
-
+% no warnings 'uninitialized'; # because hell, its a template. Its ok in here.
 % if ( $report ) {
 
     <h3>

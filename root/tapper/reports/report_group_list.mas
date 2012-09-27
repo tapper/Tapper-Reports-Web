@@ -3,8 +3,8 @@
     %reportlist_rga => {}
     %reportlist_rgt => {}
 </%args>
-</%args>
 
+% no warnings 'uninitialized';
 % my %cols = $report->get_columns;
 % if (@{$reportlist_rga{reports} || []}) {
       <h4>Reportgroup (<strong><% $cols{rga_id} %></strong>)</h4>
