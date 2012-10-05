@@ -53,11 +53,11 @@ $overview
           <td colspan="2"><h5>Guest number <% $i+1 %></h5></td>
           <tr>
             <th>Architecture</th>
-            <td><% $guest_overview->{arch} %></td>
+            <td><% $guest_overview->{arch} || '' %></td>
           </tr>
           <tr>
             <th>Root image</th>
-            <td><% $guest_overview->{image} %></td>
+            <td><% $guest_overview->{image} || '' %></td>
           </tr>
 %     if (@{$guest_overview->{test} || []}) {
           <tr>
