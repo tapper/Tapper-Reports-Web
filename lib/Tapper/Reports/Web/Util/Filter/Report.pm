@@ -80,7 +80,7 @@ sub suite
                 $suite_id = $suite;
         } else {
                 my $suite_rs = $self->context->model('ReportsDB')->resultset('Suite')->search({name => $suite});
-                $suite_id = $suite_rs->first->id if $suite_rs->count;
+                $suite_id = $suite_rs->search({}, {rows => 1})->first->id if $suite_rs->count;
         }
 
         my @suites;
