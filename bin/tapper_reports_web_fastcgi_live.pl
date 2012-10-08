@@ -1,4 +1,6 @@
 #! /usr/bin/perl
+# PODNAME: tapper_reports_web_fastcgi.pl
+# ABSTRACT: Tapper - web gui start script - fastcgi
 
 # Explicitely only for the live environment on bancroft
 

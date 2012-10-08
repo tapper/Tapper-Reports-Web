@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+# PODNAME: tapper_reports_web_server.pl
+# ABSTRACT: Tapper - web gui test server
 
 BEGIN {
     $ENV{CATALYST_SCRIPT_GEN} = 40;
