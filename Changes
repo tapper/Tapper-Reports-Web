@@ -1,7 +1,34 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        * PostgreSQL support
+        - [FIX] slow first() usage
+        - take care of nonexistent values
+        - rename USER into OWNER
+
+        * Adapt to upstream upgrades (Catalyst, Perl 5.16, ...)
+        - adapt ShareDir handling for static files, config, view, etc.
+        - catapult BindLex into outer space
+        - get rid of NEXT
         - fix script/ -> bin/
+        - no "uninitialized value" warnings in templates
+        - migrate view to Catalyst::View::HTML::Mason
+        - more concise config
+
+        * Misc
+        - [FEAT] overviews with filters now
+        - [FEAT] delete testplan
+        - [FEAT] testplan rerun
+        - [FIX] stash variables
+        - [FIX] uninitialized warnings
+        - [FIX] circular dependency error
+        - optional authentication
+        - declare Authentication deps as optional
+        - Add hostname filter
+        - Remove some Javascript, eg. for confirmations
+        - disable excessive Catalyst debug output
+        - Unify navi generation
+        - resort top navi items
 
 4.0.4     2012-06-07
         - and more deps
