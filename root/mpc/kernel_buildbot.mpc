@@ -35,8 +35,9 @@ mount: /
 partition: sda2
 precondition_type: image
 ---
-precondition_type: Produce
+precondition_type: produce
 buildserver: acid
+producer: Builder
 repository: [% repository %]
 [% IF version %]
 version: [% changeset %]
