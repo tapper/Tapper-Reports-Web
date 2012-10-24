@@ -54,7 +54,7 @@ Add host filters to early filters.
 sub host
 {
         my ($self, $filter_condition, $host) = @_;
-        my $host_result = model('TestrunDB')->resultset('Host')->search({name => $host})->first;
+        my $host_result = model('TestrunDB')->resultset('Host')->search({name => $host}, {rows => 1})->first;
 
         # (XXX) do we need to throw an error when someone filters for an
         # unknown host?
@@ -130,7 +130,7 @@ sub owner
 {
         my ($self, $filter_condition, $owner) = @_;
 
-        my $owner_result = model('TestrunDB')->resultset('Owner')->search({login => $owner})->first;
+        my $owner_result = model('TestrunDB')->resultset('Owner')->search({login => $owner}, {rows => 1})->first;
 
         if (not $owner_result) {
                 $filter_condition->{error} = "No owner with login '$owner' found";

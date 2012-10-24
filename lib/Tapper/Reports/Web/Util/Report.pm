@@ -53,7 +53,7 @@ sub prepare_simple_reportlist
                         };
 
                 # --- scheduling state ---
-                my $testrun_scheduling = model('TestrunDB')->resultset('TestrunScheduling')->search({testrun_id => $rgt_id})->first;
+                my $testrun_scheduling = model('TestrunDB')->resultset('TestrunScheduling')->search({testrun_id => $rgt_id}, {rows => 1})->first;
                 $r->{testrunscheduling_status} = $testrun_scheduling->status if $testrun_scheduling;
 
                 # --- arbitrary ---

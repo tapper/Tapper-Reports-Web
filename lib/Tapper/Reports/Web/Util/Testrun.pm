@@ -36,12 +36,12 @@ sub prepare_testrunlist
         my @testruns;
         foreach my $testrun ($testruns->all)
         {
-                my $testrun_report = model('ReportsDB')->resultset('ReportgroupTestrunStats')->search({testrun_id => $testrun->id})->first;
+                my $testrun_report = model('ReportsDB')->resultset('ReportgroupTestrunStats')->search({testrun_id => $testrun->id}, {rows => 1})->first;
                 my ($primary_report, $suite_name, $updated_at, $primary_report_id);
 
                 if ($testrun_report) {
-                        $primary_report = $testrun_report->reportgrouptestruns->search({primaryreport => 1})->first;
-                        $primary_report = $testrun_report->reportgrouptestruns->first unless $primary_report; # link to any report if no primary
+                        $primary_report = $testrun_report->reportgrouptestruns->search({primaryreport => 1}, {rows => 1})->first;
+                        $primary_report = $testrun_report->reportgrouptestruns->search({}, {rows => 1})->first unless $primary_report; # link to any report if no primary
 
                         eval{ # prevent dereferencing to undefined db links
                                 if ($primary_report) {

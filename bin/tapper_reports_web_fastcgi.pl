@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+# PODNAME: tapper_reports_web_fastcgi.pl
+# ABSTRACT: Tapper - web gui start script - fastcgi
 
 use Catalyst::ScriptRunner;
 Catalyst::ScriptRunner->run('Tapper::Reports::Web', 'FastCGI');

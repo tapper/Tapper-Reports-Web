@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+# PODNAME: tapper_reports_web_create.pl
+# ABSTRACT: Tapper - web gui create controller script
 
 use strict;
 use warnings;

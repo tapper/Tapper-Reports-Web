@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+# PODNAME: tapper_reports_web_cgi.pl
+# ABSTRACT: Tapper - web gui start script - cgi
 
 use Catalyst::ScriptRunner;
 Catalyst::ScriptRunner->run('Tapper::Reports::Web', 'CGI');

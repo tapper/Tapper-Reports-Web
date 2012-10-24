@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+# PODNAME: tapper_reports_web_test.pl
+# ABSTRACT: Tapper - web gui test
 
 use Catalyst::ScriptRunner;
 Catalyst::ScriptRunner->run('Tapper::Reports::Web', 'Test');
