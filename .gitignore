@@ -1,18 +1,7 @@
-blib*
-Makefile
-Makefile.old
-Build
-_build*
-pm_to_blib*
-*.tar.gz
-.lwpcookies
-Tapper-*
-cover_db
-MANIFEST.bak
-MANIFEST
-META.yml
+.*
+!.gitignore
+Tapper-Reports-Web-*
+Debian_CPANTS.txt
 t/tapper_schema_reportsdb_test.sqlite
-t/tapper_schema_hardwaredb_test.sqlite
 t/tapper_schema_testrundb_test.sqlite
-inc
-root/tapper/static/metareports
+>>>>>>> ebf3a8024c4e5551c4dbc48a7dcc6dfe909ba0f4

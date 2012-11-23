@@ -24,7 +24,7 @@ is(Scalar::Util::reftype($tapdom), "ARRAY", "got tapdom");
 
 my $failures   = Tapper::Reports::Web::Controller::Tapper::Reports::Id::get_report_failures(undef, $report);
 
-diag Dumper($failures);
+# diag Dumper($failures);
 
 is($failures->[0]{description}, "- fink", "found failing test");
 

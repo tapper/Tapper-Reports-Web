@@ -3,6 +3,8 @@ package Tapper::Reports::Web::Util::Report;
 use Moose;
 use Tapper::Model 'model';
 
+extends 'Tapper::Reports::Web::Util';
+
 use common::sense;
 
 
@@ -49,9 +51,15 @@ sub prepare_simple_reportlist
                          peeraddr              => $report->peeraddr,
                          peerhost              => $report->peerhost,
                         };
+
+                # --- scheduling state ---
+                my $testrun_scheduling = model('TestrunDB')->resultset('TestrunScheduling')->search({testrun_id => $rgt_id}, {rows => 1})->first;
+                $r->{testrunscheduling_status} = $testrun_scheduling->status if $testrun_scheduling;
+
                 # --- arbitrary ---
                 if ($rga_id and $rga_primary)
                 {
+                        $r->{owner} = $report->reportgrouparbitrary->owner;
                         push @reports, $r;
                         $rga_prims{$rga_id} = 1;
                 }
@@ -63,8 +71,7 @@ sub prepare_simple_reportlist
                 # --- testrun ---
                 if ($rgt_id and $rgt_primary)
                 {
-                        my $testrun = model('TestrunDB')->resultset('Testrun')->find($rgt_id);
-                        $r->{owner} = $testrun->owner->login if $testrun;
+                        $r->{owner} = $report->reportgrouptestrun->owner;
                         push @reports, $r;
                         $rgt_prims{$rgt_id} = 1;
                 }

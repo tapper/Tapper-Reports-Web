@@ -10,13 +10,15 @@ $time
 % use Data::Dumper;
 
 <h3>
-  Testrun <% $testrun->id %>
+  Testrun
+  <strong><% $testrun->id %></strong>:
+  <strong><% $testrun->topic_name %></strong>
 </h3>
 
     <!-- ************************************************************ -->
 
 % if (%reportlist_rgt) {
-<h4>Testrun</h4>
+<h4>Reports</h4>
 <& /tapper/reports/reportlist.mas, reportlist => \%reportlist_rgt &>
 %}
 
@@ -39,24 +41,14 @@ $time
     <!-- ************************************************************ -->
 
     <h4>Details</h4>
-    <a href="/tapper/testruns/<% $testrun->id %>/preconditions/yaml/">Preconditions in raw YAML</a>
+    <ul style="list-style-type:disc;">
+      <li style="margin-left: 1em;"><a href="/tapper/testruns/<% $testrun->id %>/preconditions/yaml/">Preconditions in raw YAML</a></li>
+% if ($testrun->testplan_id) {
+      <li style="margin-left: 1em;"><a href="/tapper/testplan/id/<% $testrun->testplan_id %>">Associated testplan</a></li>
+% }
+   </ul>
 
     <!-- ************************************************************ -->
-
-  <SCRIPT language="JavaScript">
-    <!--
-      function rerun_confirm() {
-        var where_to= confirm("Do you really want to re-start this testrun?");
-        if (where_to == true) {
-          alert("true");
-          window.location="/foo/tapper/testruns/<% $testrun->id %>/rerun";
-        } else {
-          alert("false");
-          window.location="#";
-        }
-      }
-       //-->
-  </SCRIPT>
 
 
 %# Local Variables:

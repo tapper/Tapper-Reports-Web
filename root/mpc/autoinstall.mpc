@@ -1,4 +1,4 @@
-# tapper-config-file: root/mpc/autoinstall.yml
+# tapper-config-file: autoinstall.yml
 # tapper-description: Kickstart installation with requested workload
 ---
 precondition_type: autoinstall

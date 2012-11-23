@@ -11,6 +11,14 @@ use Data::DPath 'dpath';
 use File::Basename 'basename';
 use YAML::Syck 'Load';
 
+sub auto :Private
+{
+        my ( $self, $c ) = @_;
+        $c->forward('/tapper/testplan/id/prepare_navi');
+}
+
+
+
 =head2 parse_testrun
 
 Generate an overview of a testplan element from testrun description.
@@ -26,10 +34,16 @@ sub parse_testrun
         my ($self, $testrun) = @_;
         my $description = $testrun->{description};
         my %testrun;
-        $testrun{image}     = $description ~~ dpath '/preconditions/*/mount[value eq "/"]/../image';
-        $testrun{kernel}    = $description ~~ dpath '/preconditions/*/filename[ value =~ /linux-.*2.6/]';
-        $testrun{test}      = [ map { basename($_) } @{$description ~~
-                                                         dpath '/preconditions/*/precondition_type[ value eq "testprogram"]/../program'} ];
+
+        # several places for the root system
+        push @{$testrun{image}}, @{ $description ~~ dpath '/preconditions/*/mount[value eq "/"]/../image' };
+        push @{$testrun{image}}, @{ $description ~~ dpath '//root/precondition_type[value eq "autoinstall"]/../name' };
+        push @{$testrun{image}}, @{ $description ~~ dpath '//precondition_type[value eq "autoinstall"]/../name' };
+
+        push @{$testrun{kernel}}, @{$description ~~ dpath '/preconditions/*/filename[ value =~ /linux-.*\d+.\d+/]'};
+        push @{$testrun{test}},
+         map { basename($_) }
+          @{$description ~~ dpath '/preconditions/*/precondition_type[ value eq "testprogram"]/../program'};
         $testrun{shortname} = $description->{shortname};
         return \%testrun;
 }
@@ -47,8 +61,16 @@ Generate an overview from evaluated testplan.
 
 sub gen_testplan_overview
 {
-        my ($self, $yaml) = @_;
-        my @plans = Load($yaml);
+        my ($self, $c, $yaml) = @_;
+
+        my @plans;
+        eval {
+                @plans = Load($yaml);
+        };
+        if ($@) {
+                $c->stash->{error} = "Broken YAML in testplan: $@";
+                return [];
+        }
         my @testplan_elements;
 
         foreach my $plan (@plans) {
@@ -68,30 +90,48 @@ sub gen_testplan_overview
 sub index :Path :Args(1)
 {
         my ( $self, $c, $instance_id ) = @_;
-        my $instance : Stash;
-        my $error    : Stash;
+
+        $c->stash->{title} = "Testplan id $instance_id";
 
         my $inst_res = model('TestrunDB')->resultset('TestplanInstance')->find($instance_id);
         if (not $inst_res) {
-                $error = "No testplan with id $instance_id";
+                $c->stash->{error} = "No testplan with id $instance_id";
                 return;
         }
         my $util = Tapper::Reports::Web::Util::Testrun->new();
         my $testruns = $inst_res->testruns;
         my $testrunlist = $util->prepare_testrunlist($testruns);
 
-        $instance->{id}       = $inst_res->id;
-        $instance->{name}     = $inst_res->name || '[no name]';
-        $instance->{testruns} = $testrunlist;
-        $instance->{plan}     = $inst_res->evaluated_testplan;
-        $instance->{plan}     =~ s/^\n+//m;
-        $instance->{plan}     =~ s/\n+/\n/m;
-        $instance->{path}     = $inst_res->path;
-        $instance->{overview} = $self->gen_testplan_overview($instance->{plan});
+        $c->stash->{instance}{id}       = $inst_res->id;
+        $c->stash->{instance}{name}     = $inst_res->name || '[no name]';
+        $c->stash->{instance}{testruns} = $testrunlist;
+        $c->stash->{instance}{plan}     = $inst_res->evaluated_testplan;
+        $c->stash->{instance}{plan}     =~ s/^\n+//m;
+        $c->stash->{instance}{plan}     =~ s/\n+/\n/m;
+        $c->stash->{instance}{path}     = $inst_res->path;
+        $c->stash->{instance}{overview} = $self->gen_testplan_overview($c, $c->stash->{instance}{plan});
+        $c->stash->{title} = "Testplan id $instance_id, ".$c->stash->{instance}{name};
         return;
 }
 
+sub prepare_navi :Private
+{
+        my ( $self, $c, $id ) = @_;
 
+        # When showing testplans by ID no filters are active so we
+        # remove the wrong filters Testplan::prepare_navi already added
+        my @navi = grep {$_->{title} ne "Active Filters"} @{$c->stash->{navi}};
+        $c->stash->{navi} = \@navi;
+
+        push @{$c->stash->{navi}}, { title => 'Rerun this testplan',
+                       href  => "/tapper/testplan/$id/rerun",
+                       confirm => 'Do you want to reapply this test plan?',
+                     };
+        push @{$c->stash->{navi}}, { title => 'Delete this testplan',
+                       href  => "/tapper/testplan/$id/delete",
+                       confirm => "Do you want to delete this test plan?\nAll associated testruns will set to finished.",
+                     };
+}
 
 
 =head1 NAME

@@ -8,7 +8,7 @@ $overview
       <tbody>
         <tr>
           <td><h5>Name</h5></td>
-          <td><% ucfirst($overview->{name}) %></td>
+          <td><% ucfirst($overview->{name} || '') %></td>
         </tr>
 % if ($overview->{shortname}) {
         <tr>
@@ -19,39 +19,57 @@ $overview
         <tr>
           <td colspan="2"><h5>Host</h5></td>
         </tr>
+%   if ($overview->{arch}) {
         <tr>
           <th>Architecture</th>
           <td><% $overview->{arch} %></td>
         </tr>
+%   }
+%   if ($overview->{image}) {
         <tr>
           <th>Root image</th>
           <td><% $overview->{image} %></td>
         </tr>
+%   }
 %   if ($overview->{xen_package}) {
         <tr>
           <th>Xen package</th>
           <td><% basename($overview->{xen_package}) %></td>
         </tr>
 %   }
+%   if (@{$overview->{test} || []}) {
         <tr>
-          <th>Test</th>
-          <td><% $overview->{test} ? join "<br> ",@{$overview->{test}} : '' |n%></td>
+          <th>Tests</th>
+          <td>
+%           foreach my $test (@{$overview->{test}}) {
+              <% $test %>
+              <br/>
+%           }
+          </td>
         </tr>
+%   }
 %   for(my $i = 0; $i <= $#{$overview->{guests}}; $i++) {
-%     my $guest = $overview->{guests}->[$i];
+%     my $guest_overview = $overview->{guests}->[$i];
           <td colspan="2"><h5>Guest number <% $i+1 %></h5></td>
           <tr>
             <th>Architecture</th>
-            <td><% $guest->{arch} %></td>
+            <td><% $guest_overview->{arch} || '' %></td>
           </tr>
           <tr>
             <th>Root image</th>
-            <td><% $guest->{image} %></td>
+            <td><% $guest_overview->{image} || '' %></td>
           </tr>
+%     if (@{$guest_overview->{test} || []}) {
           <tr>
-            <th>Test</th>
-            <td><% $guest->{test} ? join "<br/>",@{$guest->{test}} : '' %></td>
+            <th>Tests</th>
+            <td>
+%             foreach my $test (@{$guest_overview->{test}}) {
+                <% $test %>
+                <br/>
+%             }
+            </td>
           </tr>
+%     }
 %   }
       </tbody>
     </table>

@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>tapper</title>
+<& /tapper/title.mas &>
 <meta name="keywords" content="tapper test framework tap" />
 <meta name="description" content="tapper reports" />
 <link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/style_red.css" />
@@ -14,6 +14,7 @@
 
 <!-- Title tip support -->
 <script language="JavaScript"  type="text/javascript" src="/tapper/static/js/qTip.js"></script>
+
 <link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/qtip.css" />
 
 
@@ -28,11 +29,70 @@
 </head>
 <body>
 
+<%args>
+   $top_menu => {}
+</%args>
+
+<div id="header">
+
+	<div id="header_inner" class="fluid">
+
+<& /tapper/logo.mas &>
+
+		<div id="menu">
+			<ul>
+% foreach my $element  ( @{$top_menu} ) {
+
+                                <li><a href="<% $element->{uri} %>"
+%     if ($element->{active}) {
+                                     class="active"
+%     }
+% #    Keep the closing > in the followin line. It closes the < href above.
+                                    ><% $element->{text} %></a></li>
+% }
+			</ul>
+		</div>
+
+	</div>
+</div>
+
+<div id="main">
+
+	<div id="main_inner" class="fluid">
+
+		<div id="primaryContent_2columns">
+
+			<div id="columnA_2columns">
+
+				<br class="clear" />
+
+				<div class="post">
+
 % $m->call_next;
 
-<div id="footer" class="fluid">
-	Copyright &copy; 2008-2011 AMD <a href="http://amd64.org">Operating System Research Center</a>.
+				</div>
+
+			</div>
+
+		</div>
+
+		<div id="secondaryContent_2columns">
+
+			<div id="columnC_2columns">
+
+<& /tapper/navi.mas &>
+
+			</div>
+
+		</div>
+
+		<br class="clear" />
+
+	</div>
+
 </div>
+
+<& /tapper/footer.mas &>
 
 </body>
 </html>

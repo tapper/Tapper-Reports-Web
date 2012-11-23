@@ -13,8 +13,6 @@ sub prepare_idlist : Private
 {
         my ( $self, $c, $ids ) = @_;
 
-        my $reportlist : Stash = ();
-
         use Data::Dumper;
         my @idfilter = map { ("me.id" => $_) } @$ids;
         my $reports  = $c->model('ReportsDB')->resultset('Report')->search
@@ -38,14 +36,12 @@ sub prepare_idlist : Private
              }
             );
         my $util_report = Tapper::Reports::Web::Util::Report->new();
-        $reportlist = $util_report->prepare_simple_reportlist($c,  $reports);
+        $c->stash->{reportlist} = $util_report->prepare_simple_reportlist($c,  $reports);
 }
 
 sub index :Path :Args(1)
 {
         my ( $self, $c, $idlist ) = @_;
-
-        my $filter_condition : Stash = {};
 
         print STDERR "idlist = <$idlist>\n";
         my @ids = split (qr/, */, $idlist);

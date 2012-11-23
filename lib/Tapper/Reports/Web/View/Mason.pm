@@ -1,26 +1,27 @@
 package Tapper::Reports::Web::View::Mason;
 
-use strict;
-use warnings;
+use Moose;
+use namespace::autoclean;
+extends 'Catalyst::View::HTML::Mason';
 
-use Tapper::Reports::Web;
+use File::ShareDir ':ALL';
+use Cwd;
 
-use base 'Catalyst::View::Mason';
+my $root_dir = [
+                [ tapperroot1 => getcwd."/root" ],
+                [ tapperroot2 => eval { dist_dir("Tapper-Reports-Web") } || getcwd."/root" ],
+               ];
 
-__PACKAGE__->config( use_match          => 0      );
-__PACKAGE__->config( template_extension => '.mas' );
-__PACKAGE__->config( use_match          => 0      );
-__PACKAGE__->config( dynamic_comp_root  => 1      );
-__PACKAGE__->config( comp_root          => [
-                                            [ tapperroot => Tapper::Reports::Web->config->{root}.'' ],
-                                           ]
-                   );
-__PACKAGE__->config( default_escape_flags => [ 'h' ]);
-__PACKAGE__->config( escape_flags => {
-                                      url => \&my_url_filter,
-                                      h   => \&HTML::Mason::Escapes::basic_html_escape,
-                                     }
-                   );
+__PACKAGE__->config({ template_extension => '.mas',
+                      globals            => [['$c' => sub { $_[1] } ]],
+                      interp_args        => { comp_root            => $root_dir,
+                                              default_escape_flags => [ 'h' ],
+                                              escape_flags         => {
+                                                                       url => \&my_url_filter,
+                                                                       h   => \&HTML::Mason::Escapes::basic_html_escape,
+                                                                      },
+                                            },
+                    });
 
 sub my_url_filter
 {

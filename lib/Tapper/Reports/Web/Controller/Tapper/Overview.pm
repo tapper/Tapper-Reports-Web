@@ -2,6 +2,7 @@ package Tapper::Reports::Web::Controller::Tapper::Overview;
 
 use parent 'Tapper::Reports::Web::Controller::Base';
 use DateTime;
+use Tapper::Reports::Web::Util::Filter::Overview;
 
 use common::sense;
 ## no critic (RequireUseStrict)
@@ -14,7 +15,7 @@ sub auto :Private
 
 
 # Filter suite list so that only recently used suites are given.
-# 
+#
 # @param suite result set - unfiltered suites
 # @param int/string       - duration
 #
@@ -22,7 +23,7 @@ sub auto :Private
 #
 sub recently_used_suites
 {
-        my ($self, $suite_rs, $duration) = @_;
+        my ($self, $c, $suite_rs, $duration) = @_;
         my $timeframe;
         if ($duration) {
                 return $suite_rs if lc($duration) eq 'all';
@@ -30,77 +31,135 @@ sub recently_used_suites
         } else {
                 $timeframe = DateTime->now->subtract(weeks => 12);
         }
-        $suite_rs  = $suite_rs->search({'reports.created_at' => {'>=' => $timeframe}});
+        my $dtf = $c->model("ReportsDB")->storage->datetime_parser;
+        $suite_rs  = $suite_rs->search({'reports.created_at' => {'>=' => $dtf->format_datetime($timeframe) }});
         return $suite_rs;
 }
 
 
-sub index :Path :Args()
+sub index :Path  :Args()
 {
-        my ( $self, $c, $type, $options ) = @_;
-        my $overviews : Stash;
-        given ($type){
-                when ('suite') {
-                        my $suite_rs = $c->model('ReportsDB')->resultset('Suite')->search({},
-                                                                                          {prefetch => ['reports']}
-                                                                                         );
-                        $suite_rs = $self->recently_used_suites($suite_rs, $options);
-                        $overviews = { map{$_->name, '/tapper/reports/suite/'.$_->id } $suite_rs->all };
-                }
-                when ('host')  {
-                        my $reports = $c->model('ReportsDB')->resultset('Report')->search({},
-                                                                                          { columns => [ qw/machine_name/ ],
-                                                                                            distinct => 1});
-                        $overviews = { map{$_->machine_name, '/tapper/reports/host/'.$_->machine_name} $reports->all };
-                }
+        my ( $self, $c, $type, @args  ) = @_;
+
+        my $filter = Tapper::Reports::Web::Util::Filter::Overview->new(context => $c);
+        my $filter_condition;
+        if (not (@args == 1 and lc($args[0]) eq 'all')) {
+                $filter_condition = $filter->parse_filters(\@args);
+        }
+
+        if ($filter_condition->{error}) {
+                $c->stash->{error_msg} = join("; ", @{$filter_condition->{error}});
+                $c->res->redirect("/tapper/overview/");
+        }
+        $filter_condition->{early} =  {} unless
+          defined($filter_condition->{early}) and
+            ref($filter_condition->{early}) eq 'HASH' ;
+
+        given ($type) {
+                when('suite') {$self->suite($c, $filter_condition)};
+                when('host')  {$self->host($c, $filter_condition)};
         }
 }
+
+sub suite
+{
+        my ( $self, $c, $filter_condition ) = @_;
+
+        my %search_options    = ( prefetch => ['reports'] );
+
+        my $suite_rs = $c->model('ReportsDB')->resultset('Suite')->search($filter_condition->{early}, { %search_options } );
+        foreach my $filter (@{$filter_condition->{late}}) {
+                $suite_rs = $suite_rs->search($filter);
+        }
+        $c->stash->{overviews} = {};
+        while ( my $suite = $suite_rs->next ) {
+                $c->stash->{overviews}{$suite->name} = '/tapper/reports/suite/'.($suite->name =~ /[^\w\d_.-]/ ? $suite->id : $suite->name);
+        }
+        $c->stash->{title} = "Tapper report suites";
+}
+
+sub host
+{
+        my ( $self, $c, $filter_condition ) = @_;
+
+        my $reports = $c->model('ReportsDB')->resultset('Report')->search($filter_condition->{early},
+                                                                          { columns => [ qw/machine_name/ ],
+                                                                            distinct => 1,
+                                                                          });
+        while ( my $report = $reports->next ) {
+                $c->stash->{overviews}{$report->machine_name} = '/tapper/reports/host/'.$report->machine_name;
+        }
+        $c->stash->{title} = "Tapper report hosts";
+}
+
+
 
 sub prepare_navi : Private
 {
         my ( $self, $c ) = @_;
 
-        my $navi : Stash = [{
-                            title => 'Overview of',
-                            subnavi => [
-                                        {
-                                         title => 'Suites',
-                                         href  => "/tapper/overview/suite",
-                                        },
-                                        {
-                                         title => 'Hosts',
-                                         href  => "/tapper/overview/host",
-                                        },
-                                       ],
-                            
-                           },
-                           {
-                            title => 'Suites used in the last..',
-                            subnavi => [
-                                        {
-                                         title => '1 week',
-                                         href  => "/tapper/overview/suite/1",
-                                        },
-                                        {
-                                         title => '2 weeks',
-                                         href  => "/tapper/overview/suite/2",
-                                        },
-                                        {
-                                         title => '6 weeks',
-                                         href  => "/tapper/overview/suite/6",
-                                        },
-                                        {
-                                         title => '12 weeks',
-                                         href  => "/tapper/overview/suite/12",
-                                        },
-                                       ],
-                            
-                           },
-                           {
-                            title => 'All suites',
-                            href  => '/tapper/overview/suite/all',
-                           }
-                          ];
+        $c->stash->{navi}= [{
+                             title => 'Overview of',
+                             subnavi => [
+                                         {
+                                          title => 'Suites',
+                                          href  => "/tapper/overview/suite/weeks/2",
+                                         },
+                                         {
+                                          title => 'Hosts',
+                                          href  => "/tapper/overview/host/weeks/2",
+                                         },
+                                        ],
+
+                            },
+                            {
+                             title => 'Suites used in the last..',
+                             subnavi => [
+                                         {
+                                          title => '1 week',
+                                          href  => "/tapper/overview/suite/weeks/1",
+                                         },
+                                         {
+                                          title => '2 weeks',
+                                          href  => "/tapper/overview/suite/weeks/2",
+                                         },
+                                         {
+                                          title => '6 weeks',
+                                          href  => "/tapper/overview/suite/weeks/6",
+                                         },
+                                         {
+                                          title => '12 weeks',
+                                          href  => "/tapper/overview/suite/weeks/12",
+                                         },
+                                        ],
+                            },
+                            {
+                             title => 'Hosts used in the last..',
+                             subnavi => [
+                                         {
+                                          title => '1 week',
+                                          href  => "/tapper/overview/host/weeks/1",
+                                         },
+                                         {
+                                          title => '2 weeks',
+                                          href  => "/tapper/overview/host/weeks/2",
+                                         },
+                                         {
+                                          title => '6 weeks',
+                                          href  => "/tapper/overview/host/weeks/6",
+                                         },
+                                         {
+                                          title => '12 weeks',
+                                          href  => "/tapper/overview/host/weeks/12",
+                                         },
+                                        ],
+
+                            },
+                            {
+                             title => 'All suites',
+                             href  => '/tapper/overview/suite/all',
+                            }
+                           ];
 }
 
 1;

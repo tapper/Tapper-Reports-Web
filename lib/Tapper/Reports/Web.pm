@@ -1,107 +1,48 @@
 package Tapper::Reports::Web;
+# ABSTRACT: Tapper - Frontend web application based on Catalyst
 
+use 5.010;
 use strict;
 use warnings;
 
-use 5.010;
+use Moose;
+use Catalyst::Runtime;
 
-use Catalyst::Runtime '5.70';
-use Hash::Merge;
+extends 'Catalyst';
+with 'Tapper::Reports::Web::Role::BehaviourModifications::Path';
 
-use Class::C3::Adopt::NEXT;
+use Tapper::Config;
+use File::ShareDir ':ALL';
+use Cwd;
 
-# Set flags and add plugins for the application
-#
-#         -Debug: activates the debug mode for very useful log messages
-#   ConfigLoader: will load the configuration from a Config::General file in the
-#                 application's home directory
-# Static::Simple: will serve static files from the application's root
-#                 directory
+my $root_dir = eval { dist_dir("Tapper-Reports-Web") } || getcwd."/root";
 
-use parent qw/Catalyst/;
-
-our $VERSION = '3.000010';
-
-# used by Catalyst::Plugin::ConfigLoader
-sub finalize_config
-{
-        my $c = shift;
-
-        $c->NEXT::ACTUAL::finalize_config;
-        my $env =
-            $ENV{HARNESS_ACTIVE}                 ? 'test'
-                : $ENV{TAPPER_REPORTS_WEB_LIVE} ? 'live'
-                    : 'development';
-        Hash::Merge::set_behavior('RIGHT_PRECEDENT');
-        $c->config(
-                   Hash::Merge::merge(
-                                      $c->config,
-                                      $c->config->{ $env } || {} ,
-                                     )
-                  );
-
-        return;
-}
-
-sub debug
-{
-        return $ENV{TAPPER_REPORTS_WEB_LIVE} || $ENV{HARNESS_ACTIVE} ? 0 : 1;
-}
-
-# I am sick of getting relocated/rebase on our local path!
-# Cut away a trailing 'tapper/' from base and prepend it to path.
-# All conditionally only when this annoying environment is there.
-sub prepare_path
-{
-        my $c = shift;
-
-        $c->NEXT::prepare_path(@_);
-
-        my $base        =  $c->req->{base}."";
-        $base           =~ s,tapper/$,, if $base;
-        $c->req->{base} =  bless( do{\(my $o = $base)}, 'URI::http' );
-        $c->req->path('tapper/'.$c->req->path) unless ( $c->req->path =~ m,^tapper/?,);
-}
-
-
-# Configure the application.
+# Configure the application
 __PACKAGE__->config( name => 'Tapper::Reports::Web' );
-__PACKAGE__->config->{static}->{dirs} = [
-                                         'tapper/static',
-                                        ];
+__PACKAGE__->config->{tapper_config} = Tapper::Config->subconfig;
+
+# Configure plugins
+__PACKAGE__->config("Plugin::Static::Simple" => { dirs               => [ 'tapper/static' ],
+                                                  include_path       => [ $root_dir ]});
+if (__PACKAGE__->config->{tapper_config}{web}{use_authentication}) {
+        __PACKAGE__->config("Plugin::Authentication" => { realms => { default => { credential => { class  => 'Authen::Simple',
+                                                                                                   authen => [{ class => 'PAM',
+                                                                                                                args  =>
+                                                                                                                {
+                                                                                                                 service => 'login'
+                                                                                                                }}]}}}});
+}
+__PACKAGE__->config( 'Controller::HTML::FormFu' => {
+                                                    constructor => { config_file_path => [ "$root_dir/forms", 'root/forms/' ] },
+                                                   } );
+
+my @plugins = (qw(ConfigLoader
+                  Static::Simple Session
+                  Session::State::Cookie
+                  Session::Store::File));
+push @plugins, "Authentication" if __PACKAGE__->config->{use_authentication};
 
 # Start the application
-__PACKAGE__->setup(qw/-Debug
-                      ConfigLoader
-                      Static::Simple Session
-                      Session::State::Cookie
-                      Session::Store::File/);
-
-
-=head1 NAME
-
-Tapper::Reports::Web - Tapper - Frontend web application based on Catalyst
-
-=head1 SYNOPSIS
-
-    script/tapper_reports_web_server.pl
-
-=head1 DESCRIPTION
-
-[enter your description here]
-
-=head1 SEE ALSO
-
-L<Tapper::Reports::Web::Controller::Root>, L<Catalyst>
-
-=head1 AUTHOR
-
-Copyright 2008-2011 AMD OSRC Tapper Team, all rights reserved.
-
-=head1 LICENSE
-
-This program is released under the following license: proprietary
-
-=cut
+__PACKAGE__->setup(@plugins);
 
 1;

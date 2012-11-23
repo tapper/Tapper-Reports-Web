@@ -13,75 +13,6 @@ use YAML;
 use Data::Dumper;
 use Data::DPath 'dpath';
 
-sub auto :Private
-{
-        my ( $self, $c ) = @_;
-
-        my $navi : Stash = [
-                 {
-                  title  => "reports by date",
-                  href   => "/tapper/overview/date",
-                  subnavi => [
-                              {
-                               title  => "today",
-                               href   => "/tapper/reports/days/1",
-                              },
-                              {
-                               title  => "2 days",
-                               href   => "/tapper/reports/days/2",
-                              },
-                              {
-                               title  => "1 week",
-                               href   => "/tapper/reports/days/7",
-                              },
-                              {
-                               title  => "2 weeks",
-                               href   => "/tapper/reports/days/14",
-                              },
-                              {
-                               title  => "3 weeks",
-                               href   => "/tapper/reports/days/21",
-                              },
-                              {
-                               title  => "1 month",
-                               href   => "/tapper/reports/days/31",
-                              },
-                              {
-                               title  => "2 months",
-                               href   => "/tapper/reports/days/62",
-                              },
-                              {
-                               title  => "4 months",
-                               href   => "/tapper/reports/days/124",
-                              },
-                              {
-                               title  => "6 months",
-                               href   => "/tapper/reports/days/182",
-                              },
-                              {
-                               title  => "12 months",
-                               href   => "/tapper/reports/days/365",
-                              },
-
-                             ],
-                 },
-                 {
-                  title  => "reports by suite",
-                  href   => "/tapper/overview/suite",
-                 },
-                 {
-                  title  => "reports by host",
-                  href   => "/tapper/overview/host",
-                 },
-                 # {
-                 #  title  => "reports by people",
-                 #  href   => "/tapper/reports/people/",
-                 #  active => 0,
-                 # },
-                ];
-}
-
-
 sub younger
 {
         my $astat = stat($a);
@@ -122,7 +53,7 @@ sub generate_metareport_link
         }
         use Data::Dumper;
         my $suite;
-        $suite = $config->{suite}->{$report->{suite}} || $config->{suite}->{$report->{group_suite}};
+        { no warnings 'uninitialized'; $suite = $config->{suite}->{$report->{suite}} || $config->{suite}->{$report->{group_suite}};}
         if ($suite) {
                 my $category    = $suite->{category};
                 my $subcategory = $suite->{subcategory};
@@ -160,22 +91,31 @@ sub index :Path :Args(1)
 {
         my ( $self, $c, $report_id ) = @_;
 
-        my $report         : Stash;
-        my $failures       : Stash = [];
-        my $reportlist_rga : Stash = {};
-        my $reportlist_rgt : Stash = {};
-        my %metareport     : Stash;
-        my $overview       : Stash = undef;
+        $c->stash->{failures}       = {};
+        $c->stash->{reportlist_rga} = {};
+        $c->stash->{reportlist_rgt} = {};
+        $c->stash->{overview}       = undef;
+        $c->stash->{report}         = $c->model('ReportsDB')->resultset('Report')->find($report_id);
 
-        $report = $c->model('ReportsDB')->resultset('Report')->find($report_id);
-
-        if (not $report) {
+        if (not $c->stash->{report}) {
                 $c->response->body("No such report");
+                $c->stash->{title} = "No such report";
                 return;
         }
+
+        if (not $c->stash->{report}->suite) {
+                $c->response->body("No such testsuite with id: ". $c->stash->{report}->suite_id);
+                $c->stash->{title} = "No such testsuite";
+                return;
+        }
+
+        my $suite_name = $c->stash->{report}->suite->name;
+        my $machine_name = $c->stash->{report}->machine_name;
+        $c->stash->{title} = "Report $report_id: $suite_name @ $machine_name";
+
         my $util_report = Tapper::Reports::Web::Util::Report->new();
 
-        if (my $rga = $report->reportgrouparbitrary) {
+        if (my $rga = $c->stash->{report}->reportgrouparbitrary) {
                 #my $rga_reports = $c->model('ReportsDB')->resultset('ReportgroupArbitrary')->search ({ arbitrary_id => $rga->arbitrary_id });
                 my $rga_reports = $c->model('ReportsDB')->resultset('Report')->search
                     (
@@ -188,10 +128,18 @@ sub index :Path :Args(1)
                         '+as'     => [ 'rga_id',                            'rga_primary',                        'rgt_id',                        'rgt_primary',                      'suite_id', 'suite_name', 'suite_type', 'suite_description' ],
                      }
                     );
-                $reportlist_rga = $util_report->prepare_simple_reportlist($c,  $rga_reports);
+                $c->stash->{reportlist_rga} = $util_report->prepare_simple_reportlist($c,  $rga_reports);
+
+                $rga_reports->reset;
+                while (my $r = $rga_reports->next) {
+                        if (my @report_failures = @{ $self->get_report_failures($r) }) {
+                                $c->stash->{failures}->{$r->id}{name} = $r->suite->name;
+                                push @{$c->stash->{failures}->{$r->id}{failures}}, @report_failures;
+                        }
+                }
         }
 
-        if (my $rgt = $report->reportgrouptestrun) {
+        if (my $rgt = $c->stash->{report}->reportgrouptestrun) {
                 #my $rgt_reports = $c->model('ReportsDB')->resultset('ReportgroupTestrun')->search ({ testrun_id => $rgt->testrun_id });
                 my $rgt_reports = $c->model('ReportsDB')->resultset('Report')->search
                     (
@@ -204,23 +152,35 @@ sub index :Path :Args(1)
                         '+as'     => [ 'rga_id',                            'rga_primary',                        'rgt_id',                        'rgt_primary',                      'suite_name', 'suite_type', 'suite_description' ],
                      }
                     );
-                $reportlist_rgt = $util_report->prepare_simple_reportlist($c,  $rgt_reports);
+                $c->stash->{reportlist_rgt} = $util_report->prepare_simple_reportlist($c,  $rgt_reports);
 
-                my %cols = $rgt_reports->first->get_columns;
+                $rgt_reports->reset;
+                while (my $r = $rgt_reports->next) {
+                        if (my @report_failures = @{ $self->get_report_failures($r) }) {
+                                $c->stash->{failures}->{$r->id}{name} = $r->suite->name;
+                                push @{$c->stash->{failures}->{$r->id}{failures}}, @report_failures;
+                        }
+                }
+
+                my %cols = $rgt_reports->search({}, {rows => 1})->first->get_columns;
                 my $testrun_id = $cols{rgt_id};
                 my $testrun;
                 eval {
                         $testrun    = $c->model('TestrunDB')->resultset('Testrun')->find($testrun_id);
                 };
-                $overview      = $c->forward('/tapper/testruns/get_testrun_overview', [ $testrun ]);
+                $c->stash->{overview} = $c->forward('/tapper/testruns/get_testrun_overview', [ $testrun ]);
         }
 
-        my $tmp = [ grep {defined($_->{rgt_primary}) and $_->{rgt_primary} == 1} @{$reportlist_rgt->{all_reports}} ]->[0]->{suite_name};
-        my $report_data = {suite => $report->suite ? $report->suite->name : 'unknownsuite' ,
+        my $tmp = [ grep {defined($_->{rgt_primary}) and $_->{rgt_primary} == 1} @{$c->stash->{reportlist_rgt}->{all_reports}} ]->[0]->{suite_name};
+        my $report_data = {suite => $c->stash->{report}->suite ? $c->stash->{report}->suite->name : 'unknownsuite' ,
                            group_suite => $tmp};
 
-        $failures = $self->get_report_failures($report);
-        %metareport = $self->generate_metareport_link($report_data);
+        unless (my @report_failures = @{$c->stash->{failures}->{$c->stash->{report}->id}{failures} || []}) {
+                $c->stash->{failures}->{$c->stash->{report}->id}{name} = $c->stash->{report}->suite->name;
+                push @{$c->stash->{failures}->{$c->stash->{report}->id}{failures}}, @report_failures;
+        }
+        %{$c->stash->{metareport}} = $self->generate_metareport_link($report_data);
+
 }
 
 1;

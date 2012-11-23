@@ -1,0 +1,135 @@
+Revision history for {{$dist->name}}
+
+{{$NEXT}}
+
+4.1.2     2012-11-20
+        - fix missing deps
+
+4.1.1     2012-11-20
+        - dzil pluginbundle TAPPER
+
+4.1.0     2012-10-19
+        * PostgreSQL support
+        - [FIX] slow first() usage
+        - take care of nonexistent values
+        - rename USER into OWNER
+
+        * Adapt to upstream upgrades (Catalyst, Perl 5.16, ...)
+        - adapt ShareDir handling for static files, config, view, etc.
+        - catapult BindLex into outer space
+        - get rid of NEXT
+        - fix script/ -> bin/
+        - no "uninitialized value" warnings in templates
+        - migrate view to Catalyst::View::HTML::Mason
+        - more concise config
+
+        * Misc
+        - [FEAT] overviews with filters now
+        - [FEAT] delete testplan
+        - [FEAT] testplan rerun
+        - [FIX] stash variables
+        - [FIX] uninitialized warnings
+        - [FIX] circular dependency error
+        - optional authentication
+        - declare Authentication deps as optional
+        - Add hostname filter
+        - Remove some Javascript, eg. for confirmations
+        - disable excessive Catalyst debug output
+        - Unify navi generation
+        - resort top navi items
+
+4.0.4     2012-06-07
+        - and more deps
+          ("Mühsam ernährt sich das Eichhörnchen")
+
+4.0.3     2012-06-05
+        - more explicit Catalyst plugin deps
+
+4.0.2     2012-06-04
+        - explicit deps
+
+4.0.1     2012-05-16
+        - *lots* of rework, bugfixes, and optical junkfood
+        - new testplan view
+        - allow multiple URLs in report meta info
+        - added login/logout functionality
+        - PAM authentication as optional dependency
+        - timezone GMT everywhere
+        - show actual scheduling status
+        - show status "unfinished" near report_ids
+        - RSS feeds: cleanup + fixes
+        - more details searched from reports
+        - more configurable elements to better personalize webgui
+        - more concise issue summary, covering all reports of group
+        - verbose but more lax error handling
+        - show moreinfo-url
+        - URLs of attachments contain hint to context
+        - allow add/delete of filters (reports, testruns, testplans)
+        - suite overview URLs can use names
+        - ansi2txt/ansi2html rework
+        - CSS now with UNIX line endings
+        - big Dist::Zilla roundhouse kick
+
+2011-04-07  Steffen Schwigon  <steffen.schwigon@amd.com>
+
+	* v3.0.10
+
+	* rewritable shebang line
+	* showing tap now handles TAP archives
+	* update bundled manual HTML/PDF
+	* distro maintenance
+	* release version++ roundhouse kick
+
+2011-03-25 Steffen Schwigon <steffen.schwigon@amd.com>
+
+	* v3.0.6
+
+	* fix yet another forgotten dependency
+	* update bundled manual
+
+2011-03-24 Steffen Schwigon <steffen.schwigon@amd.com>
+
+	* v3.0.5
+
+	* [FIX] use timeouts from existing usecase files
+	* Adapt kernelbuild use case to autotest
+	* dependencies++
+	* [FIX] do not break layout when removing surplus whitespace
+	* [FIX] make console shorter by removing multiple whitespace
+	* [FIX] filter suite by name
+
+2011-03-10 Steffen Schwigon <steffen.schwigon@amd.com>
+
+	* v3.0.4
+
+	* distro maintenance
+
+2011-03-08 Steffen Schwigon <steffen.schwigon@amd.com>
+
+	* v3.0.2
+
+	* Testplan support rework
+	  - Overview of all testplans
+	  - Add shortname to testplan overview
+	  - template for testplan overview
+	  - Changed link from osrc to TaskJuggler
+	  - Show testplan instances by id
+	  - link to first report if no primary report yet
+	  - filter can now reject forbidden filters
+	  - [RFK] move prepare_testrunlist to util
+	  - [TEST] added scheduling info to fixtures
+	  - [TEST] added reportsdb fixtures
+	  - [TEST] testrun util package
+
+	* Several bugfixes 
+	  - "order_by" statements
+	  - try to force YAML versions
+	  - dependencies++
+	  - Make sure testrun has a scheduling before accessing it
+	  - Make sure host exists before accessing its name
+	
+2011-03-02  Steffen Schwigon  <steffen.schwigon@amd.com>
+
+	* v3.0
+
+	* first public CPAN release

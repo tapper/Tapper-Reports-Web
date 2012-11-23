@@ -5,6 +5,8 @@ use Tapper::Model 'model';
 
 use common::sense;
 
+extends 'Tapper::Reports::Web::Util';
+
 =head2 prepare_testrunlist
 
 For each of the given testruns generate a hash describing the
@@ -34,12 +36,12 @@ sub prepare_testrunlist
         my @testruns;
         foreach my $testrun ($testruns->all)
         {
-                my $testrun_report = model('ReportsDB')->resultset('ReportgroupTestrunStats')->search({testrun_id => $testrun->id})->first;
+                my $testrun_report = model('ReportsDB')->resultset('ReportgroupTestrunStats')->search({testrun_id => $testrun->id}, {rows => 1})->first;
                 my ($primary_report, $suite_name, $updated_at, $primary_report_id);
 
                 if ($testrun_report) {
-                        $primary_report = $testrun_report->reportgrouptestruns->search({primaryreport => 1})->first;
-                        $primary_report = $testrun_report->reportgrouptestruns->first unless $primary_report; # link to any report if no primary
+                        $primary_report = $testrun_report->reportgrouptestruns->search({primaryreport => 1}, {rows => 1})->first;
+                        $primary_report = $testrun_report->reportgrouptestruns->search({}, {rows => 1})->first unless $primary_report; # link to any report if no primary
 
                         eval{ # prevent dereferencing to undefined db links
                                 if ($primary_report) {
@@ -53,8 +55,14 @@ sub prepare_testrunlist
 
                 my ($hostname, $status);
                 if ($testrun->testrun_scheduling) {
-                        $hostname = $testrun->testrun_scheduling->host ?
-                          $testrun->testrun_scheduling->host->name : 'No host assigned'; # no host assigned at scheduling
+                        if ($testrun->testrun_scheduling->host) {
+                                $hostname = $testrun->testrun_scheduling->host->name;
+                        } else {
+                                $hostname = $testrun->testrun_scheduling->status eq 'finished' ?
+                                  'Host deleted' :
+                                    'No host assigned';
+
+                        }
                         $status   = $testrun->testrun_scheduling->status;
                 }
 
@@ -62,12 +70,13 @@ sub prepare_testrunlist
                           testrun_id            => $testrun->id,
                           success_ratio         => $testrun_report ? $testrun_report->success_ratio : 0,
                           primary_report_id     => $primary_report_id,
-                          suite_name            => $suite_name || $testrun->topic_name,
+                          topic_name            => $testrun->topic_name,
                           machine_name          => $hostname   || 'unknownmachine',
                           status                => $status     || 'unknown status',
                           started_at            => $testrun->starttime_testrun,
                           created_at            => $testrun->created_at,
                           updated_at            => $updated_at || $testrun->updated_at,
+                          owner                 => $testrun->owner->login || 'unknown user' ,
                          };
                 push @testruns, $tr;
         }

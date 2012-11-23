@@ -10,30 +10,35 @@ use Tapper::Reports::Web::Util::Report;
 use parent 'Tapper::Reports::Web::Controller::Base';
 
 
+sub auto :Private
+{
+        my ( $self, $c ) = @_;
+
+        $c->forward('/tapper/testruns/id/prepare_navi');
+}
+
+
 sub index :Path :Args(1)
 {
         my ( $self, $c, $testrun_id ) = @_;
-        my $report        : Stash;
-        my $testrun       : Stash;
-        my $overview      : Stash;
-        my $hostname      : Stash;
-        my $time          : Stash;
 
-        my $reportlist_rgt : Stash = {};
+        $c->stash->{reportlist_rgt} = {};
+
         eval {
-                $testrun = $c->model('TestrunDB')->resultset('Testrun')->find($testrun_id);
+                $c->stash->{testrun} = $c->model('TestrunDB')->resultset('Testrun')->find($testrun_id);
         };
-        if ($@ or not $testrun) {
+        if ($@ or not $c->stash->{testrun}) {
                 $c->response->body(qq(No testrun with id "$testrun_id" found in the database!));
                 return;
         }
 
-        return unless $testrun->testrun_scheduling;
+        return unless $c->stash->{testrun}->testrun_scheduling;
 
-        $time     = $testrun->starttime_testrun ? "started at ".$testrun->starttime_testrun : "Scheduled for ".$testrun->starttime_earliest;
-        $hostname = $testrun->testrun_scheduling->host ? $testrun->testrun_scheduling->host->name : "unknown";
+        $c->stash->{time}     = $c->stash->{testrun}->starttime_testrun ? "started at ".$c->stash->{testrun}->starttime_testrun : "Scheduled for ".($c->stash->{testrun}->starttime_earliest || '');
+        $c->stash->{hostname} = $c->stash->{testrun}->testrun_scheduling->host ? $c->stash->{testrun}->testrun_scheduling->host->name : "unknown";
 
-        $overview = $c->forward('/tapper/testruns/get_testrun_overview', [ $testrun ]);
+        $c->stash->{title} = "Testrun $testrun_id: ". $c->stash->{testrun}->topic_name . " @ ".$c->stash->{hostname};
+        $c->stash->{overview} = $c->forward('/tapper/testruns/get_testrun_overview', [ $c->stash->{testrun} ]);
 
         my $rgt_reports = $c->model('ReportsDB')->resultset('Report')->search
           (
@@ -48,8 +53,8 @@ sub index :Path :Args(1)
           );
         my $util_report = Tapper::Reports::Web::Util::Report->new();
 
-        $reportlist_rgt = $util_report->prepare_simple_reportlist($c,  $rgt_reports);
-        $report = $c->model('ReportsDB')->resultset('Report')->search
+        $c->stash->{reportlist_rgt} = $util_report->prepare_simple_reportlist($c,  $rgt_reports);
+        $c->stash->{report} = $c->model('ReportsDB')->resultset('Report')->search
           (
            {
             "reportgrouptestrun.primaryreport" => 1,
@@ -58,10 +63,61 @@ sub index :Path :Args(1)
             join => [ 'reportgrouptestrun', ]
            }
            );
-
-
-
 }
 
+sub prepare_navi : Private
+{
+        my ( $self, $c, $testrun_id ) = @_;
+
+        $c->stash->{navi} =[
+                            {
+                             title  => "Testruns by date",
+                             href   => "/tapper/testruns/days/2",
+                             active => 0,
+                             subnavi => [
+                                         {
+                                          title  => "today",
+                                          href   => "/tapper/testruns/days/1",
+                                         },
+                                         {
+                                          title  => "1 week",
+                                          href   => "/tapper/testruns/days/7",
+                                         },
+                                         {
+                                          title  => "2 weeks",
+                                          href   => "/tapper/testruns/days/14",
+                                         },
+                                         {
+                                          title  => "3 weeks",
+                                          href   => "/tapper/testruns/days/21",
+                                         },
+                                         {
+                                          title  => "1 month",
+                                          href   => "/tapper/testruns/days/30",
+                                         },
+                                         {
+                                          title  => "2 months",
+                                          href   => "/tapper/testruns/days/60",
+                                         },
+                                        ],
+                            },
+                            {
+                             title  => "Control",
+                             href   => "",
+                             active => 0,
+                             subnavi => [
+                                         {
+                                          title  => "Rerun this Testrun",
+                                          href   => "/tapper/testruns/$testrun_id/rerun",
+                                          confirm => 'Do you really want to re-start this testrun?',
+                                         },
+                                         {
+                                          title  => "Create new Testrun",
+                                          href   => "/tapper/testruns/create/",
+                                         },
+                                        ],
+                            },
+                           ];
+}
 
 1;
