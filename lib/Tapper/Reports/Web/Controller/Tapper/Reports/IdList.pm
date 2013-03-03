@@ -43,7 +43,6 @@ sub index :Path :Args(1)
 {
         my ( $self, $c, $idlist ) = @_;
 
-        print STDERR "idlist = <$idlist>\n";
         my @ids = split (qr/, */, $idlist);
 
         $c->forward('/tapper/reports/idlist/prepare_idlist', [ \@ids ]);
