@@ -68,6 +68,7 @@ sub prepare_this_weeks_reportlists : Private
                                    created_at
                                    success_ratio
                                    successgrade
+                                   parse_errors
                                    reviewed_successgrade
                                    total
                                    peerport
@@ -86,7 +87,6 @@ sub prepare_this_weeks_reportlists : Private
         foreach my $filter (@{$filter_condition->{late}}) {
                 $reports = $reports->search($filter);
         }
-
 
         my $util_report = Tapper::Reports::Web::Util::Report->new();
 
@@ -123,9 +123,11 @@ sub prepare_this_weeks_reportlists : Private
                 my $reportlist = $c->stash->{this_weeks_reportlists}[$_];
                 $c->stash->{list_count_all} += @{$reportlist->{all_reports}};
                 foreach my $report (@{$reportlist->{all_reports}}) {
-                        if    ($report->{successgrade} eq 'PASS') { $c->stash->{list_count_pass}++    }
+                        if    ($report->{parse_errors} != 0 )     { $c->stash->{list_count_unknown}++ }
+                        elsif ($report->{successgrade} eq 'PASS') { $c->stash->{list_count_pass}++    }
                         elsif ($report->{successgrade} eq 'FAIL') { $c->stash->{list_count_fail}++    }
                         else                                      { $c->stash->{list_count_unknown}++ }
+
                 }
         }
         $c->stash->{title} = "Reports of last ".$c->stash->{days}." days";

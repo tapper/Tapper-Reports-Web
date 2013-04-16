@@ -51,7 +51,13 @@
                           <a href="/tapper/reports/success/<% $successgrade %>"><% $successgrade %></a>
                         </td>
                         <td>
-                                  <a href="/tapper/reports/id/<% $report->{id} %>" title="<% $report->{success_ratio} || '' %>% - Click to show details"><img src="/tapper/static/images/green_bar<% $dimmed %>.png" height="16" width="<% $green_width %>"><img src="/tapper/static/images/red_bar<% $dimmed %>.png" height="16" width="<% $red_width %>"></a>
+                                  <a href="/tapper/reports/id/<% $report->{id} %>" title="<% $report->{success_ratio} || '' %>% - Click to show details">
+% if ( $report->{parse_errors} ) {
+                                  <img src="/tapper/static/images/grey_bar.png" height="16" width="50">
+% } else {
+                                  <img src="/tapper/static/images/green_bar<% $dimmed %>.png" height="16" width="<% $green_width %>"><img src="/tapper/static/images/red_bar<% $dimmed %>.png" height="16" width="<% $red_width %>">
+% }
+                                  </a>
                         </td>
                         <td>
 %                                 if (not $just_group_member) {
