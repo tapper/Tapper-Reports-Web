@@ -150,11 +150,10 @@ sub get_testrun_details
 
         while ( my $instance = $todays_instances->next) {
 
-                my $details = {
-                               name => $instance->name,
-                               id   => $instance->id,
-                               path => $instance->path,
-                              };
+                my $details = {};
+                foreach my $col ($instance->columns) {
+                        $details->{$col} = $instance->$col;
+                }
                 $details->{count_unfinished} = int grep {$_->testrun_scheduling and
                                                            $_->testrun_scheduling->status ne 'finished'} $instance->testruns->all;
 
