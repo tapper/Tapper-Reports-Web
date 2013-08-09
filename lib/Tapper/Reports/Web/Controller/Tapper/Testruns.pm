@@ -180,7 +180,7 @@ sub rerun : Chained('id') PathPart('rerun') Args(0)
                 $c->response->body(qq(Can not rerun testrun));
                 return;
         }
-        $c->stash(testrun => $c->model('TestrunDB')->resultset('Testrun')->find($retval));
+        $c->stash(testrun => $retval);
 }
 
 sub preconditions : Chained('id') PathPart('preconditions') CaptureArgs(0)
