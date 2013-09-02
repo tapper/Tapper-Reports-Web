@@ -8,6 +8,7 @@ use DateTime;
 use File::Basename;
 use File::Path;
 use Template;
+use YAML::Syck;
 
 use Tapper::Cmd::Testrun;
 use Tapper::Config;
@@ -187,6 +188,9 @@ sub preconditions : Chained('id') PathPart('preconditions') CaptureArgs(0)
 {
         my ( $self, $c ) = @_;
         $c->stash(preconditions => [$c->stash->{testrun}->ordered_preconditions]);
+        my @preconditions_hash = map { $_->precondition_as_hash } $c->stash->{testrun}->ordered_preconditions;
+        $YAML::Syck::SortKeys  = 1;
+        $c->stash->{precondition_string} = YAML::Syck::Dump(@preconditions_hash);
 }
 
 sub as_yaml : Chained('preconditions') PathPart('yaml') Args(0)
