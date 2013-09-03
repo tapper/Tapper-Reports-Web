@@ -14,6 +14,7 @@
 
 <!-- Title tip support -->
 <script language="JavaScript"  type="text/javascript" src="/tapper/static/js/qTip.js"></script>
+<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-2.0.3.min.js"></script>
 
 <link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/qtip.css" />
 
@@ -23,6 +24,19 @@
         #secondaryContent_2columns { display: none; }
         #primaryContent_2columns   { margin-right: 1.5em; }
         #footer                    { display: none; }
+</style>
+
+<!-- reportlist -->
+<style type="text/css">
+    tr.group_primary .reportid a {
+        font-weight: bold;
+    }
+    #idx_reportlist img {
+        cursor: pointer;
+    }
+    #idx_reportlist img.success_ratio {
+        height: 16px;
+    }
 </style>
 
 </script>
