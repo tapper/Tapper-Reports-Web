@@ -27,7 +27,7 @@ cmp_deeply($testruns->[0], superhashof({'success_ratio' => '75',
                                         'topic_name' => 'Software',
                                         'primary_report_id' => 21,}),
            'First testrun description, scalar parts');
-is($testruns->[0]->{status}, 'running', 'Status of first testrun');
+is($testruns->[0]->{status}, 'schedule', 'Status of first testrun');
 
 
 
