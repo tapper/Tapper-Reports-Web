@@ -611,11 +611,11 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
 
                         $c->stash->{all_testruns}[$i]{host} = $host;
 
-                        $testrun_settings{requested_hosts} = [ requested_hosts => $host ];
+                        $testrun_settings{requested_hosts} = $host;
                         my $cmd = Tapper::Cmd::Testrun->new();
                         eval { $config->{testrun_id} = $cmd->add(\%testrun_settings)};
                         if ($@) {
-                                $c->stash->{all_testruns}[$i]{ error } = @_;
+                                $c->stash->{all_testruns}[$i]{error} = $@;
                                 next HOST;
                         }
                         $c->stash->{all_testruns}[$i]{id} = $config->{testrun_id};
