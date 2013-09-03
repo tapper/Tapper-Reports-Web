@@ -51,7 +51,6 @@ sub prepare_this_weeks_reportlists : Private {
         $c->stash->{reports} = $c->model('ReportsDB')->fetch_raw_sql({
             query_name  => 'reports::web_list',
             fetch_type  => '@%',
-            debug       => 1,
             query_vals  => {
                 suite_id         => $filter_condition->{early}{suite_id}{in},
                 machine_name     => $filter_condition->{early}{machine_name}{in},
@@ -61,7 +60,7 @@ sub prepare_this_weeks_reportlists : Private {
                 date             => $filter_condition->{date},
                 (
                     exists $filter_condition->{late}
-                        ? ( owner => $filter_condition->{late}[-1]{-or}[-1]{'reportgrouptestrun.owner'} )
+                        ? ( owner => $filter_condition->{late}[0]{-or}[0]{'reportgrouptestrun.owner'} )
                         : ()
                 )
             },
