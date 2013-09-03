@@ -1,6 +1,5 @@
 package Tapper::Reports::Web::Controller::Tapper::Reports;
 
-
 use parent 'Tapper::Reports::Web::Controller::Base';
 
 use DateTime::Format::Natural;
@@ -41,93 +40,33 @@ sub index :Path :Args()
 
 }
 
-sub prepare_this_weeks_reportlists : Private
-{
+sub prepare_this_weeks_reportlists : Private {
+
         my ( $self, $c, $filter_condition ) = @_;
 
-        $c->stash->{this_weeks_reportlists} = [];
-        $c->stash->{days}                   = $filter_condition->{days};
-        $c->stash->{date}                   = $filter_condition->{date};
-
-        $filter_condition->{early} =  {} unless
-          defined($filter_condition->{early}) and
-            ref($filter_condition->{early}) eq 'HASH' ;
-
-        # how long is "last weeks"
-        my $lastday = $filter_condition->{days} ? $filter_condition->{days} : 7;
-
-        # ----- general -----
-
-        # Mnemonic: rga = ReportGroupArbitrary, rgt = ReportGroupTestrun
-        my $reports = $c->model('ReportsDB')->resultset('Report')->search
-            (
-             $filter_condition->{early},
-             {  order_by  => 'me.id desc',
-                columns   => [ qw( id
-                                   machine_name
-                                   created_at
-                                   success_ratio
-                                   successgrade
-                                   reviewed_successgrade
-                                   total
-                                   peerport
-                                   peeraddr
-                                   peerhost
-                                )],
-                join      => [ 'reportgrouparbitrary',              'reportgrouptestrun', 'suite' ],
-                '+select' => [ 'reportgrouparbitrary.arbitrary_id', 'reportgrouparbitrary.primaryreport', 'reportgrouparbitrary.owner',
-                               'reportgrouptestrun.testrun_id', 'reportgrouptestrun.primaryreport', 'reportgrouptestrun.owner',
-                               'suite.id', 'suite.name', 'suite.type', 'suite.description' ],
-                '+as'     => [ 'rga_id', 'rga_primary', 'rga_owner',
-                               'rgt_id', 'rgt_primary', 'rgt_owner',
-                               'suite_id', 'suite_name', 'suite_type', 'suite_description' ],
-             }
-            );
-        foreach my $filter (@{$filter_condition->{late}}) {
-                $reports = $reports->search($filter);
+        if ( !$filter_condition->{early} || !( ref $filter_condition->{early} eq 'HASH' ) ) {
+            $filter_condition->{early} = {};
         }
 
+        $c->stash->{reports} = $c->model('ReportsDB')->fetch_raw_sql({
+            query_name  => 'reports::web_list',
+            fetch_type  => '@%',
+            debug       => 1,
+            query_vals  => {
+                suite_id         => $filter_condition->{early}{suite_id}{in},
+                machine_name     => $filter_condition->{early}{machine_name}{in},
+                success_ratio    => $filter_condition->{early}{success_ratio},
+                successgrade     => $filter_condition->{early}{successgrade},
+                days             => !$filter_condition->{date} && !$filter_condition->{days} ? 7 : $filter_condition->{days},
+                date             => $filter_condition->{date},
+                (
+                    exists $filter_condition->{late}
+                        ? ( owner => $filter_condition->{late}[-1]{-or}[-1]{'reportgrouptestrun.owner'} )
+                        : ()
+                )
+            },
+        });
 
-        my $util_report = Tapper::Reports::Web::Util::Report->new();
-
-        my @day    = ( $c->stash->{requested_day} );
-        push @day, $c->stash->{requested_day}->clone->subtract( days => $_ ) foreach 1..$lastday;
-
-        my $dtf = $c->model("ReportsDB")->storage->datetime_parser;
-
-        # ----- today -----
-        my $day0_reports = $reports->search ( { created_at => { '>', $dtf->format_datetime($day[0]) } } );
-        push @{$c->stash->{this_weeks_reportlists}}, {
-                                                      day => $day[0],
-                                                      %{ $util_report->prepare_simple_reportlist($c, $day0_reports) }
-                                                     };
-
-        # ----- last week days -----
-        foreach (1..$lastday) {
-                my $day_reports = $reports->search ({ -and => [ created_at => { '>', $dtf->format_datetime($day[$_])     },
-                                                                created_at => { '<', $dtf->format_datetime($day[$_ - 1]) },
-                                                              ]});
-                push @{$c->stash->{this_weeks_reportlists}}, {
-                                                              day => $day[$_],
-                                                              %{ $util_report->prepare_simple_reportlist($c, $day_reports) }
-                                                             };
-        }
-
-
-        $c->stash->{list_count_all}     = 0;
-        $c->stash->{list_count_pass}    = 0;
-        $c->stash->{list_count_fail}    = 0;
-        $c->stash->{list_count_unknown} = 0;
-
-        foreach (0..$lastday) {
-                my $reportlist = $c->stash->{this_weeks_reportlists}[$_];
-                $c->stash->{list_count_all} += @{$reportlist->{all_reports}};
-                foreach my $report (@{$reportlist->{all_reports}}) {
-                        if    ($report->{successgrade} eq 'PASS') { $c->stash->{list_count_pass}++    }
-                        elsif ($report->{successgrade} eq 'FAIL') { $c->stash->{list_count_fail}++    }
-                        else                                      { $c->stash->{list_count_unknown}++ }
-                }
-        }
         $c->stash->{title} = "Reports of last ".$c->stash->{days}." days";
 
 }

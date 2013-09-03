@@ -10,7 +10,7 @@
 % my $now = gmtime();
 % if ($c->stash->{date}) {
 <h3>Reports of <% $c->stash->{date} %></h3>
-% } else {  
+% } else {
 % my $days = $c->stash->{days} || 7;
 <h3>Reports of last <% $days %> days</h3>
 %}
@@ -36,13 +36,136 @@
 </pre>
 % }
 
-<& /tapper/reports/week_reportlists.mas, week_reportlists   => \@this_weeks_reportlists,
-                                          list_count_all     => $list_count_all,
-                                          list_count_pass    => $list_count_pass,
-                                          list_count_fail    => $list_count_fail,
-                                          list_count_unknown => $list_count_unknown
+<%method s_get_formated_date>
+    <%args>
+        $s_given_date
+    </%args>
+%       require DateTime::Format::Strptime;
+%       my $or_strp = DateTime::Format::Strptime->new(
+%           pattern   => '%F',
+%       );
+%       my $or_dt = $or_strp->parse_datetime( $s_given_date );
+        <% $or_dt->strftime('%a %b %d, %Y') %>
+</%method>
 
-  &>
+<%method s_get_table_header>
+
+        <input type="hidden" id="idx_path" value="<% $c->req->path %>" />
+
+        <table id="idx_reportlist" class="reportlist">
+            <thead>
+                <tr>
+                     <th class="reportid">ID</th>
+                     <th>DateTime (GMT)</th>
+                     <th>Suite</th>
+                     <th>Machine</th>
+                     <th>Success</th>
+                     <th>Ratio</th>
+                     <th>Grouped by</th>
+                     <th>Owner</th>
+                </tr>
+            </thead>
+            <tbody>
+
+</%method>
+
+%   if ( $c->stash->{reports} ) {
+
+%               my $d_grouping_date = q##;
+%               my $i_grouping_id   = q##;
+%               foreach my $hr_report ( @{$c->stash->{reports}} ) {
+
+%                   if (
+%                       $i_grouping_id ne $hr_report->{grouping_id}
+%                       && $hr_report->{report_date} ne $d_grouping_date
+%                   ) {
+%                       if ( $d_grouping_date ne q## ) {
+            </tbody>
+        </table>
+%                       }
+
+%       $d_grouping_date = $hr_report->{report_date};
+        <h4>
+            <a href="/tapper/reports/date/<% $hr_report->{report_date} %>"><& SELF:s_get_formated_date,  s_given_date => $d_grouping_date &></a>
+        </h4>
+        <& SELF:s_get_table_header &>
+%                   }
+
+                    <tr class="<% $i_grouping_id ne $hr_report->{grouping_id} ? 'group_primary' : 'justgroupmember' %>">
+                        <td class="reportid">
+                            <a title="Click to show details" href="/tapper/reports/id/<% $hr_report->{report_id} %>">r<% $hr_report->{report_id} %></a>
+                        </td>
+                        <td><% $hr_report->{report_date} . ' ' . $hr_report->{report_time} %></td>
+                        <td>
+                            <img src="/tapper/static/images/plus.png" class="suite" title="Add <% $hr_report->{suite_name} %> to filter">
+                            <a title="Click to show reports of suite '<% $hr_report->{suite_name} %>'" href="/tapper/reports/suite/<% $hr_report->{suite_name} %>">
+                                <% $hr_report->{suite_name} %>
+                            </a>
+                        </td>
+                        <td>
+                            <img src="/tapper/static/images/plus.png" class="host" title="Add <% $hr_report->{machine_name} %> to filter">
+                            <a title="Click to show reports on '<% $hr_report->{machine_name} %>' <% $hr_report->{peeraddr} ? '(reported from ip '.$hr_report->{peeraddr} .')' : ''%>" href="/tapper/reports/host/<% $hr_report->{machine_name} %>">
+                                <% $hr_report->{machine_name} %>
+                            </a>
+                        </td>
+                        <td class="<% lc $hr_report->{successgrade} %>">
+                            <img src="/tapper/static/images/plus.png" class="success" title="Add <% $hr_report->{successgrade} %> to filter">
+                            <a href="/tapper/reports/success/<% $hr_report->{successgrade} %>"><% $hr_report->{successgrade} %></a>
+                        </td>
+                        <td>
+%                           my $i_success_width = int($hr_report->{success_ratio} / 2);
+                            <img
+                                class="success_ratio"
+                                src="/tapper/static/images/green_bar<% $i_grouping_id eq $hr_report->{grouping_id} ? '_dimmed' : '' %>.png"
+                                width="<% $i_success_width %>"
+                                title="<% $hr_report->{success_ratio} || '' %>% - Click to show details"
+                            ><img
+                                class="success_ratio"
+                                src="/tapper/static/images/red_bar<% $i_grouping_id eq $hr_report->{grouping_id} ? '_dimmed' : '' %>.png"
+                                width="<% 50 - $i_success_width %>"
+                                title="<% $hr_report->{success_ratio} || '' %>% - Click to show details"
+                            >
+                        </td>
+
+%                       if ( $i_grouping_id ne $hr_report->{grouping_id} ) {
+%                           $i_grouping_id = $hr_report->{grouping_id};
+                            <td><% $hr_report->{grouping_id} %></td>
+                            <td>
+                                <img src="/tapper/static/images/plus.png" class="owner" title="Add <% $hr_report->{report_owner} %> to filter">
+                                <a title="Click to show reports of owner '<% $hr_report->{report_owner} %>'" href="/tapper/reports/owner/<% $hr_report->{report_owner} %>">
+                                    <% $hr_report->{report_owner} %>
+                                </a>
+                            </td>
+%                       }
+
+                    </tr>
+%               }
+
+            </tbody>
+        </table>
+%   }
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $('#idx_reportlist').click(function( e ){
+            var $target = $(e.target);
+            if ( $target.is('img') ) {
+                if ( $target.hasClass('success_ratio') ) {
+                    location.href = $target.parent().prevAll('.reportid').first().children('a').attr('href');
+                }
+                else {
+                    $(['suite', 'host', 'success', 'owner']).each(function(){
+                        if ( $target.hasClass(this) ) {
+                            location.href = '/' + $('#idx_path').val() + '/' + this + '/' + $target.next().text().trim();
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+</script>
 
 %# Local Variables:
 %# buffer-file-coding-system: utf-8
