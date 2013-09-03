@@ -21,18 +21,18 @@ my $fn_execute_raw_sql = sub {
         sub {
             my ( $or_storage, $or_dbh, $hr_params ) = @_;
 
-            my @a_query_name     = ( $hr_params->{query_name} =~ /(.*)::(.*)/ );
-            my $s_storage_engine = ( split /::/, ref $or_storage         )[-1];
-            my $s_schema         = ( split /::/, ref $or_storage->schema )[-1];
+            my ( $s_query_ns, $s_query_sub ) = ( $hr_params->{query_name} =~ /(.*)::(.*)/ );
+            my $s_storage_engine             = ( split /::/, ref $or_storage         )[-1];
+            my $s_schema                     = ( split /::/, ref $or_storage->schema )[-1];
 
             if (! $s_storage_engine ~~ @a_supported_storage_engines ) {
                 die 'storage engine not supported';
             }
 
-            my $s_module = 'Tapper::RawSQL::' . $s_schema . '::' . $a_query_name[0];
+            my $s_module = 'Tapper::RawSQL::' . $s_schema . '::' . $s_query_ns;
 
             Module::Load::load( $s_module );
-            if ( my $fh_query_sub = $s_module->can($a_query_name[1]) ) {
+            if ( my $fh_query_sub = $s_module->can($s_query_sub) ) {
                 my $hr_query = $fh_query_sub->( $hr_params->{query_vals} );
                 if ( my $s_sql = $hr_query->{$s_storage_engine} || $hr_query->{default} ) {
 
@@ -69,7 +69,7 @@ my $fn_execute_raw_sql = sub {
                 }
             }
             else {
-                die 'named query not exists';
+                die 'named query does not exist';
             }
 
         },

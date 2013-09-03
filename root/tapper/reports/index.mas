@@ -36,7 +36,7 @@
 </pre>
 % }
 
-<%method s_get_formated_date>
+<%method s_get_formatted_date>
     <%args>
         $s_given_date
     </%args>
@@ -86,7 +86,7 @@
 
 %       $d_grouping_date = $hr_report->{report_date};
         <h4>
-            <a href="/tapper/reports/date/<% $hr_report->{report_date} %>"><& SELF:s_get_formated_date,  s_given_date => $d_grouping_date &></a>
+            <a href="/tapper/reports/date/<% $hr_report->{report_date} %>"><& SELF:s_get_formatted_date,  s_given_date => $d_grouping_date &></a>
         </h4>
         <& SELF:s_get_table_header &>
 %                   }
