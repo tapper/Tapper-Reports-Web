@@ -147,6 +147,10 @@
 
 <script type="text/javascript">
 
+    /*
+        Add a onclick behavior for the reportlist table on dom ready. The
+        following action depends on the clicked target ( picture ).
+    */
     $(document).ready(function(){
         $('#idx_reportlist').click(function( e ){
             var $target = $(e.target);
