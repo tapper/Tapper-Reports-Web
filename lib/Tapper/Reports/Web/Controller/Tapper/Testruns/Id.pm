@@ -40,7 +40,7 @@ sub index :Path :Args(1)
         $c->stash->{title} = "Testrun $testrun_id: ". $c->stash->{testrun}->topic_name . " @ ".$c->stash->{hostname};
         $c->stash->{overview} = $c->forward('/tapper/testruns/get_testrun_overview', [ $c->stash->{testrun} ]);
 
-        my $rgt_reports = $c->model('ReportsDB')->resultset('Report')->search
+        my $rgt_reports = $c->model('TestrunDB')->resultset('Report')->search
           (
            {
             "reportgrouptestrun.testrun_id" => $testrun_id
@@ -54,7 +54,7 @@ sub index :Path :Args(1)
         my $util_report = Tapper::Reports::Web::Util::Report->new();
 
         $c->stash->{reportlist_rgt} = $util_report->prepare_simple_reportlist($c,  $rgt_reports);
-        $c->stash->{report} = $c->model('ReportsDB')->resultset('Report')->search
+        $c->stash->{report} = $c->model('TestrunDB')->resultset('Report')->search
           (
            {
             "reportgrouptestrun.primaryreport" => 1,

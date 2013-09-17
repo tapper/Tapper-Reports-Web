@@ -1,34 +1,3 @@
-<%args>
-        @this_weeks_reportlists => ()
-        $list_count_all     => "n"
-        $list_count_pass    => "n"
-        $list_count_fail    => "n"
-        $list_count_unknown => "n"
-
-</%args>
-
-% my $now = gmtime();
-% if ($c->stash->{date}) {
-<h3>Reports of <% $c->stash->{date} %></h3>
-% } else {
-% my $days = $c->stash->{days} || 7;
-<h3>Reports of last <% $days %> days</h3>
-%}
-  This list shows all incoming single <strong>reports</strong> .
-
-  Some reports are grouped together, consisting of a primary report
-  and related reports which are visually greyed out.
-
-  Links in columns <i>ID</i> show details of single report. Links in the
-  columns <i>Suite</i>, <i>Machine</i> and <i>Success</i> apply filters
-  on the list of testruns. Clicking on the plus sign adds the associated
-  filter to the current filters, clicking on the text link filters only on
-  the associated detail.
-
-  Use the column <i>Grouped by / testrun</i> to get an overview of the testrun.
-
-  If you are interested in a less detailed overview of only the automated
-  testrun results then try <a href="/tapper/testruns/days/2">Testruns</a>.
 % if ($c->flash->{error_msg}) {
 <pre>
 
@@ -36,62 +5,88 @@
 </pre>
 % }
 
-<%method s_get_formatted_date>
-    <%args>
-        $s_given_date
-    </%args>
-%       require DateTime::Format::Strptime;
-%       my $or_strp = DateTime::Format::Strptime->new(
-%           pattern   => '%F',
-%       );
-%       my $or_dt = $or_strp->parse_datetime( $s_given_date );
+<br />
+<br />
+<div id="idx_reportlist_pager">
+
+%   require DateTime;
+%   require DateTime::Format::Strptime;
+%   my $or_dt_now = DateTime->now();
+%   my $s_dt_now  = $or_dt_now->strftime('%F');
+%   my $or_strp   = DateTime::Format::Strptime->new(
+%       pattern   => '%F',
+%   );
+%   my $or_dt = $or_strp->parse_datetime( $c->stash->{report_date} );
+
+%   for my $s_act_pager_value (qw/ year month week day /) {
+%       if ( $or_dt->clone->add( $s_act_pager_value . 's' => 1 )->strftime('%F') gt $s_dt_now ) {
+            <div>&laquo; <% $s_act_pager_value %></div>
+%       }
+%       else {
+            <div class="clickable" onclick="pager_call('positive','<% $s_act_pager_value %>s');">&laquo; <% $s_act_pager_value %></div>
+%       }
+%   }
+
+    <div class="pager_date" pager_date="<% $or_dt->strftime('%F') %>">
         <% $or_dt->strftime('%a %b %d, %Y') %>
-</%method>
+    </div>
+    <div id="idx_pager_interval_div">
+        <input type="text" size="3" id="idx_pager_interval_input" value="<% $c->stash->{pager_interval} %>" /> day(s)
+    </div>
+    <div class="pager_date" pager_date="<% $or_dt->clone->subtract( days => $c->stash->{pager_interval} - 1 )->strftime('%F') %>">
+        <% $or_dt->clone->subtract( days => $c->stash->{pager_interval} - 1 )->strftime('%a %b %d, %Y') %>
+    </div>
 
-<%method s_get_table_header>
+%   for my $s_act_pager_value (qw/ day week month year /) {
+        <div class="clickable" onclick="pager_call('negative','<% $s_act_pager_value %>s');"><% $s_act_pager_value %> &raquo;</div>
+%   }
+</div>
+<br />
+<br />
 
-        <input type="hidden" id="idx_path" value="<% $c->req->path %>" />
+%   my $dt_report_date  = $c->stash->{report_date}->strftime('%F');
 
-        <table id="idx_reportlist" class="reportlist">
-            <thead>
-                <tr>
-                     <th class="reportid">ID</th>
-                     <th>DateTime (GMT)</th>
-                     <th>Suite</th>
-                     <th>Machine</th>
-                     <th>Success</th>
-                     <th>Ratio</th>
-                     <th>Grouped by</th>
-                     <th>Owner</th>
-                </tr>
-            </thead>
-            <tbody>
+<input type="hidden" id="idx_path" value="<% $c->req->path %>" />
+<input type="hidden" id="idx_report_date" value="<% $dt_report_date %>" />
+<input type="hidden" id="idx_pager_sign" value="<% $c->req->params->{pager_sign} || '' %>" />
+<input type="hidden" id="idx_pager_value" value="<% $c->req->params->{pager_value} || '' %>" />
 
-</%method>
+%   if ( $c->stash->{reports} && @{$c->stash->{reports}} ) {
 
-%   if ( $c->stash->{reports} ) {
+<table id="idx_reportlist" class="reportlist">
+    <thead>
+        <tr>
+             <th class="reportid">ID</th>
+             <th>DateTime (GMT)</th>
+             <th>Suite</th>
+             <th>Machine</th>
+             <th>Success</th>
+             <th>Ratio</th>
+             <th>Grouped by</th>
+             <th>Owner</th>
+        </tr>
+    </thead>
+    <tbody>
 
-%               my $d_grouping_date = q##;
-%               my $i_grouping_id   = q##;
+%               my ( $s_grouping_id, $d_grouping_date ) = ( q##, q## );
 %               foreach my $hr_report ( @{$c->stash->{reports}} ) {
 
-%                   if (
-%                       $i_grouping_id ne $hr_report->{grouping_id}
-%                       && $hr_report->{report_date} ne $d_grouping_date
-%                   ) {
-%                       if ( $d_grouping_date ne q## ) {
-            </tbody>
-        </table>
+%                   if ( $c->stash->{pager_interval} != 1 ) {
+%                       if ( $s_grouping_id ne $hr_report->{grouping_id} && $d_grouping_date ne $hr_report->{report_date} ) {
+                            <tr>
+                                <td colspan="8" class="pager_date" pager_date="<% $hr_report->{report_date} %>">
+%                                   $d_grouping_date = $hr_report->{report_date};
+%                                   my $or_strp   = DateTime::Format::Strptime->new(
+%                                       pattern   => '%F',
+%                                   );
+%                                   my $or_dt_act = $or_strp->parse_datetime( $hr_report->{report_date} );
+                                    <% $or_dt_act->strftime('%a %b %d, %Y') %>
+                                </td>
+                            <tr>
 %                       }
-
-%       $d_grouping_date = $hr_report->{report_date};
-        <h4>
-            <a href="/tapper/reports/date/<% $hr_report->{report_date} %>"><& SELF:s_get_formatted_date,  s_given_date => $d_grouping_date &></a>
-        </h4>
-        <& SELF:s_get_table_header &>
 %                   }
 
-                    <tr class="<% $i_grouping_id ne $hr_report->{grouping_id} ? 'group_primary' : 'justgroupmember' %>">
+                    <tr class="<% $s_grouping_id ne $hr_report->{grouping_id} ? 'group_primary' : 'justgroupmember' %>">
                         <td class="reportid">
                             <a title="Click to show details" href="/tapper/reports/id/<% $hr_report->{report_id} %>">r<% $hr_report->{report_id} %></a>
                         </td>
@@ -103,10 +98,12 @@
                             </a>
                         </td>
                         <td>
-                            <img src="/tapper/static/images/plus.png" class="host" title="Add <% $hr_report->{machine_name} %> to filter">
-                            <a title="Click to show reports on '<% $hr_report->{machine_name} %>' <% $hr_report->{peeraddr} ? '(reported from ip '.$hr_report->{peeraddr} .')' : ''%>" href="/tapper/reports/host/<% $hr_report->{machine_name} %>">
-                                <% $hr_report->{machine_name} %>
-                            </a>
+%                           if ( $hr_report->{machine_name} ) {
+                                <img src="/tapper/static/images/plus.png" class="host" title="Add <% $hr_report->{machine_name} %> to filter">
+                                <a title="Click to show reports on '<% $hr_report->{machine_name} %>' <% $hr_report->{peeraddr} ? '(reported from ip '.$hr_report->{peeraddr} .')' : ''%>" href="/tapper/reports/host/<% $hr_report->{machine_name} %>">
+                                    <% $hr_report->{machine_name} %>
+                                </a>
+%                           }
                         </td>
                         <td class="<% lc $hr_report->{successgrade} %>">
                             <img src="/tapper/static/images/plus.png" class="success" title="Add <% $hr_report->{successgrade} %> to filter">
@@ -116,25 +113,35 @@
 %                           my $i_success_width = int($hr_report->{success_ratio} / 2);
                             <img
                                 class="success_ratio"
-                                src="/tapper/static/images/green_bar<% $i_grouping_id eq $hr_report->{grouping_id} ? '_dimmed' : '' %>.png"
+                                src="/tapper/static/images/green_bar<% $s_grouping_id eq $hr_report->{grouping_id} ? '_dimmed' : '' %>.png"
                                 width="<% $i_success_width %>"
                                 title="<% $hr_report->{success_ratio} || '' %>% - Click to show details"
                             ><img
                                 class="success_ratio"
-                                src="/tapper/static/images/red_bar<% $i_grouping_id eq $hr_report->{grouping_id} ? '_dimmed' : '' %>.png"
+                                src="/tapper/static/images/red_bar<% $s_grouping_id eq $hr_report->{grouping_id} ? '_dimmed' : '' %>.png"
                                 width="<% 50 - $i_success_width %>"
                                 title="<% $hr_report->{success_ratio} || '' %>% - Click to show details"
                             >
                         </td>
 
-%                       if ( $i_grouping_id ne $hr_report->{grouping_id} ) {
-%                           $i_grouping_id = $hr_report->{grouping_id};
-                            <td><% $hr_report->{grouping_id} %></td>
+%                       if ( $s_grouping_id ne $hr_report->{grouping_id} ) {
+%                           $s_grouping_id = $hr_report->{grouping_id};
                             <td>
-                                <img src="/tapper/static/images/plus.png" class="owner" title="Add <% $hr_report->{report_owner} %> to filter">
-                                <a title="Click to show reports of owner '<% $hr_report->{report_owner} %>'" href="/tapper/reports/owner/<% $hr_report->{report_owner} %>">
-                                    <% $hr_report->{report_owner} %>
-                                </a>
+%                               if ( $s_grouping_id =~ /testrun (\d+)/ ) {
+%                                   my $i_testrun_id = $1;
+                                    <a href="/tapper/testruns/id/<% $i_testrun_id %>"><% $hr_report->{grouping_id} %></a>
+%                               }
+%                               else {
+                                    <% $hr_report->{grouping_id} %>
+%                               }
+                            </td>
+                            <td>
+%                               if ( $hr_report->{report_owner} ) {
+                                    <img src="/tapper/static/images/plus.png" class="owner" title="Add <% $hr_report->{report_owner} %> to filter">
+                                    <a title="Click to show reports of owner '<% $hr_report->{report_owner} %>'" href="/tapper/reports/owner/<% $hr_report->{report_owner} %>">
+                                        <% $hr_report->{report_owner} %>
+                                    </a>
+%                               }
                             </td>
 %                       }
 
@@ -143,6 +150,9 @@
 
             </tbody>
         </table>
+%   }
+%   else {
+        <div class="no_results">no results found for active filters and date.</div>
 %   }
 
 <script type="text/javascript">
@@ -161,13 +171,79 @@
                 else {
                     $(['suite', 'host', 'success', 'owner']).each(function(){
                         if ( $target.hasClass(this) ) {
-                            location.href = '/' + $('#idx_path').val() + '/' + this + '/' + $target.next().text().trim();
+                            location.href =
+                                  '/'
+                                + $('#idx_path').val().replace(/\/\s*$/g,'')
+                                + '/'
+                                + this
+                                + '/'
+                                + $target.next().text().trim()
+                                + '?report_date='
+                                + $('#idx_report_date').val()
+                            ;
                         }
                     });
                 }
             }
         });
     });
+
+    $('#idx_reportlist_pager div.pager_date, #idx_reportlist td.pager_date').click(function( e ){
+        location.href =
+              '/'
+            + $('#idx_path').val().replace(/\/\s*$/g,'')
+            + '?report_date='
+            + $(e.target).attr('pager_date')
+        ;
+    });
+
+    $('#idx_pager_interval_input')
+        .keydown(function( e ){
+            var key = e.charCode || e.keyCode || 0;
+            // allow backspace, tab, delete, arrows, numbers and keypad numbers ONLY
+            // home, end, period, and numpad decimal
+            if ( key == 13 ) {
+                pager_call();
+            }
+            return (
+                (
+                    $(this).val().length < 3 && (
+                        (key >= 48 && key <= 57) ||
+                        (key >= 96 && key <= 105)
+                    )
+                ) || (
+                    key == 8 ||
+                    key == 9 ||
+                    key == 46 ||
+                    key == 110 ||
+                    key == 190 ||
+                    (key >= 35 && key <= 40)
+                )
+            );
+        })
+        .focus(function( e ){
+            $(this).data('value_bak',$(this).val());
+        })
+        .blur(function( e ){
+            if ( $(this).val() != $(this).data('value_bak') ) {
+                pager_call();
+            }
+        })
+    ;
+
+    /*
+        function for pager requests
+    */
+    function pager_call( pager_sign, pager_value ) {
+        location.href =
+              '/'
+            + $('#idx_path').val().replace(/\/\s*$/g,'')
+            + '?report_date=' + $('#idx_report_date').val()
+            + ( pager_sign  ? '&amp;pager_sign='  + pager_sign  : '' )
+            + ( pager_value ? '&amp;pager_value=' + pager_value : '' )
+            + '&amp;pager_interval=' + $('#idx_pager_interval_input').val()
+        ;
+    }
 
 </script>
 

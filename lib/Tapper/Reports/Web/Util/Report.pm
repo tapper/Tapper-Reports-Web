@@ -1,5 +1,11 @@
 package Tapper::Reports::Web::Util::Report;
 
+BEGIN {
+    use CGI::Carp qw(carpout);
+    open(LOG, ">>/var/log/my.log") or die("Unable to open mycgi-log: $!\n");
+    carpout(LOG);
+}
+
 use Moose;
 use Tapper::Model 'model';
 
@@ -7,15 +13,15 @@ extends 'Tapper::Reports::Web::Util';
 
 use common::sense;
 
+sub prepare_simple_reportlist {
 
-sub prepare_simple_reportlist
-{
         my ( $self, $c, $reports ) = @_;
 
         # Mnemonic:
         #           rga = ReportGroup Arbitrary
         #           rgt = ReportGroup Testrun
 
+        my $or_schema = model('TestrunDB');
         my @all_reports;
         my @reports;
         my %rgt;
@@ -51,10 +57,10 @@ sub prepare_simple_reportlist
                          peerport              => $report->peerport,
                          peeraddr              => $report->peeraddr,
                          peerhost              => $report->peerhost,
-                        };
+                };
 
                 # --- scheduling state ---
-                my $testrun_scheduling = model('TestrunDB')->resultset('TestrunScheduling')->search({testrun_id => $rgt_id}, {rows => 1})->first;
+                my $testrun_scheduling = $or_schema->resultset('TestrunScheduling')->search({testrun_id => $rgt_id}, {rows => 1})->first;
                 $r->{testrunscheduling_status} = $testrun_scheduling->status if $testrun_scheduling;
 
                 # --- arbitrary ---
@@ -120,7 +126,7 @@ sub prepare_simple_reportlist
                 reports     => \@reports,
                 rga         => \%rga,
                 rgt         => \%rgt,
-               };
+        };
 }
 
 

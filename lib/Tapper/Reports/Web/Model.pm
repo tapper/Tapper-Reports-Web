@@ -33,18 +33,21 @@ my $fn_execute_raw_sql = sub {
 
             Module::Load::load( $s_module );
             if ( my $fh_query_sub = $s_module->can($s_query_sub) ) {
-                my $hr_query = $fh_query_sub->( $hr_params->{query_vals} );
+
+                my $hr_query_vals = $hr_params->{query_vals};
+                my $hr_query      = $fh_query_sub->( $hr_query_vals );
+
                 if ( my $s_sql = $hr_query->{$s_storage_engine} || $hr_query->{default} ) {
 
                     # replace own placeholer with sql placeholder ("?")
                     my @a_vals;
-                    $s_sql =~ s/\$(.+?)\$/push @a_vals, $1; q#?#/eg;
-
-                    # get values of found keys
-                    @a_vals = @a_vals
-                        ? @{$hr_params->{query_vals}}{@a_vals}
-                        : ()
-                    ;
+                    $s_sql =~ s/
+                        \$(.+?)\$
+                    /
+                        ref $hr_query_vals->{$1} eq 'ARRAY'
+                            ? ( push( @a_vals, @{$hr_query_vals->{$1}} ) && join ',', map { q#?# } @{$hr_query_vals->{$1}} )
+                            : ( push( @a_vals,   $hr_query_vals->{$1}  ) &&                 q#?#                           )
+                    /egx;
 
                     if ( $hr_params->{debug} ) {
                         require Carp;

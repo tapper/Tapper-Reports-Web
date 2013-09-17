@@ -15,7 +15,7 @@ sub prepare_idlist : Private
 
         use Data::Dumper;
         my @idfilter = map { ("me.id" => $_) } @$ids;
-        my $reports  = $c->model('ReportsDB')->resultset('Report')->search
+        my $reports  = $c->model('TestrunDB')->resultset('Report')->search
             (
              { -or => [ @idfilter ] },
              {  order_by  => 'me.id desc',

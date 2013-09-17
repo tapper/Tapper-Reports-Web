@@ -35,25 +35,16 @@ sub index :Path :Args(1)
 {
         my ( $self, $c, $idlist ) = @_;
 
-        %{$c->stash->{testrunlist}} = ();
-        my $filter_condition;
+        $c->stash->{testrunlist} = $c->model('TestrunDB')->fetch_raw_sql({
+            query_name  => 'testruns::web_list',
+            fetch_type  => '@%',
+            query_vals  => {
+                testrun_id   => [ split (qr/, */, $idlist) ],
+                testrun_date => $c->req->params->{testrun_date},
+            },
+        });
 
-        my @ids = split (qr/, */, $idlist);
-
-        $filter_condition = {
-                             id  => { '-in' => [@ids] }
-                            };
-
-
-        my $util = Tapper::Reports::Web::Util::Testrun->new();
-        my $testruns = $c->model('TestrunDB')->resultset('Testrun')->search
-          (
-           $filter_condition,
-           {
-            order_by => 'me.id desc' }
-          );
-
-        %{$c->stash->{testrunlist}} = (testruns => $util->prepare_testrunlist($testruns) );
+        return 1;
 
 }
 

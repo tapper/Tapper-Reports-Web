@@ -1,25 +1,3 @@
-<%args>
-  @requested_testrunlists => ()
-</%args>
-
-% my $now = gmtime();
-% my $days = $c->stash->{days} || 7;
-
-% if ($c->stash->{date}) {
-<h3>Automated testruns of <% $c->stash->{date} %></h3>
-% } else {
-% my $days = $c->stash->{days} || 7;
-<h3>Automated testruns of last <% $days %> days</h3>
-%}
-
-  This list shows automated <strong>testruns</strong>.
-
-  Links in columns <i>ID</i> show details of single report; on
-  column <i>Suite</i> show all reports of this suite; on
-  column <i>Machine</i> show all reports on this machine.
-
-  If you look for more finegrained results not limited to the
-  automation system try <a href="/tapper/reports/days/2">Reports</a>.
 % if ($c->flash->{error_msg}) {
 <pre>
 
@@ -27,10 +5,233 @@
 </pre>
 % }
 
-<& /tapper/testruns/testrunlists.mas, requested_testrunlists => \@requested_testrunlists &>
+<br />
+<br />
+<div id="idx_reportlist_pager">
+
+%   require DateTime;
+%   require DateTime::Format::Strptime;
+%   my $or_dt_now = DateTime->now();
+%   my $s_dt_now  = $or_dt_now->strftime('%F');
+%   my $or_strp   = DateTime::Format::Strptime->new(
+%       pattern   => '%F',
+%   );
+%   my $or_dt = $or_strp->parse_datetime( $c->stash->{testrun_date} );
+
+%   for my $s_act_pager_value (qw/ year month week day /) {
+%       if ( $or_dt->clone->add( $s_act_pager_value . 's' => 1 )->strftime('%F') gt $s_dt_now ) {
+            <div>&laquo; <% $s_act_pager_value %></div>
+%       }
+%       else {
+            <div class="clickable" onclick="pager_call('positive','<% $s_act_pager_value %>s');">&laquo; <% $s_act_pager_value %></div>
+%       }
+%   }
+
+    <div class="pager_date" pager_date="<% $or_dt->strftime('%F') %>">
+        <% $or_dt->strftime('%a %b %d, %Y') %>
+    </div>
+    <div id="idx_pager_interval_div">
+        <input type="text" size="3" id="idx_pager_interval_input" value="<% $c->stash->{pager_interval} %>" /> day(s)
+    </div>
+    <div class="pager_date" pager_date="<% $or_dt->clone->subtract( days => $c->stash->{pager_interval} - 1 )->strftime('%F') %>">
+        <% $or_dt->clone->subtract( days => $c->stash->{pager_interval} - 1 )->strftime('%a %b %d, %Y') %>
+    </div>
+
+%   for my $s_act_pager_value (qw/ day week month year /) {
+        <div class="clickable" onclick="pager_call('negative','<% $s_act_pager_value %>s');"><% $s_act_pager_value %> &raquo;</div>
+%   }
+</div>
+<br />
+<br />
+
+%   my $dt_testrun_date  = $c->stash->{testrun_date}->strftime('%F');
+
+<input type="hidden" id="idx_path" value="<% $c->req->path %>" />
+<input type="hidden" id="idx_report_date" value="<% $dt_testrun_date %>" />
+<input type="hidden" id="idx_pager_sign" value="<% $c->req->params->{pager_sign} || '' %>" />
+<input type="hidden" id="idx_pager_value" value="<% $c->req->params->{pager_value} || '' %>" />
+
+%   if ( $c->stash->{testruns} && @{$c->stash->{testruns}} ) {
+
+<table id="idx_reportlist" class="reportlist">
+    <thead>
+        <tr>
+             <th class="reportid">ID</th>
+             <th>DateTime (GMT)</th>
+             <th>Topic</th>
+             <th>Machine</th>
+             <th>State</th>
+             <th>Ratio</th>
+             <th>Owner</th>
+        </tr>
+    </thead>
+    <tbody>
+
+%               my $d_grouping_date = q##;
+%               foreach my $hr_testrun ( @{$c->stash->{testruns}} ) {
+
+%                   if ( $c->stash->{pager_interval} != 1 ) {
+%                       if ( $d_grouping_date ne $hr_testrun->{testrun_date} ) {
+                            <tr>
+                                <td colspan="8" class="pager_date" pager_date="<% $hr_testrun->{testrun_date} %>">
+%                                   $d_grouping_date = $hr_testrun->{testrun_date};
+%                                   my $or_strp   = DateTime::Format::Strptime->new(
+%                                       pattern   => '%F',
+%                                   );
+%                                   my $or_dt_act = $or_strp->parse_datetime( $hr_testrun->{testrun_date} );
+                                    <% $or_dt_act->strftime('%a %b %d, %Y') %>
+                                </td>
+                            <tr>
+%                       }
+%                   }
+
+                    <tr>
+                        <td class="reportid">
+                            <a title="Click to show details" href="/tapper/testruns/id/<% $hr_testrun->{testrun_id} %>">r<% $hr_testrun->{testrun_id} %></a>
+                        </td>
+                        <td><% $hr_testrun->{testrun_date} . ' ' . $hr_testrun->{testrun_time} %></td>
+                        <td>
+                            <img src="/tapper/static/images/plus.png" class="topic" title="Add <% $hr_testrun->{topic_name} %> to filter">
+                            <a title="Click to show testruns of topic '<% $hr_testrun->{topic_name} %>'" href="/tapper/testruns/topic/<% $hr_testrun->{topic_name} %>">
+                                <% $hr_testrun->{topic_name} %>
+                            </a>
+                        </td>
+                        <td>
+%                           if ( $hr_testrun->{machine_name} ) {
+                                <img src="/tapper/static/images/plus.png" class="host" title="Add <% $hr_testrun->{machine_name} %> to filter">
+                                <a title="Click to show testruns on '<% $hr_testrun->{machine_name} %>'" href="/tapper/testruns/host/<% $hr_testrun->{machine_name} %>">
+                                    <% $hr_testrun->{machine_name} %>
+                                </a>
+%                           }
+                        </td>
+                        <td>
+                            <img src="/tapper/static/images/plus.png" class="state" title="Add <% $hr_testrun->{testrun_state} %> to filter">
+                            <a title="Click to show testruns in state '<% $hr_testrun->{testrun_state} %>'" href="/tapper/testruns/state/<% $hr_testrun->{testrun_state} %>">
+                                <% $hr_testrun->{testrun_state} %>
+                            </a>
+                        </td>
+                        <td>
+%                           my $i_success_width = int($hr_testrun->{success_ratio} / 2);
+                            <img
+                                class="success_ratio"
+                                src="/tapper/static/images/green_bar.png"
+                                width="<% $i_success_width %>"
+                                title="<% $hr_testrun->{success_ratio} || '' %>% - Click to show details"
+                            ><img
+                                class="success_ratio"
+                                src="/tapper/static/images/red_bar.png"
+                                width="<% 50 - $i_success_width %>"
+                                title="<% $hr_testrun->{success_ratio} || '' %>% - Click to show details"
+                            >
+                        </td>
+                        <td>
+                            <img src="/tapper/static/images/plus.png" class="owner" title="Add <% $hr_testrun->{testrun_owner} %> to filter">
+                            <a title="Click to show testruns of owner '<% $hr_testrun->{testrun_owner} %>'" href="/tapper/reports/owner/<% $hr_testrun->{testrun_owner} %>">
+                                <% $hr_testrun->{testrun_owner} %>
+                            </a>
+                        </td>
+                    </tr>
+%               }
+
+            </tbody>
+        </table>
+%   }
+%   else {
+        <div class="no_results">no results found for active filters and date.</div>
+%   }
+
+<script type="text/javascript">
+
+    /*
+        Add a onclick behavior for the reportlist table on dom ready. The
+        following action depends on the clicked target ( picture ).
+    */
+    $(document).ready(function(){
+        $('#idx_reportlist').click(function( e ){
+            var $target = $(e.target);
+            if ( $target.is('img') ) {
+                if ( $target.hasClass('success_ratio') ) {
+                    location.href = $target.parent().prevAll('.reportid').first().children('a').attr('href');
+                }
+                else {
+                    $(['topic', 'host', 'state', 'owner']).each(function(){
+                        if ( $target.hasClass(this) ) {
+                            location.href =
+                                  '/'
+                                + $('#idx_path').val().replace(/\/\s*$/g,'')
+                                + '/'
+                                + this
+                                + '/'
+                                + $target.next().text().trim()
+                                + '?testrun_date='
+                                + $('#idx_report_date').val()
+                            ;
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    $('#idx_reportlist_pager div.pager_date, #idx_reportlist td.pager_date').click(function( e ){
+        location.href =
+              '/'
+            + $('#idx_path').val().replace(/\/\s*$/g,'')
+            + '?testrun_date='
+            + $(e.target).attr('pager_date')
+        ;
+    });
+
+    $('#idx_pager_interval_input')
+        .keydown(function( e ){
+            var key = e.charCode || e.keyCode || 0;
+            // allow backspace, tab, delete, arrows, numbers and keypad numbers ONLY
+            // home, end, period, and numpad decimal
+            if ( key == 13 ) {
+                pager_call();
+            }
+            return (
+                (
+                    $(this).val().length < 3 && (
+                        (key >= 48 && key <= 57) ||
+                        (key >= 96 && key <= 105)
+                    )
+                ) || (
+                    key == 8 ||
+                    key == 9 ||
+                    key == 46 ||
+                    key == 110 ||
+                    key == 190 ||
+                    (key >= 35 && key <= 40)
+                )
+            );
+        })
+        .focus(function( e ){
+            $(this).data('value_bak',$(this).val());
+        })
+        .blur(function( e ){
+            if ( $(this).val() != $(this).data('value_bak') ) {
+                pager_call();
+            }
+        })
+    ;
+
+    /*
+        function for pager requests
+    */
+    function pager_call( pager_sign, pager_value ) {
+        location.href =
+              '/'
+            + $('#idx_path').val().replace(/\/\s*$/g,'')
+            + '?testrun_date=' + $('#idx_report_date').val()
+            + ( pager_sign  ? '&amp;pager_sign='  + pager_sign  : '' )
+            + ( pager_value ? '&amp;pager_value=' + pager_value : '' )
+            + '&amp;pager_interval=' + $('#idx_pager_interval_input').val()
+        ;
+    }
+
+</script>
+
 %# Local Variables:
 %# buffer-file-coding-system: utf-8
 %# End:
-
-
-
