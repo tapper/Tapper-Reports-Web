@@ -593,6 +593,18 @@ sub prepare_testrunlists : Private {
 
         $or_c->stash->{pager_interval}  = $hr_params->{pager_interval} || 1;
         $or_c->stash->{testrun_date}    = $hr_filter_condition->{testrun_date};
+
+        # set testrun date
+        my $d_testrun_date_from = $hr_filter_condition->{testrun_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%d %b %Y');
+        my $d_testrun_date_to   = $hr_filter_condition->{testrun_date}->strftime('%d %b %Y');
+
+        if ( $d_testrun_date_from ne $d_testrun_date_to ) {
+            $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_to - $d_testrun_date_from )";
+        }
+        else {
+            $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_from )";
+        }
+
         $or_c->stash->{testruns}        = $or_c->model('TestrunDB')->fetch_raw_sql({
                 query_name  => 'testruns::web_list',
                 fetch_type  => '@%',

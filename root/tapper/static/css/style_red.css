@@ -163,15 +163,15 @@ tr.highlightgrey
 #header
 {
 width:100%;
-height:122px;
-background: #440000 url('/tapper/static/images_red/n1.gif') repeat-x;
+height:55px;
+background: #440000 url('/tapper/static/images_red/n1.small.gif') repeat-x;
 }
 
 #header_inner
 {
 position: relative;
 width: 950px;
-height:122px;
+height:55px;
 margin: 0 auto;
 }
 
@@ -192,10 +192,13 @@ font-size: 2.6em;
 
 #logo h2
 {
+position: absolute;
 display: inline;
-padding-left: 0.5em;
-color: #E5CCD0;
-font-size: 1.0em;
+color: #fff;
+font-size: 1.5em;
+top: 10px;
+left: 215px;
+width: 600px;
 }
 
 /* Menu */
@@ -262,7 +265,7 @@ list-style: none;
 position: relative;
 width: 950px;
 margin: 0 auto;
-padding-top: 3.5em;
+padding-top: 20px;
 }
 
 #main_inner h3,h4
