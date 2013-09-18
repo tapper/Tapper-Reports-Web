@@ -4,7 +4,6 @@
 <strong>Error:</strong> <% $c->flash->{error_msg} %>
 </pre>
 % }
-
 <div id="idx_reportlist_pager">
 
 %   require DateTime;
