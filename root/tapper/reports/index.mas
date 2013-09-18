@@ -5,8 +5,6 @@
 </pre>
 % }
 
-<br />
-<br />
 <div id="idx_reportlist_pager">
 
 %   require DateTime;
@@ -162,7 +160,7 @@
         following action depends on the clicked target ( picture ).
     */
     $(document).ready(function(){
-        $('#idx_reportlist').click(function( e ){
+        $('#idx_reportlist').mousedown(function( e ){
             var $target = $(e.target);
             if ( $target.is('img') ) {
                 if ( $target.hasClass('success_ratio') ) {
@@ -188,7 +186,7 @@
         });
     });
 
-    $('#idx_reportlist_pager div.pager_date, #idx_reportlist td.pager_date').click(function( e ){
+    $('#idx_reportlist_pager div.pager_date, #idx_reportlist td.pager_date').mousedown(function( e ){
         location.href =
               '/'
             + $('#idx_path').val().replace(/\/\s*$/g,'')

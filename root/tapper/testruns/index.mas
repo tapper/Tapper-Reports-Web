@@ -5,8 +5,6 @@
 </pre>
 % }
 
-<br />
-<br />
 <div id="idx_reportlist_pager">
 
 %   require DateTime;
@@ -23,7 +21,7 @@
             <div>&laquo; <% $s_act_pager_value %></div>
 %       }
 %       else {
-            <div class="clickable" onclick="pager_call('positive','<% $s_act_pager_value %>s');">&laquo; <% $s_act_pager_value %></div>
+            <div class="clickable" psign="positive" pvalue="<% $s_act_pager_value %>s">&laquo; <% $s_act_pager_value %></div>
 %       }
 %   }
 
@@ -38,7 +36,7 @@
     </div>
 
 %   for my $s_act_pager_value (qw/ day week month year /) {
-        <div class="clickable" onclick="pager_call('negative','<% $s_act_pager_value %>s');"><% $s_act_pager_value %> &raquo;</div>
+        <div class="clickable" psign="negative" pvalue="<% $s_act_pager_value %>s"><% $s_act_pager_value %> &raquo;</div>
 %   }
 </div>
 <br />
@@ -147,16 +145,20 @@
         following action depends on the clicked target ( picture ).
     */
     $(document).ready(function(){
-        $('#idx_reportlist').click(function( e ){
-            var $target = $(e.target);
+        $('#idx_reportlist').mousedown(function( e ){
+            var site_url = '';
+            var $target  = $(e.target);
             if ( $target.is('img') ) {
                 if ( $target.hasClass('success_ratio') ) {
-                    location.href = $target.parent().prevAll('.reportid').first().children('a').attr('href');
+                    key_dependent_site_call(
+                        e.which,
+                        $target.parent().prevAll('.reportid').first().children('a').attr('href')
+                    );
                 }
                 else {
                     $(['topic', 'host', 'state', 'owner']).each(function(){
                         if ( $target.hasClass(this) ) {
-                            location.href =
+                            key_dependent_site_call( e.which,
                                   '/'
                                 + $('#idx_path').val().replace(/\/\s*$/g,'')
                                 + '/'
@@ -165,7 +167,7 @@
                                 + $target.next().text().trim()
                                 + '?testrun_date='
                                 + $('#idx_report_date').val()
-                            ;
+                            );
                         }
                     });
                 }
@@ -173,13 +175,17 @@
         });
     });
 
-    $('#idx_reportlist_pager div.pager_date, #idx_reportlist td.pager_date').click(function( e ){
-        location.href =
+    $('#idx_reportlist_pager div.clickable').mousedown(function( e ) {
+        pager_call( e.which, $(this).attr('psign'), $(this).attr('pvalue') );
+    });
+
+    $('#idx_reportlist_pager div.pager_date, #idx_reportlist td.pager_date').mousedown(function( e ){
+        key_dependent_site_call( e.which,
               '/'
             + $('#idx_path').val().replace(/\/\s*$/g,'')
             + '?testrun_date='
             + $(e.target).attr('pager_date')
-        ;
+        );
     });
 
     $('#idx_pager_interval_input')
@@ -188,7 +194,7 @@
             // allow backspace, tab, delete, arrows, numbers and keypad numbers ONLY
             // home, end, period, and numpad decimal
             if ( key == 13 ) {
-                pager_call();
+                pager_call( 1 );
             }
             return (
                 (
@@ -211,7 +217,7 @@
         })
         .blur(function( e ){
             if ( $(this).val() != $(this).data('value_bak') ) {
-                pager_call();
+                pager_call( 1 );
             }
         })
     ;
@@ -219,15 +225,24 @@
     /*
         function for pager requests
     */
-    function pager_call( pager_sign, pager_value ) {
-        location.href =
-              '/'
+    function pager_call( key, pager_sign, pager_value ) {
+        key_dependent_site_call( key, '/'
             + $('#idx_path').val().replace(/\/\s*$/g,'')
             + '?testrun_date=' + $('#idx_report_date').val()
             + ( pager_sign  ? '&amp;pager_sign='  + pager_sign  : '' )
             + ( pager_value ? '&amp;pager_value=' + pager_value : '' )
             + '&amp;pager_interval=' + $('#idx_pager_interval_input').val()
-        ;
+        );
+    }
+
+    function key_dependent_site_call ( key, url ) {
+        if ( key == 2 ) {
+            var win = window.open( url, '_blank' );
+            win.focus();
+        }
+        else {
+            location.href = url;
+        }
     }
 
 </script>
