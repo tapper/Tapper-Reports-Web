@@ -171,7 +171,7 @@
                     );
                 }
                 else {
-                    $(['suite', 'host', 'success', 'owner']).each(function(){
+                    $(['topic', 'host', 'state', 'owner']).each(function(){
                         if ( $target.hasClass(this) ) {
                             key_dependent_site_call( e.which,
                                   '/'
