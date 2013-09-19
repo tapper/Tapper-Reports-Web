@@ -85,41 +85,32 @@
 %                   }
 
                     <tr class="<% $s_grouping_id ne $hr_report->{grouping_id} ? 'group_primary' : 'justgroupmember' %>">
-                        <td class="reportid">
+                        <td>
                             <a title="Click to show details" href="/tapper/reports/id/<% $hr_report->{report_id} %>">r<% $hr_report->{report_id} %></a>
                         </td>
                         <td><% $hr_report->{report_date} . ' ' . $hr_report->{report_time} %></td>
                         <td>
-                            <img src="/tapper/static/images/plus.png" class="suite" title="Add <% $hr_report->{suite_name} %> to filter">
+                            <div class="plus suite"></div>
                             <a title="Click to show reports of suite '<% $hr_report->{suite_name} %>'" href="/tapper/reports/suite/<% $hr_report->{suite_name} %>">
                                 <% $hr_report->{suite_name} %>
                             </a>
                         </td>
                         <td>
 %                           if ( $hr_report->{machine_name} ) {
-                                <img src="/tapper/static/images/plus.png" class="host" title="Add <% $hr_report->{machine_name} %> to filter">
+                                <div class="plus host"></div>
                                 <a title="Click to show reports on '<% $hr_report->{machine_name} %>' <% $hr_report->{peeraddr} ? '(reported from ip '.$hr_report->{peeraddr} .')' : ''%>" href="/tapper/reports/host/<% $hr_report->{machine_name} %>">
                                     <% $hr_report->{machine_name} %>
                                 </a>
 %                           }
                         </td>
                         <td class="<% lc $hr_report->{successgrade} %>">
-                            <img src="/tapper/static/images/plus.png" class="success" title="Add <% $hr_report->{successgrade} %> to filter">
+                            <div class="plus success"></div>
                             <a href="/tapper/reports/success/<% $hr_report->{successgrade} %>"><% $hr_report->{successgrade} %></a>
                         </td>
                         <td>
 %                           my $i_success_width = int($hr_report->{success_ratio} / 2);
-                            <img
-                                class="success_ratio"
-                                src="/tapper/static/images/green_bar<% $s_grouping_id eq $hr_report->{grouping_id} ? '_dimmed' : '' %>.png"
-                                width="<% $i_success_width %>"
-                                title="<% $hr_report->{success_ratio} || '' %>% - Click to show details"
-                            ><img
-                                class="success_ratio"
-                                src="/tapper/static/images/red_bar<% $s_grouping_id eq $hr_report->{grouping_id} ? '_dimmed' : '' %>.png"
-                                width="<% 50 - $i_success_width %>"
-                                title="<% $hr_report->{success_ratio} || '' %>% - Click to show details"
-                            >
+                            <div class="sratio <% $s_grouping_id eq $hr_report->{grouping_id} ? 'd' : q## %>bggreen" style="width:<% $i_success_width %>px"></div>
+                            <div class="sratio <% $s_grouping_id eq $hr_report->{grouping_id} ? 'd' : q## %>bgred" style="width:<% 50 - $i_success_width %>px"></div>
                         </td>
 
 %                       if ( $s_grouping_id ne $hr_report->{grouping_id} ) {
@@ -135,7 +126,7 @@
                             </td>
                             <td>
 %                               if ( $hr_report->{report_owner} ) {
-                                    <img src="/tapper/static/images/plus.png" class="owner" title="Add <% $hr_report->{report_owner} %> to filter">
+                                    <div class="plus owner"></div>
                                     <a title="Click to show reports of owner '<% $hr_report->{report_owner} %>'" href="/tapper/reports/owner/<% $hr_report->{report_owner} %>">
                                         <% $hr_report->{report_owner} %>
                                     </a>
@@ -163,11 +154,11 @@
         $('#idx_reportlist').mousedown(function( e ){
             var site_url = '';
             var $target  = $(e.target);
-            if ( $target.is('img') ) {
-                if ( $target.hasClass('success_ratio') ) {
+            if ( $target.is('div') ) {
+                if ( $target.hasClass('sratio') ) {
                     key_dependent_site_call(
                         e.which,
-                        $target.parent().prevAll('.reportid').first().children('a').attr('href')
+                        $target.parent().parent().find('a:first').attr('href')
                     );
                 }
                 else {

@@ -1,0 +1,32 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use Daemon::Control;
+
+my $app_home = '/home/local/ANT/schaefr/git/Tapper-Reports-Web';
+my $program  = '/usr/bin/starman';
+my $name     = 'tapper';
+my $workers  = 1;
+my $pid_file = $app_home . '/tapper.pid';
+my $socket   = $app_home . '/tapper.socket';
+
+Daemon::Control->new({
+    name        => $name,
+    lsb_start   => '$nginx',
+    lsb_stop    => '$nginx',
+    lsb_sdesc   => $name,
+    lsb_desc    => $name,
+    path        => $app_home . '/tapper.starman.initd',
+
+    user        => 'tapper',
+    group       => 'tapper',
+    directory   => $app_home,
+    program     => "$program $app_home/tapper.psgi --user tapper --group tapper --workers $workers --listen $socket",
+
+    pid_file    => $pid_file,
+    stderr_file => '/var/log/tapper/tapper.stderr',
+    stdout_file => '/var/log/tapper/tapper.stdout',
+
+    fork        => 2,
+})->run;

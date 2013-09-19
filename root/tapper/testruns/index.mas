@@ -83,46 +83,37 @@
 %                   }
 
                     <tr>
-                        <td class="reportid">
+                        <td>
                             <a title="Click to show details" href="/tapper/testruns/id/<% $hr_testrun->{testrun_id} %>">r<% $hr_testrun->{testrun_id} %></a>
                         </td>
                         <td><% $hr_testrun->{testrun_date} . ' ' . $hr_testrun->{testrun_time} %></td>
                         <td>
-                            <img src="/tapper/static/images/plus.png" class="topic" title="Add <% $hr_testrun->{topic_name} %> to filter">
+                            <div class="plus topic"></div>
                             <a title="Click to show testruns of topic '<% $hr_testrun->{topic_name} %>'" href="/tapper/testruns/topic/<% $hr_testrun->{topic_name} %>">
                                 <% $hr_testrun->{topic_name} %>
                             </a>
                         </td>
                         <td>
 %                           if ( $hr_testrun->{machine_name} ) {
-                                <img src="/tapper/static/images/plus.png" class="host" title="Add <% $hr_testrun->{machine_name} %> to filter">
+                                <div class="plus host"></div>
                                 <a title="Click to show testruns on '<% $hr_testrun->{machine_name} %>'" href="/tapper/testruns/host/<% $hr_testrun->{machine_name} %>">
                                     <% $hr_testrun->{machine_name} %>
                                 </a>
 %                           }
                         </td>
                         <td>
-                            <img src="/tapper/static/images/plus.png" class="state" title="Add <% $hr_testrun->{testrun_state} %> to filter">
+                            <div class="plus state"></div>
                             <a title="Click to show testruns in state '<% $hr_testrun->{testrun_state} %>'" href="/tapper/testruns/state/<% $hr_testrun->{testrun_state} %>">
                                 <% $hr_testrun->{testrun_state} %>
                             </a>
                         </td>
                         <td>
 %                           my $i_success_width = int($hr_testrun->{success_ratio} / 2);
-                            <img
-                                class="success_ratio"
-                                src="/tapper/static/images/green_bar.png"
-                                width="<% $i_success_width %>"
-                                title="<% $hr_testrun->{success_ratio} || '' %>% - Click to show details"
-                            ><img
-                                class="success_ratio"
-                                src="/tapper/static/images/red_bar.png"
-                                width="<% 50 - $i_success_width %>"
-                                title="<% $hr_testrun->{success_ratio} || '' %>% - Click to show details"
-                            >
+                            <div class="sratio bggreen" style="width:<% $i_success_width %>px"></div>
+                            <div class="sratio bgred" style="width:<% 50 - $i_success_width %>px"></div>
                         </td>
                         <td>
-                            <img src="/tapper/static/images/plus.png" class="owner" title="Add <% $hr_testrun->{testrun_owner} %> to filter">
+                            <div class="plus owner"></div>
                             <a title="Click to show testruns of owner '<% $hr_testrun->{testrun_owner} %>'" href="/tapper/reports/owner/<% $hr_testrun->{testrun_owner} %>">
                                 <% $hr_testrun->{testrun_owner} %>
                             </a>
@@ -147,11 +138,11 @@
         $('#idx_reportlist').mousedown(function( e ){
             var site_url = '';
             var $target  = $(e.target);
-            if ( $target.is('img') ) {
-                if ( $target.hasClass('success_ratio') ) {
+            if ( $target.is('div') ) {
+                if ( $target.hasClass('sratio') ) {
                     key_dependent_site_call(
                         e.which,
-                        $target.parent().prevAll('.reportid').first().children('a').attr('href')
+                        $target.parent().parent().find('a:first').attr('href')
                     );
                 }
                 else {
