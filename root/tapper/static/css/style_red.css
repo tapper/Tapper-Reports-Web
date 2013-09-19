@@ -515,8 +515,7 @@ table.reportlist td
   padding: 0em 1em 0em 0em;
   }
 
-table.reportlist th.reportid,
-table.reportlist td.reportid
+table.reportlist th.reportid
 {
   text-align: right;
   }
