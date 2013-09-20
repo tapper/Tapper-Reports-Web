@@ -1,6 +1,12 @@
 package Tapper::Reports::Web;
 # ABSTRACT: Tapper - Frontend web application based on Catalyst
 
+BEGIN {
+    use CGI::Carp qw(carpout);
+    open(LOG, ">>/var/log/my.log") or die("Unable to open mycgi-log: $!\n");
+    carpout(LOG);
+}
+
 use 5.010;
 use strict;
 use warnings;

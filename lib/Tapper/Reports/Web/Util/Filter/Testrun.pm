@@ -25,18 +25,22 @@ use Tapper::Model 'model';
 
 extends 'Tapper::Reports::Web::Util::Filter';
 
-sub BUILD{
+sub BUILD {
+
         my $self = shift;
         my $args = shift;
 
         $self->dispatch(
-                        merge($self->dispatch,
-                              {host    => \&host,
-                               status  => \&status,
-                               topic   => \&topic,
-                               owner   => \&owner,
-                              })
-                       );
+                merge(
+                        $self->dispatch,
+                        {
+                                host    => \&host,
+                                state   => sub { hr_set_filter_default( @_, 'state' ); },
+                                topic   => sub { hr_set_filter_default( @_, 'topic' ); },
+                                owner   => \&owner,
+                        }
+                )
+        );
 }
 
 
@@ -56,60 +60,12 @@ sub host
         my ($self, $filter_condition, $host) = @_;
         my $host_result = model('TestrunDB')->resultset('Host')->search({name => $host}, {rows => 1})->first;
 
-        # (XXX) do we need to throw an error when someone filters for an
-        # unknown host?
+        # (XXX) do we need to throw an error when someone filters for an unknown host?
         if (not $host_result) {
                 return $filter_condition;
         }
 
-        my $jobs        = model('TestrunDB')->resultset('TestrunScheduling')->search({host_id => $host_result->id});
-        my @ids = map {$_->testrun->id if $_->testrun} $jobs->all;
-        @ids    = get_intersection(\@ids, $filter_condition->{early}->{id}) if $filter_condition->{early}->{id};
-        $filter_condition->{early}->{id} = {'in' => \@ids};
-        return $filter_condition;
-}
-
-
-=head2 status
-
-Add status filters to early filters.
-
-@param hash ref - current version of filters
-@param string   - status
-
-@return hash ref - updated filters
-
-=cut
-
-sub status
-{
-        my ($self, $filter_condition, $state) = @_;
-
-        my $jobs        = model('TestrunDB')->resultset('TestrunScheduling')->search({status => $state});
-        my @ids = map {$_->testrun->id if $_->testrun} $jobs->all;
-        @ids    = get_intersection(\@ids, $filter_condition->{early}->{id}) if $filter_condition->{early}->{id};
-        $filter_condition->{early}->{id} = {'in' => \@ids};
-
-
-        return $filter_condition;
-}
-
-=head2 topic
-
-Add topic filters to early filters.
-
-@param hash ref - current version of filters
-@param string   - topic name
-
-@return hash ref - updated filters
-
-=cut
-
-sub topic
-{
-        my ($self, $filter_condition, $topic) = @_;
-
-        $filter_condition->{early}->{topic_name} = $topic;
+        push @{$filter_condition->{host} ||= []}, $host_result->id;
 
         return $filter_condition;
 }
@@ -137,9 +93,15 @@ sub owner
                 return $filter_condition;
         }
 
-        $filter_condition->{early}->{owner_id} = $owner_result->id;
+        push @{$filter_condition->{owner} ||= []}, $owner_result->id;
 
         return $filter_condition;
+}
+
+sub hr_set_filter_default {
+    my ( $or_self, $hr_filter, $value, $s_filter_name ) = @_;
+    push @{$hr_filter->{$s_filter_name} ||= []}, $value;
+    return $hr_filter;
 }
 
 1;

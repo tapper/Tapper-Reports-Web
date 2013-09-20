@@ -16,6 +16,9 @@ construct_fixture( schema  => testrundb_schema, fixture => 't/fixtures/testrundb
 
 
 my $mech = Test::WWW::Mechanize::Catalyst->new(catalyst_app => 'Tapper::Reports::Web');
+
+$mech->{catalyst_debug} = 1;
+
 $mech->get_ok('/tapper/start');
 #$mech->page_links_ok('/tapper/start', 'All links on start page deliver HTTP/ok');
 

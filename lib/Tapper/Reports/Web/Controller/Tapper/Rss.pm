@@ -26,7 +26,7 @@ sub index :Path :Args()
         my ($self,$c, @args) = @_;
 
         my $filter = Tapper::Reports::Web::Util::Filter::Report->new(context => $c);
-        my $dtf = $c->model("ReportsDB")->storage->datetime_parser;
+        my $dtf = $c->model("TestrunDB")->storage->datetime_parser;
 
         my $feed = XML::Feed->new('RSS');
         $feed->title( 'Tapper RSS Feed' );
@@ -54,7 +54,7 @@ sub index :Path :Args()
         }
 
 
-        my $reports = $c->model('ReportsDB')->resultset('Report')->search
+        my $reports = $c->model('TestrunDB')->resultset('Report')->search
           (
            $filter_condition->{early},
            {

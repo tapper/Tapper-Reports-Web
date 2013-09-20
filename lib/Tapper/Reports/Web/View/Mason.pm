@@ -4,13 +4,15 @@ use Moose;
 use namespace::autoclean;
 extends 'Catalyst::View::HTML::Mason';
 
-use File::ShareDir ':ALL';
 use Cwd;
+use File::ShareDir ':ALL';
 
-my $root_dir = [
-                [ tapperroot1 => getcwd."/root" ],
-                [ tapperroot2 => eval { dist_dir("Tapper-Reports-Web") } || getcwd."/root" ],
-               ];
+my $s_root_dir = $ENV{DOCUMENT_ROOT} || Cwd::getcwd . '/root';
+
+my $root_dir   = [
+    [ tapperroot1 => $s_root_dir ],
+    [ tapperroot2 => eval { dist_dir("Tapper-Reports-Web") } || $s_root_dir ],
+];
 
 __PACKAGE__->config({ template_extension => '.mas',
                       globals            => [['$c' => sub { $_[1] } ]],

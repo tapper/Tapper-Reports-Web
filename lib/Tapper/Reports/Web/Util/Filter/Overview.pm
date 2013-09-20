@@ -57,7 +57,7 @@ sub weeks
         my ($self, $filter_condition, $duration) = @_;
 
         my $timeframe = DateTime->now->subtract(weeks => $duration);
-        my $dtf = model("ReportsDB")->storage->datetime_parser;
+        my $dtf = model("TestrunDB")->storage->datetime_parser;
         push @{$filter_condition->{late}}, {'reports.created_at' => {'>=' => $dtf->format_datetime($timeframe) }};
         return $filter_condition;
 }

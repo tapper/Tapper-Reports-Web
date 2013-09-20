@@ -14,7 +14,7 @@ our $ANSI2HTML_POST = '</body>';
 sub index :Path :CaptureArgs(2)
 {
         my ( $self, $c, $file_id, $viewmode ) = @_;
-        $c->stash->{reportfile} = $c->model('ReportsDB')->resultset('ReportFile')->find($file_id);
+        $c->stash->{reportfile} = $c->model('TestrunDB')->resultset('ReportFile')->find($file_id);
 
         if (not $c->stash->{reportfile})
         {
