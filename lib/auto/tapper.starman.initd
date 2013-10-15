@@ -4,12 +4,12 @@ use warnings;
 use strict;
 use Daemon::Control;
 
-my $app_home = '/home/local/ANT/schaefr/git/Tapper-Reports-Web';
-my $program  = '/usr/bin/starman';
+my $app_home = '/opt/tapper/data/web';
+my $program  = 'starman';
 my $name     = 'tapper';
 my $workers  = 1;
-my $pid_file = $app_home . '/tapper.pid';
-my $socket   = $app_home . '/tapper.socket';
+my $pid_file = '/opt/tapper/tapper.starman.pid';
+my $socket   = '/opt/tapper/tapper.starman.socket';
 
 Daemon::Control->new({
     name        => $name,
@@ -17,12 +17,12 @@ Daemon::Control->new({
     lsb_stop    => '$nginx',
     lsb_sdesc   => $name,
     lsb_desc    => $name,
-    path        => $app_home . '/tapper.starman.initd',
+    path        => '/opt/tapper/tapper.starman.initd',
 
     user        => 'tapper',
-    group       => 'tapper',
+    group       => 'amazon',
     directory   => $app_home,
-    program     => "$program $app_home/tapper.psgi --user tapper --group tapper --workers $workers --listen $socket",
+    program     => "$program $app_home/tapper.psgi --user tapper --group amazon --workers $workers --listen $socket",
 
     pid_file    => $pid_file,
     stderr_file => '/var/log/tapper/tapper.stderr',
@@ -30,3 +30,4 @@ Daemon::Control->new({
 
     fork        => 2,
 })->run;
+
