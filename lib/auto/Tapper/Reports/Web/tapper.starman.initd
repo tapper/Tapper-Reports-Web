@@ -8,8 +8,8 @@ my $app_home = '/opt/tapper/data/web';
 my $program  = 'starman';
 my $name     = 'tapper';
 my $workers  = 1;
-my $pid_file = '/opt/tapper/tapper.starman.pid';
-my $socket   = '/opt/tapper/tapper.starman.socket';
+my $pid_file = '/opt/tapper/data/run/tapper.starman.pid';
+my $socket   = '/opt/tapper/data/run/tapper.starman.socket';
 
 Daemon::Control->new({
     name        => $name,
@@ -17,7 +17,7 @@ Daemon::Control->new({
     lsb_stop    => '$nginx',
     lsb_sdesc   => $name,
     lsb_desc    => $name,
-    path        => '/opt/tapper/tapper.starman.initd',
+    path        => '/opt/tapper/data/bin/tapper.starman.initd',
 
     user        => 'tapper',
     group       => 'amazon',
@@ -30,4 +30,5 @@ Daemon::Control->new({
 
     fork        => 2,
 })->run;
+
 
