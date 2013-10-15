@@ -93,7 +93,7 @@
 
 %        if ($section->some_meta_available) {
 
-        <tr><td colspan="2"><h5>&nbsp;&nbsp;<% $section->name %></h5></td></tr>
+        <tr><td colspan="2"><h5>&nbsp;&nbsp;<% $section->name %> on <% $r->machine_name %></h5></td></tr>
 %          my %cols = $section->get_columns;
 %           foreach (map { s/-/_/g; $_ } @meta_cols) {
                 <& SELF:meta_row, name => $_ , value => $cols{$_} &>

@@ -5,6 +5,7 @@ $overview
 $hostname
 $time
 %reportlist_rgt => {}
+$precondition_string => ''
 </%args>
 
 % use Data::Dumper;
@@ -40,6 +41,13 @@ $time
 
     <!-- ************************************************************ -->
 
+    <h4>Preconditions</h4>
+        <pre>
+<% $precondition_string %>
+        </pre>
+% if ($testrun->testrun_scheduling->status eq 'schedule' or $testrun->testrun_scheduling->status eq 'prepare'){
+<a href="/tapper/testruns/<% $testrun->id %>/preconditions/edit/">Edit precondition</a>
+% }
     <h4>Details</h4>
     <ul style="list-style-type:disc;">
       <li style="margin-left: 1em;"><a href="/tapper/testruns/<% $testrun->id %>/preconditions/yaml/">Preconditions in raw YAML</a></li>

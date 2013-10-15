@@ -44,7 +44,7 @@
     id: 1001
     testrun_id: 1
     host_id: 5 # iring
-    status: running
+    status: schedule
 
 
 # -------------------- preconditions

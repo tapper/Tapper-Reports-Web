@@ -7,9 +7,12 @@ use DateTime::Format::DateParse;
 use DateTime;
 use File::Basename;
 use File::Path;
+use List::Util 'max';
 use Template;
+use YAML::Syck;
 
 use Tapper::Cmd::Testrun;
+use Tapper::Cmd::Precondition;
 use Tapper::Config;
 use Tapper::Model 'model';
 use Tapper::Reports::Web::Util::Testrun;
@@ -180,6 +183,9 @@ sub preconditions : Chained('id') PathPart('preconditions') CaptureArgs(0)
 {
         my ( $self, $c ) = @_;
         $c->stash(preconditions => [$c->stash->{testrun}->ordered_preconditions]);
+        my @preconditions_as_hash = map { $_->precondition_as_hash } $c->stash->{testrun}->ordered_preconditions;
+        $YAML::Syck::SortKeys  = 1;
+        $c->stash->{precondition_string} = YAML::Syck::Dump(@preconditions_as_hash);
 }
 
 sub as_yaml : Chained('preconditions') PathPart('yaml') Args(0)
@@ -188,18 +194,75 @@ sub as_yaml : Chained('preconditions') PathPart('yaml') Args(0)
 
         my $id = $c->stash->{testrun}->id;
 
-        my @preconditions;
-        foreach my $precondition (@{$c->stash->{preconditions}}) {
-                push @preconditions, $precondition->precondition;
-        }
-        if (@preconditions) {
+        if (@{$c->stash->{preconditions} || []}) {
                 $c->response->content_type ('text/plain');
                 $c->response->header ("Content-Disposition" => 'inline; filename="precondition-'.$id.'.yml"');
-                $c->response->body ( join "", @preconditions);
+                $c->response->body ( $c->stash->{precondition_string});
         } else {
                 $c->response->body ("No preconditions assigned");
         }
 }
+
+sub validate_yaml
+{
+        my ($data) = @_;
+        eval {
+                YAML::Syck::Load($data);
+        };
+        return $@;
+}
+
+sub edit : Chained('preconditions') PathPart('edit') Args(0) :FormConfig
+{
+        my ($self, $c) = @_;
+        my ($max_line, $line_count) = (0,0);
+
+        my @lines = split "\n", $c->stash->{precondition_string};
+        foreach my $line (@lines) {
+                $max_line = max($max_line, length($line));
+        }
+
+        my $form = $c->stash->{form};
+
+        if ($form->submitted_and_valid) {
+                my $data = $form->input->{preconditions};
+
+                # check whether user entered valid YAML
+                my $error = validate_yaml($data);
+                if ($error) {
+                        $c->stash(message => "<emp>Error</emp>: $error");
+                } else {
+                        my @precondition_ids = eval {
+                                my $precond_cmd = Tapper::Cmd::Precondition->new();
+                                $precond_cmd->add($data);
+                        };
+                        if ($@) {
+                                $c->stash(message => "<emp>Error</emp>: $@");
+                                return;
+                        }
+
+                        $c->stash->{testrun}->disassign_preconditions();
+                        my $retval = $c->stash->{testrun}->assign_preconditions(@precondition_ids);
+                        if ($retval) {
+                                $c->stash(message => "<emp>Error</emp>: $retval");
+                        } else {
+                                $c->stash(message => "New precondition assigned to testrun");
+                        }
+                }
+        } else {
+                my $text = $form->get_element({type => 'Textarea',
+                                               name => 'preconditions'});
+                $text->rows(int @lines);
+                $text->cols($max_line);
+                $text->default($c->stash->{precondition_string});
+        }
+}
+
+sub update_precondition : Chained('base') PathPart('update_precondition')
+{
+        my ($self, $c) = @_;
+}
+
 
 sub show_precondition : Chained('preconditions') PathPart('show') Args(0)
 {
@@ -541,11 +604,11 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
 
                         $c->stash->{all_testruns}[$i]{host} = $host;
 
-                        $testrun_settings{requested_hosts} = [ requested_hosts => $host ];
+                        $testrun_settings{requested_hosts} = $host;
                         my $cmd = Tapper::Cmd::Testrun->new();
                         eval { $config->{testrun_id} = $cmd->add(\%testrun_settings)};
                         if ($@) {
-                                $c->stash->{all_testruns}[$i]{ error } = @_;
+                                $c->stash->{all_testruns}[$i]{error} = $@;
                                 next HOST;
                         }
                         $c->stash->{all_testruns}[$i]{id} = $config->{testrun_id};

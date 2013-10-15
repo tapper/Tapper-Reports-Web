@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 5;
 
 BEGIN { use_ok 'Catalyst::Test', 'Tapper::Reports::Web' }
 BEGIN { use_ok 'Tapper::Reports::Web::Controller::Tapper' }
@@ -13,5 +13,3 @@ BEGIN { use_ok 'Tapper::Reports::Web::Controller::Tapper' }
 ok( request('/tapper')->is_success, 'Request 1 should succeed' );
 ok( request('/tapper/testruns/id/1')->is_success, 'Request 2 should succeed' );
 ok( request('/tapper/testruns/create')->is_success, 'Request 3 should succeed' );
-
-done_testing();

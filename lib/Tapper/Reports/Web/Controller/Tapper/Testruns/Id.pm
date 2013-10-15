@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Tapper::Model 'model';
 use Tapper::Reports::Web::Util::Report;
+use YAML::Syck;
 
 use parent 'Tapper::Reports::Web::Controller::Base';
 
@@ -39,6 +40,10 @@ sub index :Path :Args(1)
 
         $c->stash->{title} = "Testrun $testrun_id: ". $c->stash->{testrun}->topic_name . " @ ".$c->stash->{hostname};
         $c->stash->{overview} = $c->forward('/tapper/testruns/get_testrun_overview', [ $c->stash->{testrun} ]);
+
+        my @preconditions_hash = map { $_->precondition_as_hash } $c->stash->{testrun}->ordered_preconditions;
+        $YAML::Syck::SortKeys  = 1;
+        $c->stash->{precondition_string} = YAML::Syck::Dump(@preconditions_hash);
 
         my $rgt_reports = $c->model('TestrunDB')->resultset('Report')->search
           (

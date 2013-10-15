@@ -28,6 +28,7 @@ unless its success state is exactly 100%.
         <thead>
                 <tr>
                          <th>ID</th>
+                         <th>DateTime (GMT)</th>
                          <th>Name</th>
                          <th>Path</th>
                          <th>Success</th>
@@ -44,6 +45,7 @@ unless its success state is exactly 100%.
 %    my $path_link        = $instance->{path}; $path_link =~ s|/|\.|g;
                   <tr>
                         <td><a href="/tapper/testplan/id/<% $instance->{id} %>">tp<% $instance->{id} %></a></td>
+                        <td><% $instance->{updated_at} || $instance->{created_at}  %></td>
                         <td><a title="Add <% $instance->{name} %> to filter" href="/<% $c->req->path %>/name/<% $instance->{name} %>">
                                 <img src="/tapper/static/images/plus.png" size="16">
                             </a>
