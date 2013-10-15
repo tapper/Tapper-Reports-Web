@@ -25,8 +25,8 @@ Daemon::Control->new({
     program     => "$program $app_home/tapper.psgi --user tapper --group amazon --workers $workers --listen $socket",
 
     pid_file    => $pid_file,
-    stderr_file => '/var/log/tapper/tapper.stderr',
-    stdout_file => '/var/log/tapper/tapper.stdout',
+    stderr_file => '/var/log/tapper/tapper.starman.stderr',
+    stdout_file => '/var/log/tapper/tapper.starman.stdout',
 
     fork        => 2,
 })->run;
