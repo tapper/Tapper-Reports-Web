@@ -22,7 +22,7 @@ Daemon::Control->new({
     user        => 'tapper',
     group       => 'amazon',
     directory   => $app_home,
-    program     => "$program /var/www/tapper.psgi --user tapper --group amazon --workers $workers --listen $socket",
+    program     => "$program /var/www/tapper.psgi --user tapper --group amazon --workers $workers --listen $socket --backlog 8192 --keepalive-timeout 10 --preload-app /var/www/tapper.psgi",
 
     pid_file    => $pid_file,
     stderr_file => '/var/log/tapper/tapper.starman.stderr',
