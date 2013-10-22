@@ -47,7 +47,6 @@ sub prepare_simple_reportlist {
                          created_at_ymd        => $report->created_at->ymd('-'),
                          success_ratio         => $report->success_ratio,
                          successgrade          => $report->parse_errors ? 'ERROR' : $report->successgrade,
-                         reviewed_successgrade => $report->reviewed_successgrade,
                          total                 => $report->total,
                          rga_id                => $rga_id,
                          rga_primary           => $rga_primary,
