@@ -64,7 +64,6 @@ sub index :Path :Args()
                                machine_name
                                success_ratio
                                successgrade
-                               reviewed_successgrade
                                total
                             )],
            }
