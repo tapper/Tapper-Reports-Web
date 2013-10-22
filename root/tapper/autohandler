@@ -7,10 +7,6 @@
 <meta name="description" content="tapper reports" />
 <link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/style_red.css" />
 <link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/formfu.css" />
-<link rel="alternate stylesheet" type="text/css" title="Blue" href="/tapper/static/css/style_blue.css" />
-<link rel="alternate stylesheet" type="text/css" title="Green" href="/tapper/static/css/style_green.css" />
-<link rel="alternate stylesheet" type="text/css" title="Brown" href="/tapper/static/css/style_brown.css" />
-<link rel="alternate stylesheet" type="text/css" title="Magenta" href="/tapper/static/css/style_magenta.css" />
 <link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/qtip.css" />
 
 <!-- Title tip support -->

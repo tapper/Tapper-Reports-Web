@@ -36,7 +36,20 @@ sub default :Path
 
 1;
 
-sub end : ActionClass('RenderView') {}
+sub end : ActionClass('RenderView') {
+
+    my ( $self, $or_c ) = @_;
+
+    if ( $or_c->req->params->{json} ) {
+        $or_c->forward('Tapper::Reports::Web::View::JSON');
+    }
+    else {
+        $or_c->forward('Tapper::Reports::Web::View::Mason');
+    }
+
+    return 1;
+
+}
 
 
 __END__

@@ -1,0 +1,139 @@
+<%args>
+    $charts
+</%args>
+
+<h3>Metareports</h3>
+
+<style type="text/css">
+    div.chart_boxs {
+        width           : 300px;
+        float           : left;
+        margin          :   5px;
+    }
+    div.charts {
+        width           : 300px;
+        height          : 150px;
+        text-align      : center;
+        border          : 1px solid #E1E1E1;
+        margin-top      :  5px;
+    }
+    div.charts img {
+        position        : relative;
+        top             : 60px;
+        border          : none;
+    }
+    div.charts img.newimage {
+        top             : 30px;
+    }
+    div.chart_headers {
+        border          : 1px solid #E1E1E1;
+        width           :  300px;
+        height          :  15px;
+    }
+    div.charts {
+        cursor: pointer;
+    }
+    div.chart_headers div.text {
+        float: left;
+        width: 252px;
+        padding-left: 4px;
+    }
+    div.chart_headers div.icons {
+        float: left;
+        width: 42px;
+    }
+    div.chart_headers div.icons img {
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-left: -4px;
+    }
+    #main_inner {
+        margin-left: 15px;
+    }
+    #columnA_2columns {
+        width: 1240px;
+    }
+</style>
+
+<form action="/tapper/metareports">
+    <input type="hidden" id="idx_owner" value="<% $c->req->params->{owner_id} || '' %>" />
+    <select name="owner_id">
+        <& /tapper/selects/owner.mas, owner => $c->req->params->{owner_id} &>
+    </select>
+    <input type="submit" />
+</form>
+
+%   if ( $c->req->params->{owner_id} ) {
+%       if ( @{$charts} > 0 ) {
+%           for my $or_chart ( @{$charts} ) {
+                <div class="chart_boxs" chart="<% $or_chart->chart_id() %>">
+                    <div class="chart_headers">
+                        <div class="text">
+                            <% $or_chart->chart_name() %>
+                        </div>
+                        <div class="icons">
+                            <img src="/tapper/static/images/add.small.png" title="edit as new" class="imgeditasnew" />
+                            <img src="/tapper/static/images/edit.small.png" title="edit" class="imgedit" />
+                            <img src="/tapper/static/images/delete.small.png" title="delete" class="imgdel" />
+                        </div>
+                    </div>
+                    <div class="charts" id="mainchart_<% $or_chart->chart_id() %>">
+                        <img src="/tapper/static/images_red/loader.gif" />
+                    </div>
+                </div>
+%           }
+%       }
+
+        <div class="chart_boxs">
+            <div class="chart_headers">
+                <div class="text">add new chart</div>
+            </div>
+            <div class="charts">
+                <img class="newimage" src="/tapper/static/images_red/plus_big.png" />
+            </div>
+        </div>
+%   }
+
+<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/metareports.js"></script>
+<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.js"></script>
+<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.time.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+        $("div.charts")
+            .filter(function(){
+                return $(this).find("img.newimage").length == 0
+            })
+                .each(function(){
+                    get_chart_points( $(this), false );
+                })
+                .end()
+            .filter(function(){
+                return $(this).find("img.newimage").length > 0
+            })
+                .click(function(){
+                    location.href = '/tapper/metareports/edit_chart?owner_id='+$('#idx_owner').val();
+                })
+        ;
+
+        $('#columnA_2columns img.imgdel').click(function(){
+            if ( confirm("Really delete chart?") == true ) {
+                location.href = '/tapper/metareports/delete_chart?owner_id='+$('#idx_owner').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');
+            }
+        });
+        $('#columnA_2columns img.imgedit').click(function(){
+            location.href = '/tapper/metareports/edit_chart?owner_id='+$('#idx_owner').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');
+        });
+        $('#columnA_2columns img.imgeditasnew').click(function(){
+            location.href = '/tapper/metareports/edit_chart?asnew=1&amp;owner_id='+$('#idx_owner').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');
+        });
+
+    });
+
+</script>
+
+%# Local Variables:
+%# buffer-file-coding-system: utf-8
+%# End:
