@@ -72,13 +72,15 @@
 %                   if ( $c->stash->{pager_interval} != 1 ) {
 %                       if ( $s_grouping_id ne $hr_report->{grouping_id} && $d_grouping_date ne $hr_report->{report_date} ) {
                             <tr>
-                                <td colspan="8" class="pager_date" pager_date="<% $hr_report->{report_date} %>">
-%                                   $d_grouping_date = $hr_report->{report_date};
-%                                   my $or_strp   = DateTime::Format::Strptime->new(
-%                                       pattern   => '%F',
-%                                   );
-%                                   my $or_dt_act = $or_strp->parse_datetime( $hr_report->{report_date} );
-                                    <% $or_dt_act->strftime('%a %b %d, %Y') %>
+                                <td colspan="8">
+                                    <div class="pager_date" pager_date="<% $hr_report->{report_date} %>">
+%                                       $d_grouping_date = $hr_report->{report_date};
+%                                       my $or_strp   = DateTime::Format::Strptime->new(
+%                                           pattern   => '%F',
+%                                       );
+%                                       my $or_dt_act = $or_strp->parse_datetime( $hr_report->{report_date} );
+                                        <% $or_dt_act->strftime('%a %b %d, %Y') %>
+                                    </div>
                                 </td>
                             <tr>
 %                       }
@@ -185,7 +187,7 @@
         pager_call( e.which, $(this).attr('psign'), $(this).attr('pvalue') );
     });
 
-    $('#idx_reportlist_pager div.pager_date, #idx_reportlist td.pager_date').mousedown(function( e ){
+    $('#columnA_2columns div.pager_date').mousedown(function( e ){
         key_dependent_site_call( e.which,
               '/'
             + $('#idx_path').val().replace(/\/\s*$/g,'')

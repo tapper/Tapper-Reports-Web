@@ -668,7 +668,7 @@ sub prepare_testrunlists : Private {
             $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_from )";
         }
 
-        $or_c->stash->{testruns}        = $or_c->model('TestrunDB')->fetch_raw_sql({
+        $or_c->stash->{testruns}            = $or_c->model('TestrunDB')->fetch_raw_sql({
                 query_name  => 'testruns::web_list',
                 fetch_type  => '@%',
                 query_vals  => {
@@ -677,6 +677,7 @@ sub prepare_testrunlists : Private {
                         host                => $hr_filter_condition->{host},
                         topic               => $hr_filter_condition->{topic},
                         state               => $hr_filter_condition->{state},
+                        success             => $hr_filter_condition->{success},
                         owner               => $hr_filter_condition->{owner},
                 },
         });

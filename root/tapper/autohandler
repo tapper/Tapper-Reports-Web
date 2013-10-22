@@ -48,26 +48,23 @@
         text-align: right;
         color: #585858;
     }
-    .pager_date {
-        cursor: pointer;
-        font-weight: bold;
-    }
-    #idx_reportlist td.pager_date {
-        border: 1px solid #585858;
-        text-align: center;
-    }
-    #idx_reportlist td.pager_date:hover {
-        background-color: #66000F;
-        color: #FFF;
-    }
     #idx_reportlist_pager div.pager_date {
-        cursor: pointer;
-        font-weight: bold;
         width: 120px;
     }
-    #idx_reportlist_pager div.pager_date:hover {
+    #columnA_2columns div.pager_date {
+        cursor: pointer;
+        font-weight: bold;
+    }
+    #columnA_2columns div.pager_date:hover {
         background-color: #66000F;
         color: #FFF;
+    }
+    #idx_reportlist td > div.pager_date {
+        margin-top: 30px;
+        margin-bottom: 5px;
+        border: 1px solid #585858;
+        text-align: center;
+        width: 100%;
     }
     input#idx_pager_interval_input:focus {
         outline: none;
@@ -97,6 +94,14 @@
     }
     #idx_reportlist div.dbggreen {
         background-color: #C3FACA;
+    }
+    #idx_reportlist td.transparent div.bggreen,
+    #idx_reportlist td.transparent div.bgred {
+        background-color: #EDEDED;
+    }
+    #idx_reportlist td.yellow div.bggreen,
+    #idx_reportlist td.yellow div.bgred {
+        background-color: #FFD549;
     }
 </style>
 

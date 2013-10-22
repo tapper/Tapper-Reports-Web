@@ -58,6 +58,7 @@
              <th>Topic</th>
              <th>Machine</th>
              <th>State</th>
+             <th>Success</th>
              <th>Ratio</th>
              <th>Owner</th>
         </tr>
@@ -70,13 +71,15 @@
 %                   if ( $c->stash->{pager_interval} != 1 ) {
 %                       if ( $d_grouping_date ne $hr_testrun->{testrun_date} ) {
                             <tr>
-                                <td colspan="8" class="pager_date" pager_date="<% $hr_testrun->{testrun_date} %>">
-%                                   $d_grouping_date = $hr_testrun->{testrun_date};
-%                                   my $or_strp   = DateTime::Format::Strptime->new(
-%                                       pattern   => '%F',
-%                                   );
-%                                   my $or_dt_act = $or_strp->parse_datetime( $hr_testrun->{testrun_date} );
-                                    <% $or_dt_act->strftime('%a %b %d, %Y') %>
+                                <td colspan="8">
+                                    <div class="pager_date" pager_date="<% $hr_testrun->{testrun_date} %>">
+%                                       $d_grouping_date = $hr_testrun->{testrun_date};
+%                                       my $or_strp   = DateTime::Format::Strptime->new(
+%                                           pattern   => '%F',
+%                                       );
+%                                       my $or_dt_act = $or_strp->parse_datetime( $hr_testrun->{testrun_date} );
+                                        <% $or_dt_act->strftime('%a %b %d, %Y') %>
+                                    </div>
                                 </td>
                             <tr>
 %                       }
@@ -107,7 +110,13 @@
                                 <% $hr_testrun->{testrun_state} %>
                             </a>
                         </td>
-                        <td>
+                        <td class="<% lc $hr_testrun->{successgrade} %>">
+%                           if ( $hr_testrun->{successgrade} ) {
+                                <div class="plus success"></div>
+                                <a href="/tapper/testruns/success/<% $hr_testrun->{successgrade} %>"><% $hr_testrun->{successgrade} %></a>
+%                           }
+                        </td>
+                        <td class="<% $hr_testrun->{testrun_state} eq 'schedule' || $hr_testrun->{testrun_state} eq 'prepare' ? 'transparent' : $hr_testrun->{testrun_state} eq 'running' ? 'yellow' : '' %>">
 %                           my $i_success_width = int($hr_testrun->{success_ratio} / 2);
                             <div class="sratio bggreen" style="width:<% $i_success_width %>px"></div>
                             <div class="sratio bgred" style="width:<% 50 - $i_success_width %>px"></div>
@@ -146,7 +155,7 @@
                     );
                 }
                 else {
-                    $(['topic', 'host', 'state', 'owner']).each(function(){
+                    $(['topic', 'host', 'state', 'owner', 'success']).each(function(){
                         if ( $target.hasClass(this) ) {
                             key_dependent_site_call( e.which,
                                   '/'
@@ -169,7 +178,7 @@
         pager_call( e.which, $(this).attr('psign'), $(this).attr('pvalue') );
     });
 
-    $('#idx_reportlist_pager div.pager_date, #idx_reportlist td.pager_date').mousedown(function( e ){
+    $('#columnA_2columns div.pager_date').mousedown(function( e ){
         key_dependent_site_call( e.which,
               '/'
             + $('#idx_path').val().replace(/\/\s*$/g,'')

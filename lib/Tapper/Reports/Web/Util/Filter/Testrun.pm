@@ -36,6 +36,7 @@ sub BUILD {
                         {
                                 host    => \&host,
                                 state   => sub { hr_set_filter_default( @_, 'state' ); },
+                                success => sub { hr_set_filter_default( @_, 'success' ); },
                                 topic   => sub { hr_set_filter_default( @_, 'topic' ); },
                                 owner   => \&owner,
                         }
