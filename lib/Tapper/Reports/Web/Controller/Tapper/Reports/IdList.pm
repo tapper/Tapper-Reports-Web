@@ -24,7 +24,6 @@ sub prepare_idlist : Private
                                    created_at
                                    success_ratio
                                    successgrade
-                                   reviewed_successgrade
                                    total
                                    peerport
                                    peeraddr
