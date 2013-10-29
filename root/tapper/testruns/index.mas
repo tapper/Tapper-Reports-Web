@@ -87,7 +87,7 @@
 
                     <tr>
                         <td>
-                            <a title="Click to show details" href="/tapper/testruns/id/<% $hr_testrun->{testrun_id} %>">r<% $hr_testrun->{testrun_id} %></a>
+                            <a title="Click to show details" href="/tapper/testruns/id/<% $hr_testrun->{testrun_id} %>">tr<% $hr_testrun->{testrun_id} %></a>
                         </td>
                         <td><% $hr_testrun->{testrun_date} . ' ' . $hr_testrun->{testrun_time} %></td>
                         <td>

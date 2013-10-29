@@ -27,6 +27,8 @@ sub detail : Local {
 
     my ( $or_self, $or_c ) = @_;
 
+    $or_c->stash->{head_overview} = 'Metareports - Detail';
+
     $or_c->stash->{chart} = $or_c
         ->model('TestrunDB')
         ->resultset('Charts')
@@ -41,11 +43,13 @@ sub chart_overview : Local {
 
     my ( $or_self, $or_c ) = @_;
 
+    $or_c->stash->{head_overview} = 'Metareports - Overview';
+
     # get charts for user
     $or_c->stash->{charts} = [
-        $or_c->model('TestrunDB')->resultset('Charts')->search(
+        $or_c->model('TestrunDB')->resultset('Charts')->search({
             owner_id => $or_c->req->params->{owner_id},
-        )
+        })
     ];
 
     return 1;
@@ -86,9 +90,7 @@ sub get_chart_points : Local {
             ->new({
                 debug  => 0,
                 dbh    => $or_c->model('TestrunDB')->storage->dbh,
-                config => YAML::Syck::LoadFile(
-                    '/home/local/ANT/schaefr/git/Tapper-Benchmark/conf/default-tapper_benchmark.conf'
-                )
+                config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
             })
         ;
 
@@ -284,6 +286,7 @@ sub edit_chart : Local {
 
     my ( $or_self, $or_c ) = @_;
 
+    require YAML::Syck;
     require Tapper::Config;
     require Tapper::Benchmark;
 
@@ -296,7 +299,7 @@ sub edit_chart : Local {
     my %h_columns = Tapper::Benchmark
         ->new({
             dbh    => Tapper::Model::model()->storage->dbh,
-            config => Tapper::Config->subconfig->{benchmark}{config_file},
+            config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
         })
         ->{query}
         ->default_columns()
@@ -304,7 +307,7 @@ sub edit_chart : Local {
 
     push @a_columnlist, keys %h_columns;
 
-    if ( !$or_c->stash->{chart} ) {
+    if (! $or_c->stash->{chart} ) {
         if ( $or_c->req->params->{chart_id} ) {
             $or_c->stash->{chart} = get_edit_page_chart_hash_by_chart_id(
                 $or_c->req->params->{chart_id}, $or_schema,
@@ -314,7 +317,9 @@ sub edit_chart : Local {
             $or_c->stash->{chart} = {};
         }
     }
-    $or_c->stash->{columns} = \@a_columnlist;
+
+    $or_c->stash->{columns}       = \@a_columnlist;
+    $or_c->stash->{head_overview} = 'Metareports - Edit' . ( $or_c->req->params->{asnew} ? ' as New' : q## );
 
     return 1;
 
@@ -393,11 +398,12 @@ sub get_edit_page_chart_hash_by_params {
     my @a_chart_add_urls        = @{toarrayref($hr_params->{chart_additional_url})};
 
     # get default columns for check
+    require YAML::Syck;
     require Tapper::Benchmark;
     my %h_default_columns = Tapper::Benchmark
         ->new({
             dbh    => $or_schema->storage->dbh,
-            config => Tapper::Config->subconfig->{benchmark}{config_file},
+            config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
         })
         ->{query}
         ->default_columns()
@@ -474,6 +480,9 @@ sub save_chart : Local {
 
     # serialize input data
     $or_c->stash->{chart} = get_edit_page_chart_hash_by_params( $hr_params, $or_schema );
+
+    require Data::Dumper;
+    warn Data::Dumper::Dumper( $or_c->stash->{chart} );
 
     try {
         $or_schema->txn_do(sub {
@@ -618,13 +627,14 @@ sub get_benchmark_operators : Private {
 
     my ( $or_self, $or_c ) = @_;
 
+    require YAML::Syck;
     require Tapper::Config;
     require Tapper::Benchmark;
 
     return Tapper::Benchmark
         ->new({
             dbh    => Tapper::Model::model()->storage->dbh,
-            config => Tapper::Config->subconfig->{benchmark}{config_file},
+            config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
         })
         ->{query}
         ->benchmark_operators()

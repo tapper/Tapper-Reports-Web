@@ -1,11 +1,5 @@
 package Tapper::Reports::Web::Util::Report;
 
-BEGIN {
-    use CGI::Carp qw(carpout);
-    open(LOG, ">>/var/log/my.log") or die("Unable to open mycgi-log: $!\n");
-    carpout(LOG);
-}
-
 use Moose;
 use Tapper::Model 'model';
 

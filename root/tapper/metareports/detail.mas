@@ -57,6 +57,7 @@
         cursor: pointer;
         padding: 0;
         margin-left: -4px;
+        margin-top: -1px;
     }
     #main_inner {
         margin-left: 15px;
@@ -135,8 +136,8 @@
             <div id="dv_searchright_idx">&raquo;</div>
         </div>
         <div class="icons">
-            <img src="/tapper/static/images/add.small.png" title="edit as new" class="imgeditasnew" />
             <img src="/tapper/static/images/edit.small.png" title="edit" class="imgedit" />
+            <img src="/tapper/static/images/clone.small.png" title="edit as new" class="imgeditasnew" />
             <img src="/tapper/static/images/delete.small.png" title="delete" class="imgdel" />
         </div>
     </div>
@@ -149,20 +150,20 @@
     <div id="choices"></div>
 </div>
 
-<link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/jquery-ui/jquery.ui.css" />
-<link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/jquery-ui/jquery.ui.core.css" />
-<link rel="stylesheet" type="text/css" title="Red" href="/tapper/static/css/jquery-ui/jquery.ui.datepicker.css" />
+<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.css" />
+<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.core.css" />
+<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.datepicker.css" />
 
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.core.js"></script>
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect.js"></script>
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.datepicker.js"></script>
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect-slide.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.core.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.datepicker.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect-slide.js"></script>
 
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/metareports.js"></script>
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.js"></script>
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.time.js"></script>
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.selection.js"></script>
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.timepicker.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/metareports.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.time.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.selection.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.timepicker.js"></script>
 
 <script type="text/javascript">
 

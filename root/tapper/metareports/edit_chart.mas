@@ -118,7 +118,7 @@
         <tr>
             <td colspan="2" class="header">
                 <img src="/tapper/static/images/plus.png" class="add_where" />
-                Add a new result restiction
+                Add a new result restriction
             </td>
         </tr>
 %       my $i_chart_where_counter = 0;
@@ -235,6 +235,7 @@
 <div id="idx_div_errors"><% $error %></div>
 <div id="idx_helper_div">
     <form id="idx_create_chart_form" action="/tapper/metareports/save_chart">
+        <input type="hidden" name="asnew" value="<% $c->req->params->{asnew} || 0 %>" />
         <input type="hidden" name="chart_id" value="<% $c->req->params->{asnew} ? q## : $chart->{chart_id} || q## %>" />
         <input type="hidden" name="owner_id" value="<% $c->req->params->{owner_id} || q## %>" />
         <input type="hidden" id="idx_path" value="<% $c->req->path %>" />
@@ -303,6 +304,7 @@
 
 </div>
 
+<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.css" />
 <script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-ui/jquery-ui-autocomplete.js"></script>
 <script type="text/javascript">
 

@@ -16,15 +16,31 @@ use Cwd;
 use Tapper::Config;
 use Log::Log4perl::Catalyst;
 
+my $hr_subconfig;
+my $s_log4perl_config;
+
+BEGIN {
+
+    $hr_subconfig = Tapper::Config->subconfig;
+
+    open my $fh_log4perl_config, '<', $hr_subconfig->{files}{log4perl_webgui_cfg} or die "Unable to open log4perl configuration: $!";
+    $s_log4perl_config = do { local $/; <$fh_log4perl_config> };
+    close $fh_log4perl_config or die "Unable to close log4perl configuration: $!";
+
+    my ( $s_error_log_file ) = $s_log4perl_config =~ /^log4perl.appender.AppError.filename\s*=\s*(.+)$/m;
+
+    use CGI::Carp qw( carpout );
+    open( my $fh_log, '>>', $s_error_log_file ) or die ( "Unable to open log file while compiling: $!\n" );
+    carpout($fh_log);
+
+}
+
 my $root_dir = eval { dist_dir("Tapper-Reports-Web") } || getcwd."/root";
 
 # Configure the application
 __PACKAGE__->config( name => 'Tapper::Reports::Web' );
-__PACKAGE__->config->{tapper_config} = Tapper::Config->subconfig;
-
-__PACKAGE__->log(Log::Log4perl::Catalyst->new(
-    __PACKAGE__->config->{tapper_config}{files}{log4perl_webgui_cfg},
-));
+__PACKAGE__->config->{tapper_config} = $hr_subconfig;
+__PACKAGE__->log(Log::Log4perl::Catalyst->new( \$s_log4perl_config ));
 
 # send all "die" and "warn" to Log4perl
 $SIG{__DIE__} = sub {
@@ -34,12 +50,14 @@ $SIG{__DIE__} = sub {
         return;
     }
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
-    __PACKAGE__->log->die( @_ );
+    __PACKAGE__->log->error( @_ );
 };
 $SIG{__WARN__} = sub {
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
     __PACKAGE__->log->warn( @_ );
 };
+
+use Catalyst::Engine;
 
 # Configure plugins
 __PACKAGE__->config(

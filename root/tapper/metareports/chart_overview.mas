@@ -47,6 +47,7 @@
         cursor: pointer;
         padding: 0;
         margin-left: -4px;
+        margin-top: -1px;
     }
     #main_inner {
         margin-left: 15px;
@@ -73,8 +74,8 @@
                             <% $or_chart->chart_name() %>
                         </div>
                         <div class="icons">
-                            <img src="/tapper/static/images/add.small.png" title="edit as new" class="imgeditasnew" />
                             <img src="/tapper/static/images/edit.small.png" title="edit" class="imgedit" />
+                            <img src="/tapper/static/images/clone.small.png" title="edit as new" class="imgeditasnew" />
                             <img src="/tapper/static/images/delete.small.png" title="delete" class="imgdel" />
                         </div>
                     </div>

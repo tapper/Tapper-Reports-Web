@@ -4,9 +4,4 @@ use strict;
 use warnings;
 
 use Tapper::Reports::Web;
-
-Tapper::Reports::Web->setup_engine('PSGI');
-
-my $or_app = sub {
-    Tapper::Reports::Web->run(@_);
-};
+my $or_app = Tapper::Reports::Web->psgi_app(@_);
