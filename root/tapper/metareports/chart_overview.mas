@@ -2,8 +2,6 @@
     $charts
 </%args>
 
-<h3>Metareports</h3>
-
 <style type="text/css">
     div.chart_boxs {
         width           : 300px;

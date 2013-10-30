@@ -147,6 +147,7 @@ sub edit : LocalRegex('edit|clone') {
 
     my ( $or_self, $or_c ) = @_;
 
+    $or_c->stash->{command}       = ( split /\//, $or_c->req->match )[-1];
     $or_c->stash->{head_overview} = 'Continuous Testruns - ' . ucfirst( $or_c->stash->{command} );
 
     if (! $or_c->stash->{continuous_testrun} ) {
@@ -160,18 +161,30 @@ sub edit : LocalRegex('edit|clone') {
             },{
                 'join'                          => [
                     'testrun_scheduling',
-                    'testrun_requested_host',
+                    { 'testrun_requested_host' => 'host' },
+                    { 'testrun_precondition' => 'precondition' },
                 ],
             })
             ->first()
         ;
         $or_c->stash->{continuous_testrun} = {
-            testrun_id  => $or_c->req->params->{testrun_id},
-            topic       => $or_testrun->topic_name,
-            queue       => $or_testrun->testrun_scheduling->queue_id,
-            host        => [map { [ $_->host_id, $_->host->name ] } $or_testrun->testrun_requested_host],
+            testrun_id      => $or_c->req->params->{testrun_id},
+            topic           => $or_testrun->topic_name,
+            queue           => $or_testrun->testrun_scheduling->queue_id,
+            host            => [
+                map {
+                    [ $_->host_id, $_->host->name ]
+                } $or_testrun->testrun_requested_host
+            ],
+            preconditions   => [
+                map {
+                    {
+                        text        => $_->precondition->precondition,
+                        shortname   => $_->precondition->shortname || q##,
+                    }
+                } $or_testrun->testrun_precondition
+            ],
         };
-        $or_c->stash->{command}            = ( split /\//, $or_c->req->match )[-1];
     }
 
     return 1;
@@ -182,27 +195,35 @@ sub save : Local {
 
     my ( $or_self, $or_c ) = @_;
 
-    my $or_schema = $or_c->model('TestrunDB');
+    my $or_schema              = $or_c->model('TestrunDB');
+    my $ar_precondition_texts  = toarrayref( $or_c->req->params->{precondition_text} );
+    my $ar_precondition_shorts = toarrayref( $or_c->req->params->{precondition_short} );
 
     try {
         $or_schema->txn_do(sub {
 
             my $i_testrun_id;
+            my $hr_topic_search = {
+                'topic_name'                    => $or_c->req->params->{topic},
+                'testrun_scheduling.auto_rerun' => 1,
+                'testrun_scheduling.status'     => ['prepare','schedule'],
+            };
+
             if ( $or_c->req->params->{command} eq 'edit' ) {
 
-                $i_testrun_id = $or_c->req->params->{testrun_id};
+                $i_testrun_id            = $or_c->req->params->{testrun_id};
+                $hr_topic_search->{-not} = { 'me.id' => $i_testrun_id };
 
                 # check topic name
                 if (
                     $or_schema
                         ->resultset('Testrun')
-                        ->search({
-                            -not        => { id => $i_testrun_id },
-                            topic_name  => $or_c->req->params->{topic},
+                        ->search($hr_topic_search,{
+                            'join' => 'testrun_scheduling',
                         })
                         ->count() > 0
                 ) {
-                    die "topic name already exists\n";
+                    die "topic name already exists BUMBUM $i_testrun_id\n";
                 }
 
                 # update topic
@@ -231,6 +252,13 @@ sub save : Local {
                     })
                 ;
 
+                # delete old preconditions
+                $or_schema
+                    ->resultset('TestrunPrecondition')
+                    ->search({ testrun_id => $i_testrun_id })
+                    ->delete_all()
+                ;
+
                 # delete old testruns
                 $or_schema
                     ->resultset('TestrunRequestedHost')
@@ -245,8 +273,8 @@ sub save : Local {
                 if (
                     $or_schema
                         ->resultset('Testrun')
-                        ->search({
-                            topic_name  => $or_c->req->params->{topic},
+                        ->search($hr_topic_search,{
+                            'join' => 'testrun_scheduling',
                         })
                         ->count() > 0
                 ) {
@@ -302,6 +330,51 @@ sub save : Local {
                 die "unknown command '$or_c->req->params->{command}'\n";
             }
 
+            # insert testrun preconditions
+            $or_schema
+                ->resultset('TestrunPrecondition')
+                ->search({ testrun_id => $i_testrun_id })
+                ->delete_all()
+            ;
+
+            my $i_counter = 0;
+            for my $s_text ( @{$ar_precondition_texts} ) {
+
+                my $s_short    = $ar_precondition_shorts->[$i_counter] || q##;
+                my $or_precond =
+                    $or_schema
+                        ->resultset('Precondition')
+                        ->search({
+                            shortname    => $s_short,
+                            precondition => $s_text,
+                        },{
+                            order_by     => { -asc => 'id' },
+                        })
+                        ->first()
+                    ||
+                    $or_schema
+                        ->resultset('Precondition')
+                        ->new({
+                            shortname       => $s_short,
+                            precondition    => $s_text,
+                        })
+                        ->insert()
+                ;
+
+                # insert testrun - precondition relation
+                $or_schema
+                    ->resultset('TestrunPrecondition')
+                    ->new({
+                        testrun_id      => $i_testrun_id,
+                        precondition_id => $or_precond->id,
+                    })
+                    ->insert()
+                ;
+
+                $i_counter++;
+
+            }
+
             # insert testrun requested hosts
             for my $i_host ( @{toarrayref( $or_c->req->params->{host} )} ) {
                 $or_schema
@@ -317,16 +390,27 @@ sub save : Local {
         });
     }
     catch {
+
+        my $i_precondition_counter          = 0;
         $or_c->stash->{error}               = "Transaction failed: $_";
         $or_c->stash->{command}             = $or_c->req->params->{command};
         $or_c->stash->{continuous_testrun}  = {
-            testrun_id  => $or_c->req->params->{testrun_id},
-            topic       => $or_c->req->params->{topic},
-            queue       => $or_c->req->params->{queue},
-            host        => [
+            testrun_id      => $or_c->req->params->{testrun_id},
+            topic           => $or_c->req->params->{topic},
+            queue           => $or_c->req->params->{queue},
+            host            => [
                 map {[
                     $_, $or_schema->resultset('Host')->find( $_ )->name,
                 ]} @{toarrayref( $or_c->req->params->{host} )}
+            ],
+            preconditions   => [
+                map {
+                    {
+                        text        => $ar_precondition_texts->[$i_precondition_counter],
+                        shortname   => $ar_precondition_shorts->[$i_precondition_counter++],
+                    };
+
+                } @{$ar_precondition_texts}
             ],
         };
         $or_c->go('/tapper/continuoustestruns/edit');

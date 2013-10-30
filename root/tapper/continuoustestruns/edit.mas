@@ -6,11 +6,11 @@
         margin-bottom: 10px;
     }
     #bt_add_continuous_testrun_idx {
-        width: 446px;
+        width: 946px;
     }
 
     table {
-        width: 450px;
+        width: 950px;
         border-collapse: collapse;
     }
     table tr > td:nth-child(1) {
@@ -30,24 +30,36 @@
         cursor: pointer;
     }
     table select {
-        width: 327px;
+        width: 827px;
     }
 
     input.intopic {
-        width: 320px;
+        width: 820px;
     }
-    input.achost {
-        width: 305px;
+    input.achost,
+    input.prcshort {
+        width: 805px;
+    }
+    textarea {
+        width:  805px;
+        height: 150px;
+        margin-top: 3px;
+        margin-bottom: 3px;
+        margin-left: 14px;
     }
 
 </style>
 
 <div id="bt_error_idx" style="display:<% $c->stash->{error} ? 'block' : 'none' %>"><% $c->stash->{error} || q## %></div>
 
+<a href="/tapper/continuoustestruns">&laquo; back to overview</a>
+
+<br /><br />
+
 <form id="fo_save_idx" action="/tapper/continuoustestruns/save">
     <input type="hidden" name="command" value="<% $c->stash->{command} %>" />
     <input type="hidden" name="testrun_id" value="<% $c->stash->{continuous_testrun}{testrun_id} %>" />
-    <table id="img_hosts_idx">
+    <table id="tb_testruns_idx">
         <tr>
             <td>Topic:</td>
             <td><input type="text" class="intopic" name="topic" value="<% $c->stash->{continuous_testrun}{topic} %>"</td>
@@ -73,6 +85,22 @@
 %                   }
                     <input type="hidden" name="host" value="<% $ar_host->[0] %>" />
                     <input type="text" class="achost" value="<% $ar_host->[1] %>" />
+%               }
+            </td>
+        </tr>
+        <tr>
+            <td>Precondition(s):</td>
+            <td>
+%               my $i_precondition_counter = 0;
+%               for my $hr_precondition ( @{$c->stash->{continuous_testrun}{preconditions}} ) {
+%                   if ( $i_precondition_counter++ ) {
+                        <img src="/tapper/static/images/minus.png" class="delprec" />
+%                   }
+%                   else {
+                        <img src="/tapper/static/images/plus.png" class="addprec" />
+%                   }
+                    <input type="text" name="precondition_short" class="prcshort" value="<% $hr_precondition->{shortname} %>" />
+                    <textarea class="tx_precondition" name="precondition_text"><% $hr_precondition->{text} %></textarea>
 %               }
             </td>
         </tr>
@@ -107,7 +135,7 @@
         };
 
         $('input.achost').autocomplete(acoptions);
-        $('#img_hosts_idx').click(function( e ){
+        $('#tb_testruns_idx').click(function( e ){
             var $target = $(e.target);
             if ( $target.is('img') ) {
                 if ( $target.hasClass('addhost') ) {
@@ -117,7 +145,14 @@
                         + '<input type="text" class="achost" value="" />'
                     ).find('input:last').autocomplete(acoptions);
                 }
-                else if ( $target.hasClass('delhost') ) {
+                else if ( $target.hasClass('addprec') ) {
+                    $target.parent().append(
+                          '<img src="/tapper/static/images/minus.png" class="delprec" /> '
+                        + '<input type="text" name="precondition_short" class="prcshort" value="" />'
+                        + '<textarea class="tx_precondition" name="precondition_text"></textarea>'
+                    );
+                }
+                else if ( $target.hasClass('delhost') || $target.hasClass('delprec') ) {
                     $target.nextUntil('img').add($target).remove();
                 }
             }
@@ -125,8 +160,9 @@
 
         $('#bt_add_continuous_testrun_idx').click(function(){
             var $inputs =
-                $('#img_hosts_idx input:text')
+                $('#tb_testruns_idx input:text, #tb_testruns_idx textarea')
                     .removeClass('redborder')
+                    .not('.prcshort')
                     .filter(function(){ return (/^\s*$/).test( $(this).val() ) })
                     .addClass('redborder')
                     .first()

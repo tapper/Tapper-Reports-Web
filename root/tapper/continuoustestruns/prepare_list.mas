@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-plugins/jquery.tablesorter.css" />
 <style type="text/css">
 
     #idx_dv_error {
@@ -20,13 +21,14 @@
         height: 20px;
     }
 
+
 </style>
 
 %   if( $c->stash->{error} ) {
         <div id="idx_dv_error"><% $c->stash->{error} %></div>
 %   }
 
-<table id="idx_continuous_table" class="reportlist">
+<table id="idx_continuous_table" class="reportlist tablesorter">
     <thead>
         <tr>
              <th>ID</th>
@@ -73,17 +75,43 @@
     </tbody>
 </table>
 
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.tablesorter.js"></script>
 <script type="text/javascript">
+
     $(document).ready(function(){
-        $('#idx_continuous_table').click(function( e ){
-            var $target  = $(e.target);
-            var commands = ['pause','continue','edit','clone','cancel'];
-            for ( var i = 0; i < commands.length; i = i + 1 ) {
-                if ( $target.hasClass(commands[i]) ) {
-                    location.href = "/tapper/continuoustestruns/" + commands[i] + "?testrun_id=" + $target.closest('tr').find('td:first').text().replace(/\D/g,'');
-                    break;
-                }
-            }
+
+        $.tablesorter.addParser({
+            id      : 'testrunid',
+            is      : function(){ return false },
+            format  : function(s) {
+                return s.replace(/\D/g,'');
+            },
+            type    : 'numeric'
         });
+
+        $('#idx_continuous_table')
+            .click(function( e ){
+                var $target  = $(e.target);
+                var commands = ['pause','continue','edit','clone','cancel'];
+                for ( var i = 0; i < commands.length; i = i + 1 ) {
+                    if ( $target.hasClass(commands[i]) ) {
+                        if ( commands[i] == 'cancel' ) {
+                            if (! confirm("Really delete?") ){
+                                break;
+                            }
+                        }
+                        location.href = "/tapper/continuoustestruns/" + commands[i] + "?testrun_id=" + $target.closest('tr').find('td:first').text().replace(/\D/g,'');
+                        break;
+                    }
+                }
+            })
+            .tablesorter({
+                headers : {
+                    0 : { sorter : 'testrunid' },
+                    6 : { sorter : false }
+                }
+            })
+        ;
+
     });
 </script>
