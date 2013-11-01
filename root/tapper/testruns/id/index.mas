@@ -9,11 +9,12 @@ $precondition_string => ''
 </%args>
 
 % use Data::Dumper;
+% my $topic = $testrun->topic_name;
 
 <h3>
   Testrun
   <strong><% $testrun->id %></strong>:
-  <strong><% $testrun->topic_name %></strong>
+  <strong><a href="/tapper/testruns/topic/<% $topic %>"><% $topic %></a></strong>
 </h3>
 
     <!-- ************************************************************ -->
