@@ -38,7 +38,11 @@ sub end : ActionClass('RenderView') {
 
     my ( $self, $or_c ) = @_;
 
-    if (! $or_c->response->body ) {
+    if (
+           !$or_c->response->body
+        && ( $or_c->res->status < 300 || $or_c->res->status > 399 )
+        && ( $or_c->res->status != 204 )
+    ) {
         if ( $or_c->req->params->{json} ) {
             $or_c->forward('Tapper::Reports::Web::View::JSON');
         }

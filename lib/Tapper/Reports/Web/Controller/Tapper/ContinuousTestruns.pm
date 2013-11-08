@@ -99,7 +99,8 @@ sub pause : Local {
         },
     );
 
-    $or_c->go('/tapper/continuoustestruns/prepare_list');
+    $or_c->response->redirect('/tapper/continuoustestruns');
+    $or_c->detach();
 
     return 1;
 
@@ -118,7 +119,8 @@ sub continue : Local {
         },
     );
 
-    $or_c->go('/tapper/continuoustestruns/prepare_list');
+    $or_c->response->redirect('/tapper/continuoustestruns');
+    $or_c->detach();
 
     return 1;
 
@@ -137,7 +139,8 @@ sub cancel : Local {
         },
     );
 
-    $or_c->go('/tapper/continuoustestruns/prepare_list');
+    $or_c->response->redirect('/tapper/continuoustestruns');
+    $or_c->detach();
 
     return 1;
 
@@ -416,7 +419,8 @@ sub save : Local {
         $or_c->go('/tapper/continuoustestruns/edit');
     };
 
-    $or_c->go('/tapper/continuoustestruns/prepare_list');
+    $or_c->response->redirect('/tapper/continuoustestruns');
+    $or_c->detach();
 
     return 1;
 

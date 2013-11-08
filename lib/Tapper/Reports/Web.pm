@@ -93,6 +93,7 @@ __PACKAGE__->config( 'Controller::HTML::FormFu' => {
 });
 
 my @plugins = qw(
+    Redirect
     ConfigLoader
     Static::Simple Session
     Session::State::Cookie

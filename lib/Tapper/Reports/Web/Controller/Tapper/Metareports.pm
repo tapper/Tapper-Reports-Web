@@ -1,5 +1,7 @@
 package Tapper::Reports::Web::Controller::Tapper::Metareports;
 
+# ABSTRACT: Tapper - Catalyst Controller Metareports
+
 use strict;
 use warnings;
 use parent 'Tapper::Reports::Web::Controller::Base';
@@ -501,7 +503,8 @@ sub save_chart : Local {
         $or_c->go('/tapper/metareports/edit_chart');
     };
 
-    $or_c->go('/tapper/metareports/chart_overview');
+    $or_c->redirect($or_c->uri_for("/tapper/metareports/chart_overview", { owner_id => $or_c->req->params->{owner_id} }));
+    $or_c->detach();
 
     return 1;
 
@@ -540,7 +543,8 @@ sub delete_chart : Local {
         $or_c->stash->{message} = 'Chart successfully deleted';
     }
 
-    $or_c->go('/tapper/metareports/chart_overview');
+    $or_c->redirect($or_c->uri_for("/tapper/metareports/chart_overview", { owner_id => $or_c->req->params->{owner_id} }));
+    $or_c->detach();
 
     return 1;
 
@@ -665,30 +669,5 @@ sub prepare_navi : Private {
     ];
 
 }
-
-
-=head1 NAME
-
-Tapper::Reports::Web::Controller::Tapper::Testruns - Catalyst Controller
-
-=head1 DESCRIPTION
-
-Catalyst Controller.
-
-=head1 METHODS
-
-=head2 index
-
-
-
-=head1 AUTHOR
-
-AMD OSRC Tapper Team, C<< <tapper at amd64.org> >>
-
-=head1 LICENSE
-
-This program is released under the following license: freebsd
-
-=cut
 
 1;
