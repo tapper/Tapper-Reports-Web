@@ -28,7 +28,7 @@ unless its success state is exactly 100%.
         <thead>
                 <tr>
                          <th>ID</th>
-                         <th>DateTime (GMT)</th>
+                         <th>Created At (GMT)</th>
                          <th>Name</th>
                          <th>Path</th>
                          <th>Success</th>

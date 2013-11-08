@@ -54,7 +54,7 @@
     <thead>
         <tr>
              <th class="reportid">ID</th>
-             <th>DateTime (GMT)</th>
+             <th>Created At (GMT)</th>
              <th>Topic</th>
              <th>Machine</th>
              <th>State</th>
