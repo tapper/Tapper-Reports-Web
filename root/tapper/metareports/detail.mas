@@ -91,7 +91,7 @@
     .xAxis > .tickLabel {
         white-space         : nowrap;
         margin-top          : 5px;
-        // set 90° Rotation of x-axis labels for Firefox, IE, Safari and Chrome
+        /* set 90° Rotation of x-axis labels for Firefox, IE, Safari and Chrome */
         -moz-transform      : rotate(45deg);
         -o-transform        : rotate(45deg);
         -webkit-transform   : rotate(45deg);
