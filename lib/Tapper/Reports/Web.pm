@@ -58,6 +58,7 @@ $SIG{__WARN__} = sub {
 };
 
 use Catalyst::Engine;
+use Catalyst::DispatchType::Regex;
 
 # Configure plugins
 __PACKAGE__->config(

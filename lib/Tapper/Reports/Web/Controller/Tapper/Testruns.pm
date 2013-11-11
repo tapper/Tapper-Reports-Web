@@ -630,56 +630,85 @@ sub prepare_testrunlists : Private {
 
         my ( $or_self, $or_c, $hr_filter_condition ) = @_;
 
-        my $hr_params = $or_c->req->params;
+        my $b_view_pager  = 0;
+        my $hr_params     = $or_c->req->params;
+        my $hr_query_vals = {
+            testrun_id          => $hr_filter_condition->{testrun_id},
+            host                => $hr_filter_condition->{host},
+            topic               => $hr_filter_condition->{topic},
+            state               => $hr_filter_condition->{state},
+            success             => $hr_filter_condition->{success},
+            owner               => $hr_filter_condition->{owner},
+        };
 
-        require DateTime;
-        if ( $hr_params->{testrun_date} ) {
-                $hr_filter_condition->{testrun_date} = DateTime::Format::Strptime->new(
-                        pattern => '%F',
-                )->parse_datetime( $hr_params->{testrun_date} );
+        if ( $hr_filter_condition->{testrun_id} ) {
+
+            $or_c->stash->{head_overview}   = "Testruns";
+
+            if ( $hr_params->{testrun_date} ) {
+
+                    $hr_filter_condition->{testrun_date} = DateTime::Format::Strptime->new(
+                            pattern => '%F',
+                    )->parse_datetime( $hr_params->{testrun_date} );
+
+                    $hr_query_vals->{testrun_date_from} = $hr_filter_condition->{testrun_date}->strftime('%F');
+                    $hr_query_vals->{testrun_date_to}   = $hr_filter_condition->{testrun_date}->strftime('%F');
+
+                    $or_c->stash->{head_overview} .= ' ( ' . $hr_filter_condition->{testrun_date}->strftime('%d %b %Y') . ' )'
+
+            }
+
         }
         else {
-                $hr_filter_condition->{testrun_date} = DateTime->now();
-        }
-        if ( $hr_params->{pager_sign} && $hr_params->{pager_value} ) {
-                if ( $hr_params->{pager_sign} eq 'negative' ) {
-                        $hr_filter_condition->{testrun_date}->subtract(
-                                $hr_params->{pager_value} => 1
-                        );
-                }
-                elsif ( $hr_params->{pager_sign} eq 'positive' ) {
-                        $hr_filter_condition->{testrun_date}->add(
-                                $hr_params->{pager_value} => 1
-                        );
-                }
+
+            require DateTime;
+            if ( $hr_params->{testrun_date} ) {
+                    $hr_filter_condition->{testrun_date} = DateTime::Format::Strptime->new(
+                            pattern => '%F',
+                    )->parse_datetime( $hr_params->{testrun_date} );
+            }
+            else {
+                    $hr_filter_condition->{testrun_date} = DateTime->now();
+            }
+            if ( $hr_params->{pager_sign} && $hr_params->{pager_value} ) {
+                    if ( $hr_params->{pager_sign} eq 'negative' ) {
+                            $hr_filter_condition->{testrun_date}->subtract(
+                                    $hr_params->{pager_value} => 1
+                            );
+                    }
+                    elsif ( $hr_params->{pager_sign} eq 'positive' ) {
+                            $hr_filter_condition->{testrun_date}->add(
+                                    $hr_params->{pager_value} => 1
+                            );
+                    }
+            }
+
+            $or_c->stash->{pager_interval}  = $hr_params->{pager_interval} || 1;
+            $or_c->stash->{testrun_date}    = $hr_filter_condition->{testrun_date};
+
+            # set testrun date
+            my $d_testrun_date_from = $hr_filter_condition->{testrun_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%d %b %Y');
+            my $d_testrun_date_to   = $hr_filter_condition->{testrun_date}->strftime('%d %b %Y');
+
+            if ( $d_testrun_date_from ne $d_testrun_date_to ) {
+                $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_to - $d_testrun_date_from )";
+            }
+            else {
+                $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_from )";
+            }
+
+            $hr_query_vals->{testrun_date_from} = $hr_filter_condition->{testrun_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%F');
+            $hr_query_vals->{testrun_date_to}   = $hr_filter_condition->{testrun_date}->strftime('%F');
+
+            $or_c->stash->{view_pager} = 1;
+
         }
 
-        $or_c->stash->{pager_interval}  = $hr_params->{pager_interval} || 1;
-        $or_c->stash->{testrun_date}    = $hr_filter_condition->{testrun_date};
-
-        # set testrun date
-        my $d_testrun_date_from = $hr_filter_condition->{testrun_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%d %b %Y');
-        my $d_testrun_date_to   = $hr_filter_condition->{testrun_date}->strftime('%d %b %Y');
-
-        if ( $d_testrun_date_from ne $d_testrun_date_to ) {
-            $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_to - $d_testrun_date_from )";
-        }
-        else {
-            $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_from )";
-        }
-
-        $or_c->stash->{testruns}            = $or_c->model('TestrunDB')->fetch_raw_sql({
+        $or_c->stash->{testruns} = $or_c->model('TestrunDB')->fetch_raw_sql({
+                debug       => 1,
                 query_name  => 'testruns::web_list',
                 fetch_type  => '@%',
-                query_vals  => {
-                        testrun_date_from   => $hr_filter_condition->{testrun_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%F'),
-                        testrun_date_to     => $hr_filter_condition->{testrun_date}->strftime('%F'),
-                        host                => $hr_filter_condition->{host},
-                        topic               => $hr_filter_condition->{topic},
-                        state               => $hr_filter_condition->{state},
-                        success             => $hr_filter_condition->{success},
-                        owner               => $hr_filter_condition->{owner},
-                },
+                query_vals  => $hr_query_vals,
         });
 
         return 1;
@@ -715,20 +744,25 @@ sub prepare_navi : Private
             }
             push @a_subnavi, {
                     title   => "$a_args[$i]: ".$a_args[$i+1],
+                    image   => '/tapper/static/images/minus.png',
                     href    => '/tapper/testruns'
                              . $s_reduced_filter_path
-                             . '?testrun_date='
-                             . $c->stash->{testrun_date}->strftime('%F')
-                             . '&amp;pager_interval='
-                             . $c->stash->{pager_interval},
-                    image   => '/tapper/static/images/minus.png',
+                             . (
+                                $c->stash->{view_pager}
+                                    ? '?testrun_date='
+                                    . $c->stash->{testrun_date}->strftime('%F')
+                                    . '&amp;pager_interval='
+                                    . $c->stash->{pager_interval}
+                                    : ''
+                                )
             };
         } # OUTER
 
-        push @{$c->stash->{navi}}, {
-                title   => 'Active Filters',
-                subnavi => \@a_subnavi,
-        };
+        push @{$c->stash->{navi}},
+            { title   => 'Active Filters', subnavi => \@a_subnavi, },
+            { title   => 'New Filters', id => 'idx_new_filter' },
+            { title   => 'Help', id => 'idx_help', subnavi => [{ title => 'Press Shift for multiple Filters' }] },
+        ;
 
 }
 

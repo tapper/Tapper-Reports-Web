@@ -1,4 +1,4 @@
-package Tapper::Reports::Web::Controller::Tapper::Continuoustestruns;
+package Tapper::Reports::Web::Controller::Tapper::ContinuousTestruns;
 
 # ABSTRACT: Tapper - List and edit continuous tests
 

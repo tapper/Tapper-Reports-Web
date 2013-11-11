@@ -36,10 +36,11 @@ sub BUILD {
                 merge(
                         $self->dispatch,
                         {
-                                suite        => \&suite,
-                                success      => \&success,
-                                owner        => sub { hr_set_filter_default( @_, 'owner' ); },
-                                host         => sub { hr_set_filter_default( @_, 'host' ); },
+                                suite       => \&suite,
+                                success     => \&success,
+                                owner       => sub { hr_set_filter_default( @_, 'owner' ); },
+                                host        => sub { hr_set_filter_default( @_, 'host' ); },
+                                idlist      => sub { hr_set_filter_default( @_, 'report_id' ); },
                         }
                 )
         );
@@ -91,10 +92,12 @@ ratio in percent.
 sub success
 {
         my ($self, $filter_condition, $success) = @_;
-        if ($success =~/^\d+$/) {
-                $filter_condition->{success_ratio} = int($success);
-        } else {
-                $filter_condition->{successgrade} = uc($success);
+
+        if ( $success =~/^\d+$/ ) {
+                push @{$filter_condition->{success_ratio} ||= []}, int($success);
+        }
+        else {
+                push @{$filter_condition->{successgrade} ||= []}, uc($success);
         }
         return $filter_condition;
 
@@ -102,7 +105,7 @@ sub success
 
 sub hr_set_filter_default {
     my ( $or_self, $hr_filter, $value, $s_filter_name ) = @_;
-    $hr_filter->{$s_filter_name} = $value;
+    push @{$hr_filter->{$s_filter_name} ||= []}, $value;
     return $hr_filter;
 }
 
