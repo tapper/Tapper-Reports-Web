@@ -99,8 +99,8 @@
 %                   else {
                         <img src="/tapper/static/images/plus.png" class="addprec" />
 %                   }
-                    <input type="text" name="precondition_short" class="prcshort" value="<% $hr_precondition->{shortname} %>" />
-                    <textarea class="tx_precondition" name="precondition_text"><% $hr_precondition->{text} %></textarea>
+                    <input type="text" placeholder="shortname" name="precondition_short" class="prcshort" value="<% $hr_precondition->{shortname} %>" />
+                    <textarea placeholder="precondition" class="tx_precondition" name="precondition_text"><% $hr_precondition->{text} %></textarea>
 %               }
             </td>
         </tr>
@@ -148,8 +148,8 @@
                 else if ( $target.hasClass('addprec') ) {
                     $target.parent().append(
                           '<img src="/tapper/static/images/minus.png" class="delprec" /> '
-                        + '<input type="text" name="precondition_short" class="prcshort" value="" />'
-                        + '<textarea class="tx_precondition" name="precondition_text"></textarea>'
+                        + '<input type="text" placeholder="shortname" name="precondition_short" class="prcshort" value="" />'
+                        + '<textarea placeholder="precondition" class="tx_precondition" name="precondition_text"></textarea>'
                     );
                 }
                 else if ( $target.hasClass('delhost') || $target.hasClass('delprec') ) {
