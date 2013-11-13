@@ -1,4 +1,7 @@
 <style type="text/css">
+    a {
+        cursor: pointer;
+    }
     #columnC_2columns {
         width: auto !important;
     }
@@ -58,6 +61,7 @@
         <input type="hidden" id="idx_report_date" value="<% $dt_report_date %>" />
         <input type="hidden" id="idx_pager_sign" value="<% $c->req->params->{pager_sign} || '' %>" />
         <input type="hidden" id="idx_pager_value" value="<% $c->req->params->{pager_value} || '' %>" />
+        <input type="hidden" id="idx_pager_interval" value="<% $c->req->params->{pager_interval} || '' %>" />
 
 %   }
 
@@ -107,21 +111,21 @@
                         <td><% $hr_report->{report_date} . ' ' . $hr_report->{report_time} %></td>
                         <td>
                             <div class="plus suite"></div>
-                            <a title="Click to show reports of suite '<% $hr_report->{suite_name} %>'" href="/tapper/reports/suite/<% $hr_report->{suite_name} %>">
+                            <a title="Click to show reports of suite '<% $hr_report->{suite_name} %>'" key="suite">
                                 <% $hr_report->{suite_name} %>
                             </a>
                         </td>
                         <td>
 %                           if ( $hr_report->{machine_name} ) {
                                 <div class="plus host"></div>
-                                <a title="Click to show reports on '<% $hr_report->{machine_name} %>' <% $hr_report->{peeraddr} ? '(reported from ip '.$hr_report->{peeraddr} .')' : ''%>" href="/tapper/reports/host/<% $hr_report->{machine_name} %>">
+                                <a title="Click to show reports on '<% $hr_report->{machine_name} %>' <% $hr_report->{peeraddr} ? '(reported from ip '.$hr_report->{peeraddr} .')' : ''%>" key="host">
                                     <% $hr_report->{machine_name} %>
                                 </a>
 %                           }
                         </td>
                         <td class="<% lc $hr_report->{successgrade} %>">
                             <div class="plus success"></div>
-                            <a href="/tapper/reports/success/<% $hr_report->{successgrade} %>"><% $hr_report->{successgrade} %></a>
+                            <a key="success"><% $hr_report->{successgrade} %></a>
                         </td>
                         <td>
 %                           my $i_success_width = int($hr_report->{success_ratio} / 2);
@@ -143,7 +147,7 @@
                             <td>
 %                               if ( $hr_report->{report_owner} ) {
                                     <div class="plus owner"></div>
-                                    <a title="Click to show reports of owner '<% $hr_report->{report_owner} %>'" href="/tapper/reports/owner/<% $hr_report->{report_owner} %>">
+                                    <a title="Click to show reports of owner '<% $hr_report->{report_owner} %>'" key="owner">
                                         <% $hr_report->{report_owner} %>
                                     </a>
 %                               }
@@ -162,6 +166,19 @@
 
 <script type="text/javascript">
 
+    function get_pager_params () {
+        var elements = [
+            ['pager_interval','#idx_pager_interval'],
+            ['report_date','#idx_report_date'],
+            ['pager_value','#idx_pager_value'],
+            ['pager_sign','#idx_pager_sign'],
+        ];
+        return $.map( elements, function( a ){
+            if ( $(a[1]).val() )
+                return a[0] + '=' + $(a[1]).val();
+        }).join('&amp;');
+    }
+
     function get_column_value ( filter, $target ) {
         if ( filter == 'idlist' ) {
             return $target.next().text().trim().replace(/\D/g,'');
@@ -176,20 +193,32 @@
         following action depends on the clicked target ( picture ).
     */
     $(document).ready(function(){
+
         var selected_elements = [];
         $('#idx_reportlist').mousedown(function( e ){
 
             var $target      = $(e.target);
             var $new_filters = $('#idx_new_filter');
 
-            if ( $target.is('div') ) {
+            if ( $target.is('a') && !$target.attr('href') ) {
+                key_dependent_site_call(
+                    e.which,
+                      '/tapper/reports/'
+                    + $target.attr('key')
+                    + '/'
+                    + $target.text().replace(/^\s*|\s*$/g,'')
+                    + '?'
+                    + get_pager_params()
+                );
+            }
+            else if ( $target.is('div') ) {
                 if ( $target.hasClass('sratio') ) {
                     key_dependent_site_call(
                         e.which,
                         $target.parent().parent().find('a:first').attr('href')
                     );
                 }
-                else {
+                else if ( $target.hasClass('plus') ) {
                     var classes = $target.attr('class').split(/\s+/);
                     if ( classes.length ) {
                         var filter  = '';
@@ -221,11 +250,8 @@
                                 + $.map( $new_filters.find('li'), function( a ){
                                     return $(a).text().replace(/: /,'/');
                                   }).join('/')
-                                + (
-                                    $('#idx_report_date').val()
-                                        ? '?report_date=' + $('#idx_report_date').val()
-                                        : ''
-                                  )
+                                + '?'
+                                + get_pager_params()
                             );
                         }
                     }

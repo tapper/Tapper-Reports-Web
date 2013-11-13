@@ -1,4 +1,7 @@
 <style type="text/css">
+    a {
+        cursor: pointer;
+    }
     #columnC_2columns {
         width: auto !important;
     }
@@ -13,7 +16,6 @@
 <strong>Error:</strong> <% $c->flash->{error_msg} %>
 </pre>
 % }
-
 
 %   if ( $c->stash->{view_pager} ) {
 
@@ -60,6 +62,7 @@
         <input type="hidden" id="idx_report_date" value="<% $dt_testrun_date %>" />
         <input type="hidden" id="idx_pager_sign" value="<% $c->req->params->{pager_sign} || '' %>" />
         <input type="hidden" id="idx_pager_value" value="<% $c->req->params->{pager_value} || '' %>" />
+        <input type="hidden" id="idx_pager_interval" value="<% $c->req->params->{pager_interval} || '' %>" />
 
 %   }
 
@@ -109,28 +112,28 @@
                         <td><% $hr_testrun->{testrun_date} . ' ' . $hr_testrun->{testrun_time} %></td>
                         <td>
                             <div class="plus topic"></div>
-                            <a title="Click to show testruns of topic '<% $hr_testrun->{topic_name} %>'" href="/tapper/testruns/topic/<% $hr_testrun->{topic_name} %>">
+                            <a title="Click to show testruns of topic '<% $hr_testrun->{topic_name} %>'" key="topic">
                                 <% $hr_testrun->{topic_name} %>
                             </a>
                         </td>
                         <td>
 %                           if ( $hr_testrun->{machine_name} ) {
                                 <div class="plus host"></div>
-                                <a title="Click to show testruns on '<% $hr_testrun->{machine_name} %>'" href="/tapper/testruns/host/<% $hr_testrun->{machine_name} %>">
+                                <a title="Click to show testruns on '<% $hr_testrun->{machine_name} %>'" key="host">
                                     <% $hr_testrun->{machine_name} %>
                                 </a>
 %                           }
                         </td>
                         <td>
                             <div class="plus state"></div>
-                            <a title="Click to show testruns in state '<% $hr_testrun->{testrun_state} %>'" href="/tapper/testruns/state/<% $hr_testrun->{testrun_state} %>">
+                            <a title="Click to show testruns in state '<% $hr_testrun->{testrun_state} %>'" key="state">
                                 <% $hr_testrun->{testrun_state} %>
                             </a>
                         </td>
                         <td class="<% lc $hr_testrun->{successgrade} %>">
 %                           if ( $hr_testrun->{successgrade} ) {
                                 <div class="plus success"></div>
-                                <a href="/tapper/testruns/success/<% $hr_testrun->{successgrade} %>"><% $hr_testrun->{successgrade} %></a>
+                                <a key="success"><% $hr_testrun->{successgrade} %></a>
 %                           }
                         </td>
                         <td class="<% $hr_testrun->{testrun_state} eq 'schedule' || $hr_testrun->{testrun_state} eq 'prepare' ? 'transparent' : $hr_testrun->{testrun_state} eq 'running' ? 'yellow' : '' %>">
@@ -140,7 +143,7 @@
                         </td>
                         <td>
                             <div class="plus owner"></div>
-                            <a title="Click to show testruns of owner '<% $hr_testrun->{testrun_owner} %>'" href="/tapper/reports/owner/<% $hr_testrun->{testrun_owner} %>">
+                            <a title="Click to show testruns of owner '<% $hr_testrun->{testrun_owner} %>'" key="owner">
                                 <% $hr_testrun->{testrun_owner} %>
                             </a>
                         </td>
@@ -156,6 +159,19 @@
 
 <script type="text/javascript">
 
+    function get_pager_params () {
+        var elements = [
+            ['pager_interval','#idx_pager_interval'],
+            ['testrun_date','#idx_report_date'],
+            ['pager_value','#idx_pager_value'],
+            ['pager_sign','#idx_pager_sign'],
+        ];
+        return $.map( elements, function( a ){
+            if ( $(a[1]).val() )
+                return a[0] + '=' + $(a[1]).val();
+        }).join('&amp;');
+    }
+
     function get_column_value ( filter, $target ) {
         if ( filter == 'idlist' ) {
             return $target.next().text().trim().replace(/\D/g,'');
@@ -170,21 +186,32 @@
         following action depends on the clicked target ( picture ).
     */
     $(document).ready(function(){
-        var selected_elements = [];
 
+        var selected_elements = [];
         $('#idx_reportlist').mousedown(function( e ){
 
             var $target         = $(e.target);
             var $new_filters    = $('#idx_new_filter');
 
-            if ( $target.is('div') ) {
+            if ( $target.is('a') && !$target.attr('href') ) {
+                key_dependent_site_call(
+                    e.which,
+                      '/tapper/testruns/'
+                    + $target.attr('key')
+                    + '/'
+                    + $target.text().replace(/^\s*|\s*$/g,'')
+                    + '?'
+                    + get_pager_params()
+                );
+            }
+            else if ( $target.is('div') ) {
                 if ( $target.hasClass('sratio') ) {
                     key_dependent_site_call(
                         e.which,
                         $target.parent().parent().find('a:first').attr('href')
                     );
                 }
-                else {
+                else if ( $target.hasClass('plus') ) {
                     var classes = $target.attr('class').split(/\s+/);
                     if ( classes.length ) {
                         var filter  = '';
@@ -216,16 +243,14 @@
                                 + $.map( $new_filters.find('li'), function( a ){
                                     return $(a).text().replace(/: /,'/');
                                   }).join('/')
-                                + (
-                                    $('#idx_report_date').val()
-                                        ? '?testrun_date=' + $('#idx_report_date').val()
-                                        : ''
-                                  )
+                                + '?'
+                                + get_pager_params()
                             );
                         }
                     }
                 }
             }
+            return false;
         });
     });
 

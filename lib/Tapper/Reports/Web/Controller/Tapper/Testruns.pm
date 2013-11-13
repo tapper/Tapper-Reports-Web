@@ -641,47 +641,29 @@ sub prepare_testrunlists : Private {
             owner               => $hr_filter_condition->{owner},
         };
 
-        if ( $hr_filter_condition->{testrun_id} ) {
-
-            $or_c->stash->{head_overview}   = "Testruns";
-
-            if ( $hr_params->{testrun_date} ) {
-
-                    $hr_filter_condition->{testrun_date} = DateTime::Format::Strptime->new(
-                            pattern => '%F',
-                    )->parse_datetime( $hr_params->{testrun_date} );
-
-                    $hr_query_vals->{testrun_date_from} = $hr_filter_condition->{testrun_date}->strftime('%F');
-                    $hr_query_vals->{testrun_date_to}   = $hr_filter_condition->{testrun_date}->strftime('%F');
-
-                    $or_c->stash->{head_overview} .= ' ( ' . $hr_filter_condition->{testrun_date}->strftime('%d %b %Y') . ' )'
-
-            }
-
+        require DateTime;
+        if ( $hr_params->{testrun_date} ) {
+            $hr_filter_condition->{testrun_date} = DateTime::Format::Strptime->new(
+                pattern => '%F',
+            )->parse_datetime( $hr_params->{testrun_date} );
         }
-        else {
+        elsif (! $hr_filter_condition->{testrun_id} ) {
+                $hr_filter_condition->{testrun_date} = DateTime->now();
+        }
+        if ( $hr_params->{pager_sign} && $hr_params->{pager_value} ) {
+            if ( $hr_params->{pager_sign} eq 'negative' ) {
+                $hr_filter_condition->{testrun_date}->subtract(
+                    $hr_params->{pager_value} => 1
+                );
+            }
+            elsif ( $hr_params->{pager_sign} eq 'positive' ) {
+                $hr_filter_condition->{testrun_date}->add(
+                    $hr_params->{pager_value} => 1
+                );
+            }
+        }
 
-            require DateTime;
-            if ( $hr_params->{testrun_date} ) {
-                    $hr_filter_condition->{testrun_date} = DateTime::Format::Strptime->new(
-                            pattern => '%F',
-                    )->parse_datetime( $hr_params->{testrun_date} );
-            }
-            else {
-                    $hr_filter_condition->{testrun_date} = DateTime->now();
-            }
-            if ( $hr_params->{pager_sign} && $hr_params->{pager_value} ) {
-                    if ( $hr_params->{pager_sign} eq 'negative' ) {
-                            $hr_filter_condition->{testrun_date}->subtract(
-                                    $hr_params->{pager_value} => 1
-                            );
-                    }
-                    elsif ( $hr_params->{pager_sign} eq 'positive' ) {
-                            $hr_filter_condition->{testrun_date}->add(
-                                    $hr_params->{pager_value} => 1
-                            );
-                    }
-            }
+        if ( $hr_filter_condition->{testrun_date} ) {
 
             $or_c->stash->{pager_interval}  = $hr_params->{pager_interval} || 1;
             $or_c->stash->{testrun_date}    = $hr_filter_condition->{testrun_date};
@@ -702,6 +684,9 @@ sub prepare_testrunlists : Private {
 
             $or_c->stash->{view_pager} = 1;
 
+        }
+        else {
+            $or_c->stash->{head_overview}   = 'Testruns';
         }
 
         $or_c->stash->{testruns} = $or_c->model('TestrunDB')->fetch_raw_sql({

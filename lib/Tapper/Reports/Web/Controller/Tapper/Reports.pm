@@ -53,60 +53,42 @@ sub prepare_this_weeks_reportlists : Private {
             owner               => $hr_filter_condition->{owner},
         };
 
-        if ( $hr_filter_condition->{testrun_id} ) {
-
-            $or_c->stash->{head_overview}   = "Reports";
-
-            if ( $hr_params->{report_date} ) {
-
-                    $hr_filter_condition->{report_date} = DateTime::Format::Strptime->new(
-                            pattern => '%F',
-                    )->parse_datetime( $hr_params->{report_date} );
-
-                    $hr_query_vals->{report_date_from} = $hr_filter_condition->{report_date}->strftime('%F');
-                    $hr_query_vals->{report_date_to}   = $hr_filter_condition->{report_date}->strftime('%F');
-
-                    $or_c->stash->{head_overview} .= ' ( ' . $hr_filter_condition->{report_date}->strftime('%d %b %Y') . ' )'
-
-            }
-
+        require DateTime;
+        if ( $hr_params->{report_date} ) {
+            $hr_filter_condition->{report_date} = DateTime::Format::Strptime->new(
+                pattern => '%F',
+            )->parse_datetime( $hr_params->{report_date} );
         }
-        else {
+        elsif (! $hr_filter_condition->{report_id} ) {
+                $hr_filter_condition->{report_date} = DateTime->now();
+        }
+        if ( $hr_params->{pager_sign} && $hr_params->{pager_value} ) {
+            if ( $hr_params->{pager_sign} eq 'negative' ) {
+                $hr_filter_condition->{report_date}->subtract(
+                    $hr_params->{pager_value} => 1
+                );
+            }
+            elsif ( $hr_params->{pager_sign} eq 'positive' ) {
+                $hr_filter_condition->{report_date}->add(
+                    $hr_params->{pager_value} => 1
+                );
+            }
+        }
 
-            require DateTime;
-            if ( $hr_params->{report_date} ) {
-                    $hr_filter_condition->{report_date} = DateTime::Format::Strptime->new(
-                            pattern => '%F',
-                    )->parse_datetime( $hr_params->{report_date} );
-            }
-            else {
-                    $hr_filter_condition->{report_date} = DateTime->now();
-            }
-            if ( $hr_params->{pager_sign} && $hr_params->{pager_value} ) {
-                    if ( $hr_params->{pager_sign} eq 'negative' ) {
-                            $hr_filter_condition->{report_date}->subtract(
-                                    $hr_params->{pager_value} => 1
-                            );
-                    }
-                    elsif ( $hr_params->{pager_sign} eq 'positive' ) {
-                            $hr_filter_condition->{report_date}->add(
-                                    $hr_params->{pager_value} => 1
-                            );
-                    }
-            }
+        if ( $hr_filter_condition->{report_date} ) {
 
             $or_c->stash->{pager_interval}  = $hr_params->{pager_interval} || 1;
             $or_c->stash->{report_date}     = $hr_filter_condition->{report_date};
 
-            # set testrun date
+            # set report date
             my $d_report_date_from = $hr_filter_condition->{report_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%d %b %Y');
             my $d_report_date_to   = $hr_filter_condition->{report_date}->strftime('%d %b %Y');
 
             if ( $d_report_date_from ne $d_report_date_to ) {
-                $or_c->stash->{head_overview}  = "Reports ( $d_report_date_to - $d_report_date_from )";
+                $or_c->stash->{head_overview}   = "Reports ( $d_report_date_to - $d_report_date_from )";
             }
             else {
-                $or_c->stash->{head_overview}  = "Reports ( $d_report_date_from )";
+                $or_c->stash->{head_overview}   = "Testruns ( $d_report_date_from )";
             }
 
             $hr_query_vals->{report_date_from} = $hr_filter_condition->{report_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%F');
@@ -115,8 +97,12 @@ sub prepare_this_weeks_reportlists : Private {
             $or_c->stash->{view_pager} = 1;
 
         }
+        else {
+            $or_c->stash->{head_overview}   = 'Testruns';
+        }
 
         $or_c->stash->{reports} = $or_c->model('TestrunDB')->fetch_raw_sql({
+                debug       => 1,
                 query_name  => 'reports::web_list',
                 fetch_type  => '@%',
                 query_vals  => $hr_query_vals,
