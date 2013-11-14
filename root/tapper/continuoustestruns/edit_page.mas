@@ -115,7 +115,7 @@
 <script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery-ui-autocomplete.js"></script>
 <script type="text/javascript">
 
-    var available_hosts = [<% q#{# . join( q#},{#, map { '"label":"' . $_->name . '","value":"' . $_->name . '","id":' . $_->id } $c->model('TestrunDB')->resultset('Host')->search({ active => 1, is_deleted => 0 }) ) . q#}# | n %>];
+    var available_hosts = [<% q#{# . join( q#},{#, map { '"label":"' . $_->name . '","value":"' . $_->name . '","id":' . $_->id } $c->model('TestrunDB')->resultset('Host')->search({ is_deleted => 0 }) ) . q#}# | n %>];
 
     $(document).ready(function(){
 
