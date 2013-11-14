@@ -146,11 +146,32 @@ sub cancel : Local {
 
 }
 
-sub edit : LocalRegex('edit|clone') {
+sub clone : Local {
 
     my ( $or_self, $or_c ) = @_;
 
-    $or_c->stash->{command}       = ( split /\//, $or_c->req->match )[-1];
+    $or_c->stash->{command} = 'clone';
+    $or_c->go('/tapper/continuoustestruns/edit_page');
+
+    return 1;
+
+}
+
+sub edit : Local {
+
+    my ( $or_self, $or_c ) = @_;
+
+    $or_c->stash->{command} = 'edit';
+    $or_c->go('/tapper/continuoustestruns/edit_page');
+
+    return 1;
+
+}
+
+sub edit_page : Private {
+
+    my ( $or_self, $or_c ) = @_;
+
     $or_c->stash->{head_overview} = 'Continuous Testruns - ' . ucfirst( $or_c->stash->{command} );
 
     if (! $or_c->stash->{continuous_testrun} ) {
@@ -226,7 +247,7 @@ sub save : Local {
                         })
                         ->count() > 0
                 ) {
-                    die "topic name already exists BUMBUM $i_testrun_id\n";
+                    die "topic name already exists $i_testrun_id\n";
                 }
 
                 # update topic
@@ -330,7 +351,7 @@ sub save : Local {
 
             }
             else {
-                die "unknown command '$or_c->req->params->{command}'\n";
+                die 'unknown command "' . $or_c->req->params->{command} . '"' . "\n";
             }
 
             # insert testrun preconditions
@@ -416,7 +437,7 @@ sub save : Local {
                 } @{$ar_precondition_texts}
             ],
         };
-        $or_c->go('/tapper/continuoustestruns/edit');
+        $or_c->go('/tapper/continuoustestruns/'.$or_c->req->params->{command});
     };
 
     $or_c->response->redirect('/tapper/continuoustestruns');
