@@ -4,6 +4,23 @@
     $error      => q##
 </%args>
 
+<%method single_axis_element>
+    <%args>
+        $axis
+        $axis_element
+        $show_add_image
+    </%args>
+
+%   if ( $show_add_image ) {
+        <img class="add_chart_axis_<% $axis %>_elements" src="/tapper/static/images/plus.png" />
+%   }
+%   else {
+        <img class="delete_chart_axis_elements" src="/tapper/static/images/minus.png" />
+%   }
+    <input class="axis_element_input accolumn" name="chart_axis_<% $axis %>_column" value="<% $axis_element %>" />
+
+</%method>
+
 <%method single_restricted_value>
     <%args>
         $restricted_value
@@ -29,8 +46,8 @@
     <tr>
         <td><img src="/tapper/static/images/minus.png" class="delete_additional" /></td>
         <td>
-            <font  class="stext">additional column</font>
-            <font  class="stext durltext">display url ( $value$ - additional column value )</font>
+            <font  class="stext">Additional column</font>
+            <font  class="stext durltext">Display url ( $value$ - additional column value )</font>
 
             <br />
 
@@ -54,9 +71,9 @@
             </select>
         </td>
         <td>
-            <font  class="stext">restricted column</font><br />
+            <font  class="stext">Restricted column</font><br />
             <input class="accolumn" name="chart_line_where_column" value="<% $where_line->[1] || '' %>" />
-            <font  class="stext">restricted value(s)</font><br />
+            <font  class="stext">Restricted value(s)</font><br />
 %           my $i_restrict_value_counter = 0;
 %           if ( $where_line->[2] ) {
 %               for my $s_value ( @{$where_line}[2..$#{$where_line}] ) {
@@ -94,26 +111,48 @@
             </td>
         </tr>
         <tr>
-            <td class="bold">name of chart line:</td>
+            <td class="bold">Name of chart line:</td>
             <td><input type="text" name="chart_line_name" value="<% $chart_line->{chart_line_name} || '' %>" /></td>
         </tr>
         <tr>
-            <td class="bold">column x-axies:</td>
+            <td class="bold">Columns x-axis:</td>
             <td>
-                <font  class="stext">column name</font><br />
-                <input type="text" name="chart_axis_x_column" class="accolumn" value="<% $chart_line->{chart_axis_type_x_column} || '' %>" />
-                <font  class="stext <% $chart_line->{chart_axis_type_x_format} ? '' : 'hideit' | n %>">column format</font><br />
-                <input type="text" name="chart_axis_x_format" class="accolumn axis_format <% $chart_line->{chart_axis_type_x_format} ? '' : 'hideit' | n %>" value="<% $chart_line->{chart_axis_type_x_format} || '' %>" />
+                <div class="column_concat"></div>
+                <input type="hidden" name="chart_axis_x_counter" value="<% $chart_line->{chart_line_x_column} ? scalar( @{$chart_line->{chart_line_x_column}} ) : 1 %>" />
+%               if ( $chart_line->{chart_line_x_column} ) {
+%                   my $i_counter = 0;
+%                   for my $ar_chart_axis_element ( @{$chart_line->{chart_line_x_column}} ) {
+                        <& SELF:single_axis_element, axis => 'x', axis_element => $ar_chart_axis_element->[1], show_add_image => !$i_counter++ &>
+%                   }
+%               }
+%               else {
+                    <& SELF:single_axis_element, axis => 'x', axis_element => q##, show_add_image => 1 &>
+%               }
             </td>
         </tr>
+        <tr class="axis_format_x<% $chart_line->{chart_line_x_format} ? '' : ' hideit' | n %>">
+            <td class="bold">Format x-axis:</td>
+            <td><input type="text" name="chart_axis_x_format" value="<% $chart_line->{chart_line_x_format} || '' %>" /></td>
+        </tr>
         <tr>
-            <td class="bold">column y-axies:</td>
+            <td class="bold">Columns y-axis:</td>
             <td>
-                <font  class="stext">column name</font><br />
-                <input type="text" name="chart_axis_y_column" class="accolumn" value="<% $chart_line->{chart_axis_type_y_column} || '' %>" />
-                <font  class="stext <% $chart_line->{chart_axis_type_y_format} ? '' : 'hideit' | n %>">column format</font><br />
-                <input type="text" name="chart_axis_y_format" class="accolumn axis_format <% $chart_line->{chart_axis_type_y_format} ? '' : 'hideit' | n %>" value="<% $chart_line->{chart_axis_type_y_format} || '' %>" />
+                <div class="column_concat"></div>
+                <input type="hidden" name="chart_axis_y_counter" value="<% $chart_line->{chart_line_y_column} ? scalar( @{$chart_line->{chart_line_y_column}} ) : 1 %>" />
+%               if ( $chart_line->{chart_line_y_column} ) {
+%                   my $i_counter = 0;
+%                   for my $ar_chart_axis_element ( @{$chart_line->{chart_line_y_column}} ) {
+                        <& SELF:single_axis_element, axis => 'y', axis_element => $ar_chart_axis_element->[1], show_add_image => !$i_counter++ &>
+%                   }
+%               }
+%               else {
+                    <& SELF:single_axis_element, axis => 'y', axis_element => q##, show_add_image => 1 &>
+%               }
             </td>
+        </tr>
+        <tr class="axis_format_y<% $chart_line->{chart_line_y_format} ? '' : ' hideit' | n %>">
+            <td class="bold">Format y-axis:</td>
+            <td><input type="text" name="chart_axis_y_format" value="<% $chart_line->{chart_line_y_format} || '' %>" /></td>
         </tr>
         <tr>
             <td colspan="2" class="header">
@@ -144,6 +183,20 @@
     <input type="hidden" name="chart_where_counter" value="<% $i_chart_where_counter %>" />
     <input type="hidden" name="chart_additional_counter" value="<% $i_chart_additional_counter %>" />
 
+</%method>
+
+<%method order_by_options>
+    <%args>
+        $order_by
+    </%args>
+%   for my $ar_element ([0,'auto'],[1,'1st'],[2,'2nd']) {
+%       if ( $order_by == $ar_element->[0] ) {
+            <option value="<% $ar_element->[0] %>" selected><% $ar_element->[1] %></option>
+%       }
+%       else {
+            <option value="<% $ar_element->[0] %>"><% $ar_element->[1] %></option>
+%       }
+%   }
 </%method>
 
 <style type="text/css">
@@ -196,11 +249,19 @@
         border: 1px solid #585858;
         padding: 2px;
     }
+    div.column_concat {
+        margin: 2px;
+        text-align: center;
+    }
     select.bench_operator {
         width: 100px;
     }
+    img.add_restict_value {
+        margin-right: 3px;
+    }
+    input.axis_element_input,
     input.restricted_value_input {
-        width: 345px;
+        width: 343px;
     }
     .bold {
         font-weight: bold;
@@ -257,7 +318,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="bold">Chart axis type x:</td>
+                <td class="bold">Chart x-axis type:</td>
                 <td>
                     <select name="chart_axis_type_x" id="idx_sl_axis_type_x">
                         <& /tapper/selects/chart_axis_types.mas, chart_axis_type => $chart->{chart_axis_type_x_id} || q## &>
@@ -265,10 +326,26 @@
                 </td>
             </tr>
             <tr>
-                <td class="bold">Chart axis type y:</td>
+                <td class="bold">Chart y-axis type:</td>
                 <td>
                     <select name="chart_axis_type_y" id="idx_sl_axis_type_y">
                         <& /tapper/selects/chart_axis_types.mas, chart_axis_type => $chart->{chart_axis_type_y_id} || q## &>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="bold">Sort x-axis:</td>
+                <td>
+                    <select name="order_by_x_axis" id="idx_order_by_x_sel">
+                        <& SELF:order_by_options, order_by => $chart->{order_by_x_axis} &>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="bold">Sort y-axis:</td>
+                <td>
+                    <select name="order_by_y_axis" id="idx_order_by_y_sel">
+                        <& SELF:order_by_options, order_by => $chart->{order_by_y_axis} &>
                     </select>
                 </td>
             </tr>
@@ -281,13 +358,13 @@
                     SELF:single_chart_line,
                     show_add_image  => !$chart_line_counter,
                     chart_line      => {
-                        chart_line_name          => $hr_chart_line->{chart_line_name},
-                        chart_line_statement     => $hr_chart_line->{chart_line_statement},
-                        chart_line_additionals   => [ map { { column => $_->{chart_line_additional_column}, url => $_->{chart_line_additional_url}, } } @{$hr_chart_line->{chart_additionals}}  ],
-                        chart_axis_type_x_column => $hr_chart_line->{chart_line_x_column},
-                        chart_axis_type_x_format => $hr_chart_line->{chart_line_x_format},
-                        chart_axis_type_y_column => $hr_chart_line->{chart_line_y_column},
-                        chart_axis_type_y_format => $hr_chart_line->{chart_line_y_format},
+                        chart_line_name         => $hr_chart_line->{chart_line_name},
+                        chart_line_statement    => $hr_chart_line->{chart_line_statement},
+                        chart_line_additionals  => [ map { { column => $_->{chart_line_additional_column}, url => $_->{chart_line_additional_url}, } } @{$hr_chart_line->{chart_additionals}}  ],
+                        chart_line_x_column     => $hr_chart_line->{chart_line_x_column},
+                        chart_line_x_format     => $hr_chart_line->{chart_line_x_format},
+                        chart_line_y_column     => $hr_chart_line->{chart_line_y_column},
+                        chart_line_y_format     => $hr_chart_line->{chart_line_y_format},
                     }
                 &>
 %               $chart_line_counter = $chart_line_counter + 1;
@@ -308,60 +385,81 @@
 <script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-ui/jquery-ui-autocomplete.js"></script>
 <script type="text/javascript">
 
-%   my $s_chart_line =  $m->scomp("SELF:single_chart_line", show_add_image => 0, chart_line => {}, %ARGS );
-%      $s_chart_line =~ s/^\s+|\s+$//gm;
-%      $s_chart_line =~ s/\n//g;
-%   my $s_where_line =  $m->scomp("SELF:single_where_line", where_line => [], %ARGS );
-%      $s_where_line =~ s/^\s+|\s+$//gm;
-%      $s_where_line =~ s/\n//g;
-%   my $s_addit_line =  $m->scomp("SELF:single_additional_line", additional_column => '', %ARGS );
-%      $s_addit_line =~ s/^\s+|\s+$//gm;
-%      $s_addit_line =~ s/\n//g;
+%   my $s_chart_line     =  $m->scomp("SELF:single_chart_line", show_add_image => 0, chart_line => {}, %ARGS );
+%      $s_chart_line     =~ s/^\s+|\s+$//gm;
+%      $s_chart_line     =~ s/\n//g;
+%   my $s_where_line     =  $m->scomp("SELF:single_where_line", where_line => [], %ARGS );
+%      $s_where_line     =~ s/^\s+|\s+$//gm;
+%      $s_where_line     =~ s/\n//g;
+%   my $s_addit_line     =  $m->scomp("SELF:single_additional_line", additional_column => '', %ARGS );
+%      $s_addit_line     =~ s/^\s+|\s+$//gm;
+%      $s_addit_line     =~ s/\n//g;
 %   my $s_restrict_value =  $m->scomp("SELF:single_restricted_value", restricted_value => '', show_add_image => 0, %ARGS );
 %      $s_restrict_value =~ s/^\s+|\s+$//gm;
 %      $s_restrict_value =~ s/\n//g;
-
+%   my $s_line_element_x =  $m->scomp("SELF:single_axis_element", axis => 'x', axis_element => '', show_add_image => 0, %ARGS );
+%      $s_line_element_x =~ s/^\s+|\s+$//gm;
+%      $s_line_element_x =~ s/\n//g;
+%   my $s_line_element_y =  $m->scomp("SELF:single_axis_element", axis => 'y', axis_element => '', show_add_image => 0, %ARGS );
+%      $s_line_element_y =~ s/^\s+|\s+$//gm;
+%      $s_line_element_y =~ s/\n//g;
 %   my $s_column_list = 'var column_list = ["' . (join '","', @{$columns}) . '"]';
     <% $s_column_list | n %>
 
+    var acoptions = {
+        source: column_list,
+        change: function(){
+            if ( (/^\s*$/).test( $(this).val() ) ) {
+                $(this).css('background-color','#ffffff').attr('found',false);
+            }
+            else if ( $.inArray( $(this).val(), acoptions.source ) != -1 ) {
+                $(this).css('background-color','#d3ffce').attr('found',true);
+            }
+            else {
+                $(this).css('background-color','#fffad0').attr('found',false);
+            }
+            $(this).closest('td').find('div.column_concat').text(
+                $.map( $(this).closest('td').find('input.axis_element_input'), function( a ){
+                    return $(a).attr('found') == 'true' ? '{'+$(a).val()+'}' : $(a).val();
+                }).join('')
+            );
+        }
+    };
+
     $(document).ready(function(){
-        $('input.accolumn').autocomplete({
-            source: column_list
+        $('input.accolumn')
+            .autocomplete(acoptions)
+            .keyup(acoptions.change)
+            .keyup()
+        ;
+        $('#idx_order_by_x_sel,#idx_order_by_y_sel').change(function(){
+            var $other = $(this).attr('id') == 'idx_order_by_x_sel'
+                ? $('#idx_order_by_y_sel') : $('#idx_order_by_x_sel')
+            ;
+            if ( $(this).val() != 0 && $(this).val() == $other.val() ) {
+                $other.find('option[value="' + ($(this).val() == 1 ? 2 : 1) + '"]')[0].selected = true;
+            }
+            if ( $(this).val() == 0 && $other.val() == 2 ) {
+                $other.find('option[value="1"]')[0].selected = true;
+            }
+            else if ( $(this).val() == 2 && $other.val() == 0 ) {
+                $(this).find('option[value="1"]')[0].selected = true;
+            }
         });
         $('#idx_sl_axis_type_x').change(function(){
             if ( $(this).find('option:selected').text() == 'date' ) {
-                $('table.chart_line input.axis_format[name="chart_axis_x_format"]')
-                    .prevAll('font:first')
-                    .removeClass('hideit')
-                    .end()
-                    .removeClass('hideit')
-                ;
+                $('table.chart_line tr.axis_format_x.hideit').removeClass('hideit');
             }
             else {
-                $('table.chart_line input.axis_format[name="chart_axis_x_format"]')
-                    .prevAll('font:first')
-                    .addClass('hideit')
-                    .end()
-                    .addClass('hideit')
-                ;
+                $('table.chart_line tr.axis_format_x:not(.hideit)').addClass('hideit');
             }
         });
         $('#idx_sl_axis_type_y').change(function(){
             if ( $(this).find('option:selected').text() == 'date' ) {
-                $('table.chart_line input.axis_format[name="chart_axis_y_format"]')
-                    .prevAll('font:first')
-                    .removeClass('hideit')
-                    .end()
-                    .removeClass('hideit')
-                ;
+                $('table.chart_line tr.axis_format_y.hideit').removeClass('hideit');
             }
             else {
-                $('table.chart_line input.axis_format[name="chart_axis_y_format"]')
-                    .prevAll('font:first')
-                    .addClass('hideit')
-                    .end()
-                    .addClass('hideit')
-                ;
+                $('table.chart_line tr.axis_format_y:not(.hideit)').addClass('hideit');
             }
         });
         $('#idx_helper_div').click(function( e ){
@@ -369,7 +467,7 @@
             if ( $target.prop("tagName") == 'IMG' ) {
                 if ( $target.attr('id') == 'idx_add_chart_line' ) {
                     $('#idx_div_save').before('<% $s_chart_line | n %>');
-                    $(this).find('table:last input.accolumn').autocomplete({ source: column_list });
+                    $(this).find('table:last input.accolumn').autocomplete(acoptions).keyup(acoptions.change);
                     $('#idx_sl_axis_type_x').change();
                     $('#idx_sl_axis_type_y').change();
                 }
@@ -391,15 +489,32 @@
                         $counter.val( $counter.val() - 1 );
                     $target.next().remove().end().remove();
                 }
+                else if ( $target.hasClass('delete_chart_axis_elements') ) {
+                    var $counter = $target.closest('td').find('input:hidden:first');
+                        $counter.val( $counter.val() - 1 );
+                    $target.nextUntil('img').add($target).remove();
+                }
+                else if ( $target.hasClass('add_chart_axis_x_elements') ) {
+                    var $counter = $target.closest('td').find('input:hidden:first');
+                        $counter.val( ( $counter.val() * 1 ) + 1 );
+                    $target.closest('td').append('<% $s_line_element_x | n %>').find('img:last').css('margin-right','3px');
+                    $target.closest('td').find('input.accolumn').autocomplete(acoptions).keyup(acoptions.change);
+                }
+                else if ( $target.hasClass('add_chart_axis_y_elements') ) {
+                    var $counter = $target.closest('td').find('input:hidden:first');
+                        $counter.val( ( $counter.val() * 1 ) + 1 );
+                    $target.closest('td').append('<% $s_line_element_y | n %>').find('img:last').css('margin-right','3px');
+                    $target.closest('td').find('input.accolumn').autocomplete(acoptions).keyup(acoptions.change);
+                }
                 else if ( $target.hasClass('add_where') ) {
                     $target.closest('table').find('img.add_addcol').closest('tr').before('<% $s_where_line | n %>');
-                    $target.closest('table').find('img.add_addcol').closest('tr').prev().find('input.accolumn').autocomplete({ source: column_list });
+                    $target.closest('table').find('img.add_addcol').closest('tr').prev().find('input.accolumn').autocomplete(acoptions).keyup(acoptions.change);
                     var $counter = $target.closest('table').nextAll("[name='chart_where_counter']:first");
                         $counter.val( ( $counter.val() * 1 ) + 1 );
                 }
                 else if ( $target.hasClass('add_addcol') ) {
                     $target.closest('table').find('tr:last').after('<% $s_addit_line | n %>');
-                    $target.closest('table').find('tr:last input.accolumn').autocomplete({ source: column_list });
+                    $target.closest('table').find('tr:last input.accolumn').autocomplete(acoptions).keyup(acoptions.change);
                     var $counter = $target.closest('table').nextAll("[name='chart_additional_counter']:first");
                         $counter.val( ( $counter.val() * 1 ) + 1 );
                 }

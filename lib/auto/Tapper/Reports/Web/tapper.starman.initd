@@ -7,7 +7,7 @@ use Daemon::Control;
 my $app_home = '/opt/tapper/data/web';
 my $program  = 'starman';
 my $name     = 'tapper';
-my $workers  = 1;
+my $workers  = 2;
 my $pid_file = '/opt/tapper/data/run/tapper.starman.pid';
 my $socket   = '/opt/tapper/data/run/tapper.starman.socket';
 

@@ -35,15 +35,22 @@
     }
     div.chart_headers div.search {
         float: left;
-        width: 746px;
+        width: 646px;
         padding-left: 4px;
     }
+    div.chart_headers div.search a,
     div.chart_headers div.search div {
         float: left;
     }
+    div.chart_headers div.search a,
+    div.chart_headers div.search font {
+        margin-top  : 3px;
+        margin-left : 3px;
+        margin-right: 3px;
+    }
     div.chart_headers div.text {
         float: left;
-        width: 402px;
+        width: 502px;
         margin-top: 3px;
         padding-left: 4px;
     }
@@ -65,6 +72,9 @@
     #columnA_2columns {
         width: 1240px;
     }
+    #bt_create_static_url_idx {
+        width: 120px;
+    }
     #choices {
         border      :    1px solid #E1E1E1;
         width       : 1195px;
@@ -85,7 +95,9 @@
     #dv_searchright_idx {
         font-size: 30px;
         margin-top: -10px;
-        cursor: pointer;
+    }
+    #bt_create_static_url_idx {
+        float: left;
     }
 
     .xAxis > .tickLabel {
@@ -118,8 +130,9 @@
 <br /><br />
 
 <input type="hidden" id="idx_owner" value="<% $c->req->params->{owner_id} %>" />
-<input type="hidden" id="idx_left_of_value" value="<% $c->req->params->{left_of_value} || q## %>" />
-<input type="hidden" id="idx_right_of_value" value="<% $c->req->params->{right_of_value} || q## %>" />
+<input type="hidden" id="hd_pager_direction_idx" value="<% $c->req->params->{pager_direction} %>" />
+<input type="hidden" id="hd_offset_idx" value="<% $c->req->params->{offset} || 0 %>" />
+<input type="hidden" id="hd_chart_tiny_url_idx" value="<% $c->req->params->{chart_tiny_url_id} %>" />
 
 <div class="chart_boxs" chart="<% $chart->chart_id() %>">
     <div class="chart_headers">
@@ -127,14 +140,14 @@
             <% $chart->chart_name() %>
         </div>
         <div class="search">
-            <div id="dv_searchleft_idx">&laquo;</div>
-            <div>
-                <input type="text" id="tx_searchfrom_idx" value="<% $c->req->params->{searchfrom} || q## %>" />
-                -
-                <input type="text" id="tx_searchto_idx" value="<% $c->req->params->{searchto} || q## %>" />
-                <input type="button" id="bt_search_idx" value="Search" />
-            </div>
-            <div id="dv_searchright_idx">&raquo;</div>
+%           if ( $c->req->params->{chart_tiny_url_id} ) {
+                &nbsp;<font>Static Url called</font>&nbsp;
+%           }
+%           else {
+                <div id="dv_searchleft_idx">&laquo;</div>
+                &nbsp;<input id="bt_create_static_url_idx" type="button" value="Create static Url" />&nbsp;
+                <div id="dv_searchright_idx">&raquo;</div>
+%           }
         </div>
         <div class="icons">
             <img src="/tapper/static/images/edit.small.png" title="edit" class="imgedit" />
@@ -161,6 +174,7 @@
 <script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect-slide.js"></script>
 
 <script language="JavaScript" type="text/javascript" src="/tapper/static/js/metareports.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.json.js"></script>
 <script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.js"></script>
 <script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.time.js"></script>
 <script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.selection.js"></script>

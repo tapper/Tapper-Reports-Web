@@ -16,6 +16,9 @@ sub process {
             JSON::XS::encode_json( $or_c->stash->{content} )
         );
     }
+    else {
+        $or_c->response->body('');
+    }
 
     return 1;
 
