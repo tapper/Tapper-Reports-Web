@@ -102,7 +102,6 @@ sub prepare_this_weeks_reportlists : Private {
         }
 
         $or_c->stash->{reports} = $or_c->model('TestrunDB')->fetch_raw_sql({
-                debug       => 1,
                 query_name  => 'reports::web_list',
                 fetch_type  => '@%',
                 query_vals  => $hr_query_vals,

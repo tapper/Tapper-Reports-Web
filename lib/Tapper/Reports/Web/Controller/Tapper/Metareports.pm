@@ -779,7 +779,7 @@ sub save_chart : Local {
         $or_c->go('/tapper/metareports/edit_chart');
     };
 
-    $or_c->redirect($or_c->uri_for("/tapper/metareports/chart_overview", { owner_id => $or_c->req->params->{owner_id} }));
+    $or_c->redirect('/tapper/metareports/chart_overview?owner_id=' . $or_c->req->params->{owner_id});
     $or_c->detach();
 
     return 1;
@@ -819,7 +819,7 @@ sub delete_chart : Local {
         $or_c->stash->{message} = 'Chart successfully deleted';
     }
 
-    $or_c->redirect($or_c->uri_for("/tapper/metareports/chart_overview", { owner_id => $or_c->req->params->{owner_id} }));
+    $or_c->redirect('/tapper/metareports/chart_overview?owner_id=' . $or_c->req->params->{owner_id});
     $or_c->detach();
 
     return 1;

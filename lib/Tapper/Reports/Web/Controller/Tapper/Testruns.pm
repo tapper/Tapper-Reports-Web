@@ -690,7 +690,6 @@ sub prepare_testrunlists : Private {
         }
 
         $or_c->stash->{testruns} = $or_c->model('TestrunDB')->fetch_raw_sql({
-                debug       => 1,
                 query_name  => 'testruns::web_list',
                 fetch_type  => '@%',
                 query_vals  => $hr_query_vals,
