@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use parent 'Catalyst::Model::DBIC::Schema';
-use feature qw/ switch /;
 
 my @a_supported_storage_engines = qw/ mysql sqlite postgresql /;
 
@@ -55,14 +54,26 @@ my $fn_execute_raw_sql = sub {
                     }
 
                     if ( $hr_params->{fetch_type} ) {
-                        given ( $hr_params->{fetch_type} ) {
-                            when ( q|$$| ) { return $or_dbh->selectrow_arrayref( $s_sql, { Columns => [ 0 ] }, @a_vals)->[0]     }
-                            when ( q|$@| ) { return $or_dbh->selectrow_arrayref( $s_sql, {}, @a_vals )                           }
-                            when ( q|$%| ) { return $or_dbh->selectrow_hashref ( $s_sql, {}, @a_vals )                           }
-                            when ( q|@$| ) { return $or_dbh->selectcol_arrayref( $s_sql, {}, @a_vals )                           }
-                            when ( q|@@| ) { return $or_dbh->selectall_arrayref( $s_sql, {}, @a_vals )                           }
-                            when ( q|@%| ) { return $or_dbh->selectall_arrayref( $s_sql, { Slice => {} }, @a_vals )              }
-                            default        { die 'unknown fetch type'                                                            }
+                        if ( $hr_params->{fetch_type} eq q|$$| ) {
+                            return $or_dbh->selectrow_arrayref( $s_sql, { Columns => [ 0 ] }, @a_vals )->[0]
+                        }
+                        elsif ( $hr_params->{fetch_type} eq q|$@| ) {
+                            return $or_dbh->selectrow_arrayref( $s_sql, {}, @a_vals )
+                        }
+                        elsif ( $hr_params->{fetch_type} eq q|$%| ) {
+                            return $or_dbh->selectrow_hashref ( $s_sql, {}, @a_vals )
+                        }
+                        elsif ( $hr_params->{fetch_type} eq q|@$| ) {
+                            return $or_dbh->selectcol_arrayref( $s_sql, {}, @a_vals )
+                        }
+                        elsif ( $hr_params->{fetch_type} eq q|@@| ) {
+                            return $or_dbh->selectall_arrayref( $s_sql, {}, @a_vals )
+                        }
+                        elsif ( $hr_params->{fetch_type} eq q|@%| ) {
+                            return $or_dbh->selectall_arrayref( $s_sql, { Slice => {} }, @a_vals )
+                        }
+                        else {
+                            die 'unknown fetch type'
                         }
                     }
 
