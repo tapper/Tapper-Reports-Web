@@ -2,7 +2,7 @@
 $testrun
 </%args>
 
-<h2>Restarted <a href="/tapper/testruns/id/<% $testrun->id %>/">Testrun with ID <% $testrun->id %></a></h2>
+<h2>Restarted <a href="/tapper/testruns/id/<% $testrun %>/">Testrun with ID <% $testrun %></a></h2>
 %# Local Variables:
 %# buffer-file-coding-system: utf-8
 %# End:
