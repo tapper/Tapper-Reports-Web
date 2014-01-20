@@ -137,11 +137,7 @@ sub get_chart_points : Local {
         require YAML::Syck;
         require Tapper::Benchmark;
         my $or_bench = Tapper::Benchmark
-            ->new({
-                debug  => 1,
-                dbh    => $or_c->model('TestrunDB')->storage->dbh,
-                config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
-            })
+            ->new({ dbh => $or_c->model('TestrunDB')->storage->dbh, })
         ;
 
         require DateTime;
@@ -494,10 +490,7 @@ sub get_columns : Private {
         ->all()
     ;
     my %h_columns = Tapper::Benchmark
-        ->new({
-            dbh    => Tapper::Model::model()->storage->dbh,
-            config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
-        })
+        ->new({ dbh => Tapper::Model::model()->storage->dbh, })
         ->{query}
         ->default_columns()
     ;
@@ -513,10 +506,7 @@ sub is_column : Private {
     my ( $or_self, $or_c, $s_column ) = @_;
 
     my %h_columns = Tapper::Benchmark
-        ->new({
-            dbh    => Tapper::Model::model()->storage->dbh,
-            config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
-        })
+        ->new({ dbh => Tapper::Model::model()->storage->dbh, })
         ->{query}
         ->default_columns()
     ;
@@ -667,10 +657,7 @@ sub get_edit_page_chart_hash_by_params {
     require YAML::Syck;
     require Tapper::Benchmark;
     my %h_default_columns = Tapper::Benchmark
-        ->new({
-            dbh    => $or_schema->storage->dbh,
-            config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
-        })
+        ->new({ dbh => $or_schema->storage->dbh, })
         ->{query}
         ->default_columns()
     ;
@@ -955,10 +942,7 @@ sub get_benchmark_operators : Private {
     require Tapper::Benchmark;
 
     return Tapper::Benchmark
-        ->new({
-            dbh    => Tapper::Model::model()->storage->dbh,
-            config => YAML::Syck::LoadFile( Tapper::Config->subconfig->{benchmark}{config_file} ),
-        })
+        ->new({ dbh => Tapper::Model::model()->storage->dbh, })
         ->{query}
         ->benchmark_operators()
     ;
