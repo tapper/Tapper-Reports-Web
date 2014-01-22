@@ -314,7 +314,7 @@ function get_chart_points ( $act_chart, detail ) {
                                             chart_line_id : chart_data.series[i].chart_line_id
                                         };
                                         for ( var j = 0; j < chart_data.series[i].data.length; j = j + 1 ) {
-                                            ids[i].data[j] = chart_data.series[i].data[j].additionals.bench_value_id[0];
+                                            ids[i].data[j] = chart_data.series[i].data[j].additionals.VALUE_ID[0];
                                         }
                                     }
                                     $.ajax({

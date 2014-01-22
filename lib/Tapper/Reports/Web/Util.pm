@@ -40,7 +40,6 @@ sub prepare_top_menu
                 { key => 'continuoustestruns',   text => 'Continuous Testruns',  uri => "/tapper/continuoustestruns",},
                 { key => 'metareports',          text => 'Metareports',          uri => "/tapper/metareports/",      },
                 { key => 'manual',               text => 'Manual',               uri => "/tapper/manual/",           },
-                { key => 'user',                 text => 'Login',                uri => "/tapper/user/login",        },
        ];
 
         # Some keys may be singular with their actions being named in plural or vice versa. Unify this.

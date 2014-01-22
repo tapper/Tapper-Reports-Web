@@ -185,9 +185,12 @@ sub edit_page : Private {
             },{
                 'join'                          => [
                     'testrun_scheduling',
-                    { 'testrun_requested_host' => 'host' },
-                    { 'testrun_precondition' => 'precondition' },
+                    { 'testrun_requested_host'  => 'host' },
+                    { 'testrun_precondition'    => 'precondition' },
                 ],
+                'order_by'                      => {
+                    -asc                        => 'testrun_precondition.succession',
+                },
             })
             ->first()
         ;
@@ -391,6 +394,7 @@ sub save : Local {
                     ->new({
                         testrun_id      => $i_testrun_id,
                         precondition_id => $or_precond->id,
+                        succession      => $i_counter + 1,
                     })
                     ->insert()
                 ;

@@ -184,7 +184,7 @@ sub get_chart_points : Local {
             my @a_additionals;
             my $b_value_id_exists = 0;
             for my $or_additional_column ( $or_chart_line->chart_additionals ) {
-                if ( $or_additional_column->chart_line_additional_column eq 'bench_value_id' ) {
+                if ( $or_additional_column->chart_line_additional_column eq 'VALUE_ID' ) {
                     $b_value_id_exists = 1;
                 }
                 push @a_additionals, [
@@ -193,7 +193,7 @@ sub get_chart_points : Local {
                 ];
             }
             if ( !$b_value_id_exists ) {
-                unshift @a_additionals, ['bench_value_id'];
+                unshift @a_additionals, ['VALUE_ID'];
             }
 
             my $hr_chart_search        = $or_chart_line->chart_line_statement;
@@ -238,7 +238,7 @@ sub get_chart_points : Local {
                     }
                 }
                 $hr_chart_search->{where} = [[
-                    '=', 'bench_value_id', map {
+                    '=', 'VALUE_ID', map {
                         $_->bench_value_id
                     } $or_chart_tiny_url_line->chart_tiny_url_relation,
                 ]];
