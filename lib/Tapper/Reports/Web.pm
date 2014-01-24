@@ -23,7 +23,7 @@ BEGIN {
 
     $hr_subconfig = Tapper::Config->subconfig;
 
-    open my $fh_log4perl_config, '<', $hr_subconfig->{files}{log4perl_webgui_cfg} or die "Unable to open log4perl configuration: $!";
+    open my $fh_log4perl_config, '<', $hr_subconfig->{files}{log4perl_webgui_cfg} or die "Unable to open log4perl configuration '$hr_subconfig->{files}{log4perl_webgui_cfg}': $!";
     $s_log4perl_config = do { local $/; <$fh_log4perl_config> };
     close $fh_log4perl_config or die "Unable to close log4perl configuration: $!";
 
