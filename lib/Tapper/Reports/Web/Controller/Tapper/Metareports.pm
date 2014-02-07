@@ -94,6 +94,9 @@ sub get_chart_points : Local {
                 'chart_lines' => [
                     'chart_additionals',
                     {
+                        'chart_line_restrictions' => 'chart_line_restriction_values',
+                    },
+                    {
                         'chart_axis_elements' => [
                             'axis_column',
                             'axis_separator',
@@ -196,9 +199,9 @@ sub get_chart_points : Local {
                 unshift @a_additionals, ['VALUE_ID'];
             }
 
-            my $hr_chart_search        = $or_chart_line->chart_line_statement;
-            $hr_chart_search->{limit}  = $h_params{limit};
-            $hr_chart_search->{offset} = $h_params{offset};
+            my $hr_chart_search           = {};
+               $hr_chart_search->{limit}  = $h_params{limit};
+               $hr_chart_search->{offset} = $h_params{offset};
 
             for my $s_axis (qw/ x y /) {
                 for my $or_element ( sort { $a->chart_line_axis_element_number <=> $b->chart_line_axis_element_number } $or_chart_line->chart_axis_elements ) {
@@ -212,24 +215,7 @@ sub get_chart_points : Local {
                 }
             }
 
-            my ( %h_strp );
-            if ( $or_chart->chart_axis_type_x->chart_axis_type_name eq 'date' ) {
-                if ( my $dt_format = $or_chart_line->chart_axis_x_column_format ) {
-                    require DateTime::Format::Strptime;
-                    $h_strp{x} = DateTime::Format::Strptime->new( pattern => $dt_format );
-                }
-                else {
-                    $or_c->response->status( 500 );
-                    $or_c->body('xaxis type is date but no date format is given for "' . $or_chart_line->chart_line_name . '"');
-                    return 1;
-                }
-            }
-            if ( $or_chart->chart_axis_type_y->chart_axis_type_name eq 'date' ) {
-                if ( my $dt_format = $or_chart_line->chart_axis_y_column_format ) {
-                    require DateTime::Format::Strptime;
-                }
-            }
-
+            # set where clause with bench_value_id for tiny url
             if ( $or_tiny_url ) {
                 my $or_chart_tiny_url_line;
                 for my $or_act_line ( $or_tiny_url->chart_tiny_url_line ) {
@@ -243,6 +229,37 @@ sub get_chart_points : Local {
                     } $or_chart_tiny_url_line->chart_tiny_url_relation,
                 ]];
             }
+            # set where clause
+            elsif ( $or_chart->chart_line_restrictions ) {
+                $hr_chart_search->{where} ||= [];
+                for my $or_chart_line_restriction ( @{$or_chart->chart_line_restrictions} ) {
+                    push @{$hr_chart_search->{where}}, [
+                        $or_chart_line_restriction->chart_line_restriction_operator,
+                        $or_chart_line_restriction->chart_line_restriction_column,
+                        map {
+                            $_->chart_line_restriction_value
+                        } $or_chart_line_restriction->chart_line_restriction_values,
+                    ];
+                }
+            }
+
+            my %h_default_columns = Tapper::Benchmark
+                ->new({ dbh => Tapper::Model::model()->storage->dbh, })
+                ->{query}
+                ->default_columns()
+            ;
+
+            # set select columns
+            $hr_chart_search->{select} = [
+                keys map { $_ => 1 } grep { !$h_default_columns{$_} }
+                    (
+                        map { $_->chart_line_axis_column }
+                        grep { $_->chart_line_axis_columns }
+                        $or_chart_line->chart_line_axis_elements
+                    ), (
+                        map { $_->[0] } @a_additionals
+                    )
+            ];
 
             my @a_chart_line_points;
             my $ar_chart_points = $or_bench->search_array( $hr_chart_search );
@@ -264,6 +281,30 @@ sub get_chart_points : Local {
                             ? $hr_point->{$or_element->axis_column->chart_line_axis_column}
                             : $or_element->axis_separator->chart_line_axis_separator
                         ;
+                    }
+
+                    my ( %h_strp );
+                    if ( $or_chart->chart_axis_type_x->chart_axis_type_name eq 'date' ) {
+                        if ( my $dt_format = $or_chart_line->chart_axis_x_column_format ) {
+                            require DateTime::Format::Strptime;
+                            $h_strp{x} = DateTime::Format::Strptime->new( pattern => $dt_format );
+                        }
+                        else {
+                            $or_c->response->status( 500 );
+                            $or_c->body('xaxis type is date but no date format is given for "' . $or_chart_line->chart_line_name . '"');
+                            return 1;
+                        }
+                    }
+                    if ( $or_chart->chart_axis_type_y->chart_axis_type_name eq 'date' ) {
+                        if ( my $dt_format = $or_chart_line->chart_axis_y_column_format ) {
+                            require DateTime::Format::Strptime;
+                            $h_strp{y} = DateTime::Format::Strptime->new( pattern => $dt_format );
+                        }
+                        else {
+                            $or_c->response->status( 500 );
+                            $or_c->body('yaxis type is date but no date format is given for "' . $or_chart_line->chart_line_name . '"');
+                            return 1;
+                        }
                     }
 
                     for my $s_axis (qw/ x y /) {
@@ -528,10 +569,6 @@ sub edit_chart : Local {
 
     my ( $or_self, $or_c ) = @_;
 
-    require YAML::Syck;
-    require Tapper::Config;
-    require Tapper::Benchmark;
-
     my $or_schema = $or_c->model('TestrunDB');
     if (! $or_c->stash->{chart} ) {
         if ( $or_c->req->params->{chart_id} ) {
@@ -598,7 +635,14 @@ sub get_edit_page_chart_hash_by_chart_id {
         }
         push @{$hr_chart->{chart_lines}}, {
             chart_line_name         => $or_line->chart_line_name(),
-            chart_line_statement    => $or_line->chart_line_statement(),
+            chart_line_restrictions => [map {{
+                is_template_restriction         => $_->is_template_restriction,
+                chart_line_restriction_column   => $_->chart_line_restriction_column,
+                chart_line_restriction_operator => $_->chart_line_restriction_operator,
+                chart_line_restriction_values   => [map {
+                    $_->chart_line_restriction_value
+                } $_->chart_line_restriction_values],
+            }} $or_line->chart_line_restrictions],
             chart_line_x_column     => $h_chart_elements{x},
             chart_line_x_format     => $or_line->chart_axis_x_column_format(),
             chart_line_y_column     => $h_chart_elements{y},
@@ -642,11 +686,12 @@ sub get_edit_page_chart_hash_by_params {
     my @a_chart_line_y_formats  = @{toarrayref($hr_params->{chart_axis_y_format})};
 
     # column values chart line statements
-    my @a_chart_where_counter   = @{toarrayref($hr_params->{chart_where_counter})};
-    my @a_chart_where_column    = @{toarrayref($hr_params->{chart_line_where_column})};
-    my @a_chart_where_operator  = @{toarrayref($hr_params->{chart_line_where_operator})};
-    my @a_chart_value_counter   = @{toarrayref($hr_params->{chart_line_where_counter})};
-    my @a_chart_where_value     = @{toarrayref($hr_params->{chart_line_where_value})};
+    my @a_chart_where_counter       = @{toarrayref($hr_params->{chart_where_counter})};
+    my @a_chart_where_column        = @{toarrayref($hr_params->{chart_line_where_column})};
+    my @a_chart_where_operator      = @{toarrayref($hr_params->{chart_line_where_operator})};
+    my @a_chart_value_counter       = @{toarrayref($hr_params->{chart_line_where_counter})};
+    my @a_chart_where_value         = @{toarrayref($hr_params->{chart_line_where_value})};
+    my @a_chart_line_where_template = @{toarrayref($hr_params->{chart_line_where_template})};
 
     # additional column data
     my @a_chart_add_counter     = @{toarrayref($hr_params->{chart_additional_counter})};
@@ -664,7 +709,6 @@ sub get_edit_page_chart_hash_by_params {
 
     while ( my $s_chart_line_name = shift @a_chart_line_names ) {
 
-        my $hr_chart_line_statement = { select => [], where => [], };
         my $s_chart_line_x_format   = shift @a_chart_line_x_formats;
         my $s_chart_line_y_format   = shift @a_chart_line_y_formats;
         my $i_chart_where_counter   = shift @a_chart_where_counter;
@@ -676,9 +720,6 @@ sub get_edit_page_chart_hash_by_params {
         for my $i_chart_line_x_counter ( 1..$i_chart_line_x_counter ) {
             my $s_chart_line_x_column = shift @a_chart_line_x_columns;
             if ( $or_self->is_column( $or_c, $s_chart_line_x_column ) ) {
-                if (! $h_default_columns{$s_chart_line_x_column} ) {
-                    push @{$hr_chart_line_statement->{select}}, $s_chart_line_x_column;
-                }
                 push @a_act_chart_line_x_columns, [ 'column', $s_chart_line_x_column ];
             }
             else {
@@ -690,9 +731,6 @@ sub get_edit_page_chart_hash_by_params {
         for my $i_chart_line_y_counter ( 1..$i_chart_line_y_counter ) {
             my $s_chart_line_y_column = shift @a_chart_line_y_columns;
             if ( $or_self->is_column( $or_c, $s_chart_line_y_column ) ) {
-                if (! $h_default_columns{$s_chart_line_y_column} ) {
-                    push @{$hr_chart_line_statement->{select}}, $s_chart_line_y_column;
-                }
                 push @a_act_chart_line_y_columns, [ 'column', $s_chart_line_y_column ];
             }
             else {
@@ -700,32 +738,30 @@ sub get_edit_page_chart_hash_by_params {
             }
         }
 
+        my @a_chart_line_restriction;
         for my $i_where_counter ( 1..$i_chart_where_counter ) {
             my $i_chart_value_counter = shift @a_chart_value_counter;
-            push @{$hr_chart_line_statement->{where}}, [
-                shift @a_chart_where_operator,
-                shift @a_chart_where_column,
-                map { shift @a_chart_where_value } 1..$i_chart_value_counter,
-            ];
+            push @a_chart_line_restriction, {
+                is_template_restriction         => shift @a_chart_line_where_template,
+                chart_line_restriction_operator => shift @a_chart_where_operator,
+                chart_line_restriction_column   => shift @a_chart_where_column,
+                chart_line_restriction_values   => [map { shift @a_chart_where_value } 1..$i_chart_value_counter],
+            };
         }
 
         push @{$hr_chart->{chart_lines}}, {
-            chart_line_name      => $s_chart_line_name,
-            chart_line_x_column  => \@a_act_chart_line_x_columns,
-            chart_line_x_format  => $s_chart_line_x_format || undef,
-            chart_line_y_column  => \@a_act_chart_line_y_columns,
-            chart_line_y_format  => $s_chart_line_y_format || undef,
-            chart_line_statement => $hr_chart_line_statement,
-            chart_additionals    => [],
+            chart_line_name         => $s_chart_line_name,
+            chart_line_x_column     => \@a_act_chart_line_x_columns,
+            chart_line_x_format     => $s_chart_line_x_format || undef,
+            chart_line_y_column     => \@a_act_chart_line_y_columns,
+            chart_line_y_format     => $s_chart_line_y_format || undef,
+            chart_line_restrictions => \@a_chart_line_restriction,
+            chart_additionals       => [],
         };
 
         for my $i_add_counter ( 1..$i_chart_add_counter ) {
-            my $s_add_column = shift @a_chart_add_columns;
-            if (! $h_default_columns{$s_add_column} ) {
-                push @{$hr_chart_line_statement->{select}}, $s_add_column;
-            }
             push @{$hr_chart->{chart_lines}[-1]{chart_additionals}}, {
-                chart_line_additional_column => $s_add_column,
+                chart_line_additional_column => shift @a_chart_add_columns,
                 chart_line_additional_url    => shift @a_chart_add_urls,
             };
         }
@@ -854,7 +890,6 @@ sub insert_chart : Private {
                 chart_line_name             => $hr_chart_line->{chart_line_name},
                 chart_axis_x_column_format  => $hr_chart_line->{chart_line_x_format} || undef,
                 chart_axis_y_column_format  => $hr_chart_line->{chart_line_y_format} || undef,
-                chart_line_statement        => $hr_chart_line->{chart_line_statement},
             });
             $or_chart_line->insert();
 
@@ -895,6 +930,26 @@ sub insert_chart : Private {
                         chart_line_additional_column => $hr_additionals->{chart_line_additional_column},
                         chart_line_additional_url    => $hr_additionals->{chart_line_additional_url} || undef,
                     })->insert();
+                }
+
+                for my $hr_chart_line_restriction ( @{$hr_chart_line->{chart_line_restrictions}} ) {
+
+                    my $or_chart_line_restriction = $or_c->model('TestrunDB')->resultset('ChartLineRestrictions')->new({
+                        chart_line_id                   => $i_chart_line_id,
+                        chart_line_restriction_column   => $hr_chart_line_restriction->{chart_line_restriction_column},
+                        chart_line_restriction_operator => $hr_chart_line_restriction->{chart_line_restriction_operator},
+                        is_template_restriction         => $hr_chart_line_restriction->{is_template_restriction},
+                        created_at                      => \'NOW()',
+                    });
+                    $or_chart_line_restriction->insert();
+
+                    for my $s_chart_line_restriction_value ( @{$hr_chart_line_restriction->{chart_line_restriction_values}} ) {
+                        $or_c->model('TestrunDB')->resultset('ChartLineRestrictionValues')->new({
+                            chart_line_restriction_id    => $or_chart_line_restriction->chart_line_restriction_id(),
+                            chart_line_restriction_value => $s_chart_line_restriction_value,
+                        })->insert();
+                    }
+
                 }
 
             }

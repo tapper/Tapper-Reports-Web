@@ -8,14 +8,16 @@
     <%args>
         $axis
         $axis_element
-        $show_add_image
+        $show_image
     </%args>
 
-%   if ( $show_add_image ) {
-        <img class="add_chart_axis_<% $axis %>_elements" src="/tapper/static/images/plus.png" />
-%   }
-%   else {
-        <img class="delete_chart_axis_elements" src="/tapper/static/images/minus.png" />
+%   if ( $show_image ) {
+%       if ( $show_image eq 'add' ) {
+            <img class="add_chart_axis_<% $axis %>_elements" src="/tapper/static/images/plus.png" />
+%       }
+%       elsif ( $show_image eq 'remove' ) {
+            <img class="delete_chart_axis_elements" src="/tapper/static/images/minus.png" />
+%       }
 %   }
     <input class="axis_element_input accolumn" name="chart_axis_<% $axis %>_column" value="<% $axis_element %>" />
 
@@ -60,30 +62,41 @@
 
 <%method single_where_line>
     <%args>
-        $where_line
+        $hr_chart_line_restriction
     </%args>
 
     <tr>
         <td>
             <img src="/tapper/static/images/minus.png" class="delete_where" />
             <select name="chart_line_where_operator" class="bench_operator">
-                <& /tapper/selects/benchmark_operators.mas, benchmark_operator => $where_line->[0] &>
+                <& /tapper/selects/benchmark_operators.mas, benchmark_operator => $hr_chart_line_restriction->{chart_line_restriction_operator} &>
             </select>
         </td>
         <td>
+            <font  class="stext">Template</font><br />
+            <input type="checkbox" name="chart_line_where_template" <% $hr_chart_line_restriction->{is_template_restriction} ? 'checked="checked"' : '' %> />
             <font  class="stext">Restricted column</font><br />
-            <input class="accolumn" name="chart_line_where_column" value="<% $where_line->[1] || '' %>" />
+            <input class="accolumn" name="chart_line_where_column" value="<% $hr_chart_line_restriction->{chart_line_restriction_column} || '' %>" />
             <font  class="stext">Restricted value(s)</font><br />
 %           my $i_restrict_value_counter = 0;
-%           if ( $where_line->[2] ) {
-%               for my $s_value ( @{$where_line}[2..$#{$where_line}] ) {
-                    <& SELF:single_restricted_value, restricted_value => $s_value, show_add_image => !$i_restrict_value_counter &>
+%           if ( my $ar_values = $hr_chart_line_restriction->{chart_line_restriction_values} ) {
+%               for my $s_value ( @{$ar_values} ) {
+%                   my $s_show_image;
+%                   if (! $hr_chart_line_restriction->{is_template_restriction} ) {
+%                       if ( $i_restrict_value_counter ) {
+%                           $s_show_image = 'remove';
+%                       }
+%                       else {
+%                           $s_show_image = 'add';
+%                       }
+%                   }
+                    <& SELF:single_restricted_value, restricted_value => $s_value, show_image => $s_show_image &>
 %                   $i_restrict_value_counter++;
 %               }
 %           }
 %           else {
 %               $i_restrict_value_counter = 1;
-                <& SELF:single_restricted_value, restricted_value => '', show_add_image => 1 &>
+                <& SELF:single_restricted_value, restricted_value => '', show_image => 'add' &>
 %           }
             <input type="hidden" name="chart_line_where_counter" value="<% $i_restrict_value_counter %>" />
         </td>
@@ -161,9 +174,9 @@
             </td>
         </tr>
 %       my $i_chart_where_counter = 0;
-%       if ( $chart_line->{chart_line_statement}{where} && @{$chart_line->{chart_line_statement}{where}} ) {
-%           for my $ar_where_line ( @{$chart_line->{chart_line_statement}{where}} ) {
-                <& SELF:single_where_line, where_line => $ar_where_line &>
+%       if ( $chart_line->{chart_line_restrictions} && @{$chart_line->{chart_line_restrictions}} ) {
+%           for my $hr_chart_line_restriction ( @{$chart_line->{chart_line_restrictions}} ) {
+                <& SELF:single_where_line, where_line => $hr_chart_line_restriction &>
 %               $i_chart_where_counter = $i_chart_where_counter + 1;
 %           }
 %       }
