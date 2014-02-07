@@ -233,12 +233,27 @@ sub get_chart_points : Local {
             elsif ( $or_chart->chart_line_restrictions ) {
                 $hr_chart_search->{where} ||= [];
                 for my $or_chart_line_restriction ( @{$or_chart->chart_line_restrictions} ) {
+                    my @a_chart_line_restriction_value;
+                    if ( $or_chart_line_restriction->is_template_restriction ) {
+                        my ( $s_restriction_value_identifier )
+                            = ($or_chart_line_restriction->chart_line_restriction_values)[0]->chart_line_restriction_value
+                        ;
+                        if ( $h_params{$s_restriction_value_identifier} ) {
+                            @a_chart_line_restriction_value = @{toarrayref( $h_params{$s_restriction_value_identifier} )};
+                        }
+                        else {
+                            die "missing template parameter '$s_restriction_value_identifier'";
+                        }
+                    }
+                    else {
+                        @a_chart_line_restriction_value = map {
+                            $_->chart_line_restriction_value
+                        } $or_chart_line_restriction->chart_line_restriction_values;
+                    }
                     push @{$hr_chart_search->{where}}, [
                         $or_chart_line_restriction->chart_line_restriction_operator,
                         $or_chart_line_restriction->chart_line_restriction_column,
-                        map {
-                            $_->chart_line_restriction_value
-                        } $or_chart_line_restriction->chart_line_restriction_values,
+                        @a_chart_line_restriction_value,
                     ];
                 }
             }
