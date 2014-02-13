@@ -127,7 +127,8 @@
 
 <a href="/tapper/metareports?owner_id=<% $c->req->params->{owner_id} %>">&laquo; back to overview</a>
 
-<br /><br />
+<br />
+<br />
 
 <input type="hidden" id="idx_owner" value="<% $c->req->params->{owner_id} %>" />
 <input type="hidden" id="hd_pager_direction_idx" value="<% $c->req->params->{pager_direction} %>" />
@@ -164,27 +165,18 @@
     <div id="choices"></div>
 </div>
 
-<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.css" />
-<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.core.css" />
-<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.datepicker.css" />
-
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.core.js"></script>
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect.js"></script>
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.datepicker.js"></script>
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect-slide.js"></script>
-
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/metareports.js"></script>
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.json.js"></script>
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.js"></script>
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.time.js"></script>
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.selection.js"></script>
-<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.timepicker.js"></script>
-
 <script type="text/javascript">
 
     $(document).ready(function(){
 
-        get_chart_points( $("div.charts"), true );
+        var chart_options = { detail : true };
+%       if ( my $hr_values = $c->stash->{parameter_restriction_values} ) {
+            chart_options.parameter = {};
+%           for my $s_value_name ( keys %{$hr_values} ) {
+                chart_options.parameter.<% $s_value_name %> = '<% $hr_values->{$s_value_name} %>';
+%           }
+%       }
+        get_chart_points( $("div.charts"), chart_options );
 
         $('#columnA_2columns img.imgdel').click(function(){
             if ( confirm("Really delete chart?") == true ) {

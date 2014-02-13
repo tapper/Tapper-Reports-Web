@@ -15,6 +15,16 @@
         border          : 1px solid #E1E1E1;
         margin-top      :  5px;
     }
+    div.charts input.template_values:first-child {
+        margin-top: 5px;
+    }
+    div.charts input.template_values {
+        width: 100px;
+    }
+    div.charts input.template_call {
+        margin-top: 5px;
+        width: 150px;
+    }
     div.charts img {
         position        : relative;
         top             : 60px;
@@ -53,6 +63,9 @@
     #columnA_2columns {
         width: 1240px;
     }
+    input.missing_value {
+        border-color: red;
+    }
 </style>
 
 <form action="/tapper/metareports">
@@ -78,7 +91,27 @@
                         </div>
                     </div>
                     <div class="charts" id="mainchart_<% $or_chart->chart_id() %>">
-                        <img src="/tapper/static/images_red/loader.gif" />
+%                       my @a_template_value;
+%                       for my $or_chart_line ( $or_chart->chart_lines ) {
+%                           if ( $or_chart_line->chart_line_restrictions ) {
+%                               for my $or_restriction ( $or_chart_line->chart_line_restrictions ) {
+%                                   if ( $or_restriction->is_template_restriction ) {
+%                                       push @a_template_value, ($or_restriction->chart_line_restriction_values)[0]->chart_line_restriction_value;
+%                                   }
+%                               }
+%                           }
+%                       }
+%                       if ( @a_template_value ) {
+                            <div class="font">
+%                               for my $s_template_value ( @a_template_value ) {
+                                    <% $s_template_value %>: <input type="name" class="template_values" name="<% $s_template_value %>" /><br />
+%                               }
+                                <input type="button" class="template_call" value="Load Chart" />
+                            </div>
+%                       }
+%                       else {
+                            <img class="loaderimage" src="/tapper/static/images_red/loader.gif" />
+%                       }
                     </div>
                 </div>
 %           }
@@ -103,10 +136,10 @@
 
         $("div.charts")
             .filter(function(){
-                return $(this).find("img.newimage").length == 0
+                return $(this).find("img.loaderimage").length > 0
             })
                 .each(function(){
-                    get_chart_points( $(this), false );
+                    get_chart_points( $(this), {detail : false} );
                 })
                 .end()
             .filter(function(){
@@ -121,6 +154,31 @@
             if ( confirm("Really delete chart?") == true ) {
                 location.href = '/tapper/metareports/delete_chart?owner_id='+$('#idx_owner').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');
             }
+        });
+        $('input.template_call').click(function(){
+
+            var errors       = 0;
+            var location_url = '/tapper/metareports/detail?'
+                +      'owner_id=' + $('#idx_owner').val()
+                + "&amp;chart_id=" + $(this).closest('.chart_boxs').attr('chart')
+            ;
+
+            $(this).parent().find('input.template_values').each(function(){
+                if ( (/^\s*$/).test( $(this).val() ) ) {
+                    $(this).addClass('missing_value');
+                    alert('Missing value "'+$(this).attr('name')+'"');
+                    errors = errors + 1;
+                }
+                else {
+                    $(this).removeClass('missing_value');
+                    location_url = location_url + '&amp;' + $(this).attr('name') + '=' + $(this).val();
+                }
+            });
+
+            if ( errors == 0 ) {
+                location.href = location_url;
+            }
+
         });
         $('#columnA_2columns img.imgedit').click(function(){
             location.href = '/tapper/metareports/edit_chart?owner_id='+$('#idx_owner').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');

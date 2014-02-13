@@ -13,6 +13,12 @@
 <script language="JavaScript"  type="text/javascript" src="/tapper/static/js/qTip.js"></script>
 <script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-2.0.3.min.js"></script>
 
+%   if ( $c->stash->{css_files} ) {
+%       for my $s_css_file ( @{$c->stash->{css_files}} ) {
+            <link rel="stylesheet" type="text/css" href="<% $s_css_file %>" />
+%       }
+%   }
+
 <style type="text/css" media="print">
     #secondaryContent_2columns { display: none; }
     #primaryContent_2columns   { margin-right: 1.5em; }
@@ -180,6 +186,12 @@
 </div>
 
 <& /tapper/footer.mas &>
+
+%   if ( $c->stash->{js_files} ) {
+%       for my $s_js_file ( @{$c->stash->{js_files}} ) {
+            <script type="text/javascript" src="<% $s_js_file %>"></script>
+%       }
+%   }
 
 </body>
 </html>

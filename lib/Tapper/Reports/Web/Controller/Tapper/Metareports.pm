@@ -7,6 +7,7 @@ use warnings;
 use parent 'Tapper::Reports::Web::Controller::Base';
 
 use Try::Tiny;
+use Tapper::Benchmark;
 use List::MoreUtils qw( any );
 
 use 5.010;
@@ -21,9 +22,13 @@ sub index :Path :Args() {
 
 sub auto : Private {
 
-   my ( $self, $c ) = @_;
+   my ( $self, $or_c ) = @_;
 
-    $c->forward('/tapper/metareports/prepare_navi');
+    # set js, csss file
+    push @{$or_c->stash->{js_files}}, '/tapper/static/js/metareports.js';
+    push @{$or_c->stash->{css_files}}, '/tapper/static/css/metareports/default.css';
+
+    $or_c->forward('/tapper/metareports/prepare_navi');
 }
 
 sub detail : Local {
@@ -31,6 +36,27 @@ sub detail : Local {
     my ( $or_self, $or_c ) = @_;
 
     $or_c->stash->{head_overview} = 'Metareports - Detail';
+
+    # set css file
+    push @{$or_c->stash->{css_files}},
+          '/tapper/static/css/jquery-ui/jquery.ui.css'
+        , '/tapper/static/css/jquery-ui/jquery.ui.core.css'
+        , '/tapper/static/css/jquery-ui/jquery.ui.datepicker.css'
+    ;
+
+    # set js file
+    push @{$or_c->stash->{js_files}},
+          '/tapper/static/js/jquery-ui/jquery.ui.core.js'
+        , '/tapper/static/js/jquery-ui/jquery.ui.effect.js'
+        , '/tapper/static/js/jquery-ui/jquery.ui.datepicker.js'
+        , '/tapper/static/js/jquery-ui/jquery.ui.effect-slide.js'
+        , '/tapper/static/js/metareports.js'
+        , '/tapper/static/js/jquery-plugins/jquery.json.js'
+        , '/tapper/static/js/jquery-plugins/jquery.flot.js'
+        , '/tapper/static/js/jquery-plugins/jquery.flot.time.js'
+        , '/tapper/static/js/jquery-plugins/jquery.flot.selection.js'
+        , '/tapper/static/js/jquery-plugins/jquery.timepicker.js'
+    ;
 
     if ( $or_c->req->params->{chart_tiny_url_id} ) {
         $or_c->stash->{chart} = $or_c
@@ -48,11 +74,45 @@ sub detail : Local {
         ;
     }
     elsif ( $or_c->req->params->{chart_id} ) {
+
         $or_c->stash->{chart} = $or_c
             ->model('TestrunDB')
             ->resultset('Charts')
-            ->find( $or_c->req->params->{chart_id} )
+            ->search(
+                {
+                    'me.chart_id' => $or_c->req->params->{chart_id}
+                },{
+                    prefetch => {
+                        'chart_lines' => {
+                            'chart_line_restrictions' => 'chart_line_restriction_values',
+                        },
+                    },
+                }
+            )
+            ->first()
         ;
+
+        # check for template parameter
+        my %h_restriction_values;
+        for my $or_chart_line ( $or_c->stash->{chart}->chart_lines ) {
+            for my $or_restriction ( $or_chart_line->chart_line_restrictions ) {
+                if ( $or_restriction->is_template_restriction ) {
+                    my $s_restricted_value =
+                        ($or_restriction->chart_line_restriction_values)[0]->chart_line_restriction_value
+                    ;
+                    if ( $or_c->req->params->{$s_restricted_value} ) {
+                        $h_restriction_values{$s_restricted_value} = $or_c->req->params->{$s_restricted_value};
+                    }
+                    else {
+                        $or_c->stash->{error} = "Missing restricted value '$s_restricted_value'";
+                    }
+                }
+            }
+        }
+        if ( %h_restriction_values ) {
+            $or_c->stash->{parameter_restriction_values} = \%h_restriction_values;
+        }
+
     }
 
     return 1;
@@ -63,15 +123,20 @@ sub chart_overview : Local {
 
     my ( $or_self, $or_c ) = @_;
 
-    $or_c->stash->{head_overview} = 'Metareports - Overview';
-
-    # get charts for user
-    $or_c->stash->{charts} = [
+    $or_c->stash->{head_overview}   = 'Metareports - Overview';
+    $or_c->stash->{charts}          = [
         $or_c->model('TestrunDB')->resultset('Charts')->search({
             active   => 1,
-            owner_id => $or_c->req->params->{owner_id},
+            owner_id => $or_c->req->params->{owner_id}
         },{
-            order_by => { -asc => 'chart_name' }
+            order_by => {
+                -asc => 'chart_name'
+            },
+            prefetch => {
+                'chart_lines' => {
+                    'chart_line_restrictions' => 'chart_line_restriction_values',
+                }
+            },
         })
     ];
 
@@ -230,9 +295,9 @@ sub get_chart_points : Local {
                 ]];
             }
             # set where clause
-            elsif ( $or_chart->chart_line_restrictions ) {
+            elsif ( $or_chart_line->chart_line_restrictions ) {
                 $hr_chart_search->{where} ||= [];
-                for my $or_chart_line_restriction ( @{$or_chart->chart_line_restrictions} ) {
+                for my $or_chart_line_restriction ( $or_chart_line->chart_line_restrictions ) {
                     my @a_chart_line_restriction_value;
                     if ( $or_chart_line_restriction->is_template_restriction ) {
                         my ( $s_restriction_value_identifier )
@@ -242,7 +307,10 @@ sub get_chart_points : Local {
                             @a_chart_line_restriction_value = @{toarrayref( $h_params{$s_restriction_value_identifier} )};
                         }
                         else {
-                            die "missing template parameter '$s_restriction_value_identifier'";
+                            $or_c->stash->{content} = {
+                                error => "missing template parameter '$s_restriction_value_identifier'",
+                            };
+                            return 0;
                         }
                     }
                     else {
@@ -266,14 +334,16 @@ sub get_chart_points : Local {
 
             # set select columns
             $hr_chart_search->{select} = [
-                keys map { $_ => 1 } grep { !$h_default_columns{$_} }
-                    (
-                        map { $_->chart_line_axis_column }
-                        grep { $_->chart_line_axis_columns }
-                        $or_chart_line->chart_line_axis_elements
-                    ), (
-                        map { $_->[0] } @a_additionals
-                    )
+                keys {
+                    map { $_ => 1 } grep { !$h_default_columns{$_} }
+                        (
+                            map { $_->axis_column->chart_line_axis_column }
+                            grep { $_->axis_column }
+                            $or_chart_line->chart_axis_elements
+                        ), (
+                            map { $_->[0] } @a_additionals
+                        )
+                }
             ];
 
             my @a_chart_line_points;
@@ -584,6 +654,15 @@ sub edit_chart : Local {
 
     my ( $or_self, $or_c ) = @_;
 
+    # set css file
+    push @{$or_c->stash->{css_files}},
+          '/tapper/static/css/metareports/edit.css'
+        , '/tapper/static/css/jquery-ui/jquery.ui.css'
+    ;
+
+    # set js file
+    push @{$or_c->stash->{js_files}}, '/tapper/static/js/jquery-ui/jquery-ui-autocomplete.js';
+
     my $or_schema = $or_c->model('TestrunDB');
     if (! $or_c->stash->{chart} ) {
         if ( $or_c->req->params->{chart_id} ) {
@@ -802,16 +881,16 @@ sub save_chart : Local {
         $hr_search_param->{-not} = { chart_id => $hr_params->{chart_id} };
     }
 
+    # serialize input data
+    $or_c->stash->{chart} = $or_self->get_edit_page_chart_hash_by_params(
+        $or_c, $hr_params, $or_schema,
+    );
+
     my @a_charts = $or_schema->resultset('Charts')->search( $hr_search_param );
     if ( @a_charts ) {
         $or_c->stash->{error} = 'chart name already exists';
         $or_c->go('/tapper/metareports/edit_chart');
     }
-
-    # serialize input data
-    $or_c->stash->{chart} = $or_self->get_edit_page_chart_hash_by_params(
-        $or_c, $hr_params, $or_schema,
-    );
 
     try {
         $or_schema->txn_do(sub {

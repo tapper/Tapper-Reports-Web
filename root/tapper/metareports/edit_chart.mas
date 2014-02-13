@@ -8,16 +8,14 @@
     <%args>
         $axis
         $axis_element
-        $show_image
+        $show_add_image
     </%args>
 
-%   if ( $show_image ) {
-%       if ( $show_image eq 'add' ) {
-            <img class="add_chart_axis_<% $axis %>_elements" src="/tapper/static/images/plus.png" />
-%       }
-%       elsif ( $show_image eq 'remove' ) {
-            <img class="delete_chart_axis_elements" src="/tapper/static/images/minus.png" />
-%       }
+%   if ( $show_add_image ) {
+        <img class="add_chart_axis_<% $axis %>_elements" src="/tapper/static/images/plus.png" />
+%   }
+%   else {
+        <img class="delete_chart_axis_elements" src="/tapper/static/images/minus.png" />
 %   }
     <input class="axis_element_input accolumn" name="chart_axis_<% $axis %>_column" value="<% $axis_element %>" />
 
@@ -27,15 +25,17 @@
     <%args>
         $restricted_value
         $show_add_image
+        $is_template
     </%args>
 
 %   if ( $show_add_image ) {
-        <img class="add_restict_value" src="/tapper/static/images/plus.png" />
+        <img class="add_restict_value <% $is_template ? 'disabled' : q## %>" src="/tapper/static/images/plus.png" />
 %   }
 %   else {
         <img class="delete_restict_value" src="/tapper/static/images/minus.png" />
 %   }
     <input class="restricted_value_input" name="chart_line_where_value" value="<% $restricted_value %>" />
+    <br />
 
 </%method>
 
@@ -73,30 +73,21 @@
             </select>
         </td>
         <td>
-            <font  class="stext">Template</font><br />
-            <input type="checkbox" name="chart_line_where_template" <% $hr_chart_line_restriction->{is_template_restriction} ? 'checked="checked"' : '' %> />
+            <font  class="stext">Template</font>
             <font  class="stext">Restricted column</font><br />
-            <input class="accolumn" name="chart_line_where_column" value="<% $hr_chart_line_restriction->{chart_line_restriction_column} || '' %>" />
+            <input type="checkbox" class="cl_chart_line_where_template" name="chart_line_where_template" <% $hr_chart_line_restriction->{is_template_restriction} ? 'checked="checked"' : '' %> />
+            <input class="accolumn cl_chart_line_where_column" name="chart_line_where_column" value="<% $hr_chart_line_restriction->{chart_line_restriction_column} || '' %>" /><br />
             <font  class="stext">Restricted value(s)</font><br />
 %           my $i_restrict_value_counter = 0;
 %           if ( my $ar_values = $hr_chart_line_restriction->{chart_line_restriction_values} ) {
 %               for my $s_value ( @{$ar_values} ) {
-%                   my $s_show_image;
-%                   if (! $hr_chart_line_restriction->{is_template_restriction} ) {
-%                       if ( $i_restrict_value_counter ) {
-%                           $s_show_image = 'remove';
-%                       }
-%                       else {
-%                           $s_show_image = 'add';
-%                       }
-%                   }
-                    <& SELF:single_restricted_value, restricted_value => $s_value, show_image => $s_show_image &>
+                    <& SELF:single_restricted_value, restricted_value => $s_value, show_add_image => !$i_restrict_value_counter, is_template => $hr_chart_line_restriction->{is_template_restriction} &>
 %                   $i_restrict_value_counter++;
 %               }
 %           }
 %           else {
 %               $i_restrict_value_counter = 1;
-                <& SELF:single_restricted_value, restricted_value => '', show_image => 'add' &>
+                <& SELF:single_restricted_value, restricted_value => '', show_add_image => 1, is_template => 0 &>
 %           }
             <input type="hidden" name="chart_line_where_counter" value="<% $i_restrict_value_counter %>" />
         </td>
@@ -174,9 +165,11 @@
             </td>
         </tr>
 %       my $i_chart_where_counter = 0;
+%       require Data::Dumper;
+%       warn Data::Dumper::Dumper($chart_line);
 %       if ( $chart_line->{chart_line_restrictions} && @{$chart_line->{chart_line_restrictions}} ) {
 %           for my $hr_chart_line_restriction ( @{$chart_line->{chart_line_restrictions}} ) {
-                <& SELF:single_where_line, where_line => $hr_chart_line_restriction &>
+                <& SELF:single_where_line, hr_chart_line_restriction => $hr_chart_line_restriction &>
 %               $i_chart_where_counter = $i_chart_where_counter + 1;
 %           }
 %       }
@@ -211,96 +204,6 @@
 %       }
 %   }
 </%method>
-
-<style type="text/css">
-
-    #idx_div_errors {
-        font-weight: bold;
-        color: red;
-    }
-    #idx_div_save {
-        background-color: #bebebe;
-        border: 1px solid #585858;
-        margin-top: 5px;
-        width: 514px;
-        height: 20px;
-        padding: 2px;
-    }
-    #idx_div_save input {
-        width: 515px;
-    }
-    #idx_div_errors ul {
-        list-style-type: disc;
-    }
-    table {
-        border-collapse: collapse;
-        width: 520px;
-    }
-    table input {
-        width: 362px;
-    }
-    table input.half {
-        width: 176px;
-    }
-    table select {
-        width: 370px;
-    }
-    table img {
-        border: none;
-        margin-bottom: -2px;
-        cursor: pointer;
-    }
-    table.chart_line {
-        margin-top: 5px;
-    }
-    table tr td:first-child {
-        width: 130px;
-        vertical-align: top;
-    }
-    td {
-        background-color: #d3d3d3;
-        border: 1px solid #585858;
-        padding: 2px;
-    }
-    div.column_concat {
-        margin: 2px;
-        text-align: center;
-    }
-    select.bench_operator {
-        width: 100px;
-    }
-    img.add_restict_value {
-        margin-right: 3px;
-    }
-    input.axis_element_input,
-    input.restricted_value_input {
-        width: 343px;
-    }
-    .bold {
-        font-weight: bold;
-    }
-    .hideit {
-        display: none;
-    }
-    .header {
-        background-color: #bebebe;
-        font-weight: bold;
-    }
-    .stext {
-        font-size: 8px;
-        margin-left: 5px;
-    }
-    .stext.durltext {
-        margin-left: 127px;
-    }
-    .redborder {
-        border-color: red;
-    }
-    .redfont {
-        color: red;
-    }
-
-</style>
 
 <a href="/tapper/metareports?owner_id=<% $c->req->params->{owner_id} %>">&laquo; back to overview</a>
 
@@ -372,7 +275,7 @@
                     show_add_image  => !$chart_line_counter,
                     chart_line      => {
                         chart_line_name         => $hr_chart_line->{chart_line_name},
-                        chart_line_statement    => $hr_chart_line->{chart_line_statement},
+                        chart_line_restrictions => $hr_chart_line->{chart_line_restrictions},
                         chart_line_additionals  => [ map { { column => $_->{chart_line_additional_column}, url => $_->{chart_line_additional_url}, } } @{$hr_chart_line->{chart_additionals}}  ],
                         chart_line_x_column     => $hr_chart_line->{chart_line_x_column},
                         chart_line_x_format     => $hr_chart_line->{chart_line_x_format},
@@ -394,20 +297,18 @@
 
 </div>
 
-<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.css" />
-<script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-ui/jquery-ui-autocomplete.js"></script>
 <script type="text/javascript">
 
 %   my $s_chart_line     =  $m->scomp("SELF:single_chart_line", show_add_image => 0, chart_line => {}, %ARGS );
 %      $s_chart_line     =~ s/^\s+|\s+$//gm;
 %      $s_chart_line     =~ s/\n//g;
-%   my $s_where_line     =  $m->scomp("SELF:single_where_line", where_line => [], %ARGS );
+%   my $s_where_line     =  $m->scomp("SELF:single_where_line", hr_chart_line_restriction => {}, %ARGS );
 %      $s_where_line     =~ s/^\s+|\s+$//gm;
 %      $s_where_line     =~ s/\n//g;
 %   my $s_addit_line     =  $m->scomp("SELF:single_additional_line", additional_column => '', %ARGS );
 %      $s_addit_line     =~ s/^\s+|\s+$//gm;
 %      $s_addit_line     =~ s/\n//g;
-%   my $s_restrict_value =  $m->scomp("SELF:single_restricted_value", restricted_value => '', show_add_image => 0, %ARGS );
+%   my $s_restrict_value =  $m->scomp("SELF:single_restricted_value", restricted_value => '', show_add_image => 0, is_template => 0, %ARGS );
 %      $s_restrict_value =~ s/^\s+|\s+$//gm;
 %      $s_restrict_value =~ s/\n//g;
 %   my $s_line_element_x =  $m->scomp("SELF:single_axis_element", axis => 'x', axis_element => '', show_add_image => 0, %ARGS );
@@ -532,9 +433,24 @@
                         $counter.val( ( $counter.val() * 1 ) + 1 );
                 }
                 else if ( $target.hasClass('add_restict_value') ) {
-                    $target.closest('td').append('<% $s_restrict_value | n %>');
-                    var $counter = $target.closest('td').find('input[name="chart_line_where_counter"]');
-                        $counter.val( ( $counter.val() * 1 ) + 1 );
+                    if ( $target.css('visibility') == 'visible' ) {
+                        $target.closest('td').append('<% $s_restrict_value | n %>');
+                        var $counter = $target.closest('td').find('input[name="chart_line_where_counter"]');
+                            $counter.val( ( $counter.val() * 1 ) + 1 );
+                    }
+                }
+            }
+            else if ( $target.prop("tagName") == 'INPUT' ) {
+                if ( $target.hasClass('cl_chart_line_where_template') ) {
+                    var $counter = $target.nextAll('input[name="chart_line_where_counter"]:first');
+                    if ( $target.is(':checked') ) {
+                        $counter.val(1);
+                        $counter.prevAll('img:first').css('visibility','hidden');
+                        $counter.nextAll().remove();
+                    }
+                    else {
+                        $counter.prevAll('img:first').css('visibility','visible');
+                    }
                 }
             }
         });
@@ -579,8 +495,15 @@
                 $('#idx_div_errors').html("<ul>" + error_html + "</ul>");
             }
             else {
+                $('#idx_create_chart_form input:checkbox').each(function(){
+                    $(this).val( $(this).is(':checked') ? 1 : 0 )[0].checked = true;
+                });
                 $('#idx_create_chart_form').submit();
             }
+        });
+
+        $('input.cl_chart_line_where_template').click(function(){
+
         });
 
         // call for edit mode
