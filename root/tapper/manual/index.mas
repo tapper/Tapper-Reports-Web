@@ -4042,7 +4042,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Client-Utility-tapper_002dapi">Client 
    --reportid         INT; the testrun id to change
    --file             STRING; the file to upload, use '-' for STDIN
    --contenttype      STRING; content-type, default 'plain', 
-                      use 'application/octed-stream' for binaries
+                      use 'application/octet-stream' for binaries
 </pre>
 
 <div class="node">
