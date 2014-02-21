@@ -2880,7 +2880,7 @@ package into your test. This can be achieved with the existing
 with a certain filename you should assign the following precondition
 to your testrun.
 
-<pre class="example"><pre class="verbatim">     precontition_type: producer
+<pre class="example"><pre class="verbatim">     precondition_type: producer
      producer: Kernel
 </pre>
 </pre>
