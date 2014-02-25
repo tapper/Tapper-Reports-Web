@@ -1,25 +1,46 @@
+function get_chart_point_url ( $chart ) {
+
+    var chart_point_url =
+          '/tapper/metareports/get_chart_points?'
+        + 'json=1'
+        + '&amp;chart_id=' + $chart.closest('div.chart_boxs').attr('chart')
+        + '&amp;graph_width=' + $chart.width()
+    ;
+
+    var offset              = $('#hd_offset_idx').val();
+    var pager_direction     = $('#hd_pager_direction_idx').val();
+    var chart_tiny_url_id   = $('#hd_chart_tiny_url_idx').val();
+
+    if ( pager_direction ) {
+        chart_point_url += '&amp;pager_direction' + pager_direction;
+    }
+    if ( offset ) {
+        chart_point_url += '&amp;offset=' + offset;
+    }
+    if ( chart_tiny_url_id ) {
+        chart_point_url += '&amp;chart_tiny_url=' + chart_tiny_url;
+    }
+
+    return chart_point_url;
+
+}
+
 function get_chart_points ( $act_chart, params ) {
 
     var chart_id = $act_chart.closest('div.chart_boxs').attr('chart');
+
     if ( chart_id ) {
 
-        var request_parameter = {};
-        if ( params.parameter ) {
-            request_parameter                   = params.parameter
+        if (! params.detail ) {
+           $act_chart.click(function(){
+               location.href = '/tapper/metareports/detail?chart_tag='+$('#idx_chart_tag').val()+'&amp;chart_id='+$(this).closest('div.chart_boxs').attr('chart');
+           });
         }
-
-        request_parameter.json              = 1;
-        request_parameter.chart             = chart_id;
-        request_parameter.graph_width       = $act_chart.width();
-        request_parameter.pager_direction   = $('#hd_pager_direction_idx').val();
-        request_parameter.offset            = $('#hd_offset_idx').val();
-        request_parameter.chart_tiny_url_id = $('#hd_chart_tiny_url_idx').val();
 
         $.ajax({
             method   : 'GET',
             dataType : 'json',
-            url      : '/tapper/metareports/get_chart_points',
-            data     : request_parameter,
+            url      : get_chart_point_url($act_chart),
             error    : function () {
                 $act_chart.html('<span class="chart_error">unknown error occured</span>');
                 return 0;
@@ -145,6 +166,18 @@ function get_chart_points ( $act_chart, params ) {
 
                 }
 
+                // insert warnings if exists
+                if ( chart_data.warnings && chart_data.warnings.length > 0 ) {
+                    var $heading = $act_chart.closest('div.chart_boxs').find('div.chart_headers div.text font.title');
+                    $heading.html(
+                          $heading.text()
+                        + '<font class="chart_error">('
+                        + (chart_data.warnings.length)
+                        + ' chart data points ignored)'
+                        + '</font>'
+                    );
+                }
+
                 if ( params.detail ) {
 
                     var plot;
@@ -227,6 +260,10 @@ function get_chart_points ( $act_chart, params ) {
                             $(overview_identifier).bind("plotselected", function (event, ranges) {
                                 plot.setSelection(ranges);
                             });
+                            $(overview_identifier).bind("plotunselected", function (event, ranges) {
+                                plot = $.plot( chart_identifier, data, options );
+                                set_plot_height( chart_identifier );
+                            });
 
                             function showTooltip( x, y, data, id ) {
 
@@ -296,12 +333,12 @@ function get_chart_points ( $act_chart, params ) {
 
                             function create_search_url(){
                                 var url =
-                                      '/tapper/metareports/detail?owner_id='
-                                    + $('#idx_owner').val()
-                                    + '&amp;chart_id='
+                                      '/tapper/metareports/detail?chart_id='
                                     + $act_chart.closest('div.chart_boxs').attr('chart')
                                     + '&amp;offset='
                                     + $('#hd_offset_idx').val()
+                                    + '&amp;chart_tag='
+                                    + $('#idx_chart_tag').val()
                                 ;
                                 return url;
                             }
@@ -347,13 +384,16 @@ function get_chart_points ( $act_chart, params ) {
                                     dataType : 'json',
                                     url      : '/tapper/metareports/create_static_url',
                                     data     : {
-                                        'json'  : 1,
-                                        'ids'   : $.toJSON( ids )
+                                        'json'      : 1,
+                                        'ids'       : $.toJSON( ids ),
+                                        'chart_tag' : $('#idx_chart_tag').val()
                                     },
                                     success  : function ( data ) {
                                         $('#bt_create_static_url_idx').replaceWith(
                                               '<a href="/tapper/metareports/detail?chart_tiny_url_id='
                                             + data.chart_tiny_url_id
+                                            + '&amp;chart_tag='
+                                            + $('#idx_chart_tag').val()
                                             + '">'
                                             + 'Go to static URL'
                                             + '</a>'
@@ -395,12 +435,26 @@ function get_chart_points ( $act_chart, params ) {
                 else {
                    var serialized = getData();
                    $.plot( chart_identifier, serialized.chart, options );
-                   $act_chart.click(function(){
-                       location.href = '/tapper/metareports/detail?owner_id='+$('#idx_owner').val()+'&amp;chart_id='+$(this).closest('div.chart_boxs').attr('chart');
-                   });
                 }
 
             },
         });
     }
 }
+
+$(document).ready(function(){
+    $('#columnA_2columns img.imgdel').click(function(){
+        if ( confirm("Really delete chart?") == true ) {
+            location.href = '/tapper/metareports/delete_chart?chart_tag='+$('#idx_chart_tag').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');
+        }
+    });
+    $('#columnA_2columns img.imgedit').click(function(){
+        location.href = '/tapper/metareports/edit_chart?chart_tag='+$('#idx_chart_tag').val()+'&amp;chart_id='+$(this).closest('.chart_boxs').attr('chart');
+    });
+    $('#columnA_2columns img.imgeditasnew').click(function(){
+        location.href = '/tapper/metareports/edit_chart?chart_tag='+$('#idx_chart_tag').val()+'&amp;asnew=1&amp;chart_id='+$(this).closest('.chart_boxs').attr('chart');
+    });
+    $('#columnA_2columns img.imgjson').click(function(){
+        location.href = get_chart_point_url($(this).closest('div.chart_boxs').find('div.charts'));
+    });
+});

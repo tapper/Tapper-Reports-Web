@@ -162,7 +162,10 @@ tr.highlightgrey
 
 #header
 {
-width:100%;
+top: 0;
+left: 0;
+right: 0;
+position: fixed;
 height:55px;
 background: #440000 url('/tapper/static/images_red/n1.small.gif') repeat-x;
 }
@@ -222,30 +225,36 @@ float: left;
 
 #menu li a
 {
-margin-left: 0.5em;
-display: block;
-padding: 1.1em 1.4em 1.0em 1.4em;
-background: #fff url('/tapper/static/images_red/n4.gif') repeat-x;
-border: solid 1px #fff;
-color: #616161;
-font-weight: bold;
-font-size: 1.0em;
-/* text-transform: lowercase; */
-text-decoration: none;
+    margin-left: 0.5em;
+    display: block;
+    padding: 1.1em 1.4em 1.0em 1.4em;
+    background: #fff url('/tapper/static/images_red/n4.gif') repeat-x;
+    border: solid 1px #fff;
+    color: #616161;
+    font-weight: bold;
+    font-size: 1.0em;
+    /* text-transform: lowercase; */
+    text-decoration: none;
 }
 
 #menu li a.active
 {
-background: #CA2F2F url('/tapper/static/images_red/n3.gif') repeat-x;
-color: #fff;
-border: solid 1px #A94B4B;
+    background: #CA2F2F url('/tapper/static/images_red/n3.gif') repeat-x;
+    color: #fff;
+    border: solid 1px #A94B4B;
 }
 
 /* Main */
 
 #main
 {
-  background: #fff url('/tapper/static/images_red/n2.gif') 0px 1px repeat-x;
+    position: absolute;
+    overflow: auto;
+    top:55px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff url('/tapper/static/images_red/n2.gif') 0px 1px repeat-x;
 }
 
 #main_inner p

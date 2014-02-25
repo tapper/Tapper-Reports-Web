@@ -21,6 +21,18 @@
 
 </%method>
 
+<%method single_chart_tag>
+    <%args>
+        $chart_tag => ''
+    </%args>
+
+    <img class="delete_chart_tag_input" src="/tapper/static/images/minus.png" />
+    <input class="chart_tag_input" name="chart_tag_new" value="<% $chart_tag %>" />
+
+    <br />
+
+</%method>
+
 <%method single_restricted_value>
     <%args>
         $restricted_value
@@ -64,7 +76,7 @@
     <%args>
         $hr_chart_line_restriction
     </%args>
-
+%   my $ar_values = $hr_chart_line_restriction->{chart_line_restriction_values};
     <tr>
         <td>
             <img src="/tapper/static/images/minus.png" class="delete_where" />
@@ -74,12 +86,14 @@
         </td>
         <td>
             <font  class="stext">Template</font>
+            <font  class="stext">Numeric</font>
             <font  class="stext">Restricted column</font><br />
             <input type="checkbox" class="cl_chart_line_where_template" name="chart_line_where_template" <% $hr_chart_line_restriction->{is_template_restriction} ? 'checked="checked"' : '' %> />
+            <input type="checkbox" class="cl_chart_line_where_numeric" name="chart_line_where_numeric" <% $hr_chart_line_restriction->{is_numeric_restriction} ? 'checked="checked"' : '' %> untouched="<% $ar_values ? 0 : 1 %>" />
             <input class="accolumn cl_chart_line_where_column" name="chart_line_where_column" value="<% $hr_chart_line_restriction->{chart_line_restriction_column} || '' %>" /><br />
             <font  class="stext">Restricted value(s)</font><br />
 %           my $i_restrict_value_counter = 0;
-%           if ( my $ar_values = $hr_chart_line_restriction->{chart_line_restriction_values} ) {
+%           if ( $ar_values ) {
 %               for my $s_value ( @{$ar_values} ) {
                     <& SELF:single_restricted_value, restricted_value => $s_value, show_add_image => !$i_restrict_value_counter, is_template => $hr_chart_line_restriction->{is_template_restriction} &>
 %                   $i_restrict_value_counter++;
@@ -105,7 +119,7 @@
         <tr>
             <td colspan="2" class="header">
 %               if ( $show_add_image ) {
-                    <img src="/tapper/static/images/plus.png" id="idx_add_chart_line" />
+                    <img src="/tapper/static/images/plus.png" class="add_chart_line" />
                     Add a new chart line
 %               }
 %               else {
@@ -165,8 +179,6 @@
             </td>
         </tr>
 %       my $i_chart_where_counter = 0;
-%       require Data::Dumper;
-%       warn Data::Dumper::Dumper($chart_line);
 %       if ( $chart_line->{chart_line_restrictions} && @{$chart_line->{chart_line_restrictions}} ) {
 %           for my $hr_chart_line_restriction ( @{$chart_line->{chart_line_restrictions}} ) {
                 <& SELF:single_where_line, hr_chart_line_restriction => $hr_chart_line_restriction &>
@@ -205,7 +217,7 @@
 %   }
 </%method>
 
-<a href="/tapper/metareports?owner_id=<% $c->req->params->{owner_id} %>">&laquo; back to overview</a>
+<a href="/tapper/metareports?chart_tag=<% $c->req->params->{chart_tag} %>">&laquo; back to overview</a>
 
 <br /><br />
 
@@ -214,12 +226,12 @@
     <form id="idx_create_chart_form" action="/tapper/metareports/save_chart">
         <input type="hidden" name="asnew" value="<% $c->req->params->{asnew} || 0 %>" />
         <input type="hidden" name="chart_id" value="<% $c->req->params->{asnew} ? q## : $chart->{chart_id} || q## %>" />
-        <input type="hidden" name="owner_id" value="<% $c->req->params->{owner_id} || q## %>" />
+        <input type="hidden" name="chart_tag" value="<% $c->req->params->{chart_tag} || q## %>" />
         <input type="hidden" id="idx_path" value="<% $c->req->path %>" />
 
         <table lass="chart">
             <tr>
-                <td colspan="2" class="header">Create a new chart</td>
+                <td colspan="2" class="header"><% $chart->{chart_id} ? $c->req->params->{asnew} ? 'Clone' : 'Edit' : 'Create new' %> chart</td>
             </tr>
             <tr>
                 <td class="bold">Chart name:</td>
@@ -291,6 +303,22 @@
 %           $chart_line_counter = $chart_line_counter + 1;
 %       }
 
+        <table class="chart_tags">
+            <tr>
+                <td colspan="2" class="header">
+                    <img src="/tapper/static/images/plus.png" class="add_chart_tag" />
+                    Add a new chart tag
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+%                   for my $s_chart_tag_name ( @{$chart->{chart_tag_new}} ) {
+                        <& SELF:single_chart_tag, chart_tag => $s_chart_tag_name &>
+%                   }
+                </td>
+            </tr>
+        </table>
+
         <div id="idx_div_save"><input type="button" value="Save" /></div>
 
     </form>
@@ -299,6 +327,8 @@
 
 <script type="text/javascript">
 
+%   my $s_chart_tag      =  $m->scomp("SELF:single_chart_tag", chart_tag => '', %ARGS );
+%      $s_chart_tag      =~ s/\n//g;
 %   my $s_chart_line     =  $m->scomp("SELF:single_chart_line", show_add_image => 0, chart_line => {}, %ARGS );
 %      $s_chart_line     =~ s/^\s+|\s+$//gm;
 %      $s_chart_line     =~ s/\n//g;
@@ -317,8 +347,11 @@
 %   my $s_line_element_y =  $m->scomp("SELF:single_axis_element", axis => 'y', axis_element => '', show_add_image => 0, %ARGS );
 %      $s_line_element_y =~ s/^\s+|\s+$//gm;
 %      $s_line_element_y =~ s/\n//g;
-%   my $s_column_list = 'var column_list = ["' . (join '","', @{$columns}) . '"]';
+%   my $s_column_list    = 'var column_list = ["' . (join '","', @{$columns}) . '"]';
+%   my $s_tag_list       = 'var tag_list = ["' . (join '","', $c->model('TestrunDB')->resultset('ChartTags')->search({},{ order_by => { -asc => 'chart_tag' } })->get_column('chart_tag')->all) . '"]';
+
     <% $s_column_list | n %>
+    <% $s_tag_list | n %>
 
     var acoptions = {
         source: column_list,
@@ -339,11 +372,30 @@
             );
         }
     };
+    var tag_acoptions = {
+        source: tag_list,
+        change: function(){
+            if ( (/^\s*$/).test( $(this).val() ) ) {
+                $(this).css('background-color','#ffffff').attr('found',false);
+            }
+            else if ( $.inArray( $(this).val(), tag_acoptions.source ) != -1 ) {
+                $(this).css('background-color','#d3ffce').attr('found',true);
+            }
+            else {
+                $(this).css('background-color','#fffad0').attr('found',false);
+            }
+        }
+    };
 
     $(document).ready(function(){
         $('input.accolumn')
             .autocomplete(acoptions)
             .keyup(acoptions.change)
+            .keyup()
+        ;
+        $('input.chart_tag_input')
+            .autocomplete(tag_acoptions)
+            .keyup(tag_acoptions.change)
             .keyup()
         ;
         $('#idx_order_by_x_sel,#idx_order_by_y_sel').change(function(){
@@ -376,10 +428,26 @@
                 $('table.chart_line tr.axis_format_y:not(.hideit)').addClass('hideit');
             }
         });
+
+        $('#idx_helper_div').focusout(function( e ){
+            var $target  = $(e.target);
+            if ( $target.prop("tagName") == 'INPUT' ) {
+                if ( $target.hasClass('restricted_value_input') ) {
+                    var $numeric_checkbox = $target.prevAll('input.cl_chart_line_where_numeric:first');
+                    if ( $numeric_checkbox.attr('untouched') == 1 ) {
+                        if ( $.isNumeric($target.val()) ) {
+                            $numeric_checkbox[0].checked = true;
+                        }
+                        $numeric_checkbox.attr('untouched','0');
+                    }
+                }
+            }
+        });
+
         $('#idx_helper_div').click(function( e ){
             var $target  = $(e.target);
             if ( $target.prop("tagName") == 'IMG' ) {
-                if ( $target.attr('id') == 'idx_add_chart_line' ) {
+                if ( $target.hasClass('add_chart_line') ) {
                     $('#idx_div_save').before('<% $s_chart_line | n %>');
                     $(this).find('table:last input.accolumn').autocomplete(acoptions).keyup(acoptions.change);
                     $('#idx_sl_axis_type_x').change();
@@ -439,6 +507,21 @@
                             $counter.val( ( $counter.val() * 1 ) + 1 );
                     }
                 }
+                else if ( $target.hasClass('delete_chart_tag_input') ) {
+                    $target.nextAll(':lt(3)').remove().end().remove();
+                }
+                else if ( $target.hasClass('add_chart_tag') ) {
+                    $target
+                        .closest('tr')
+                        .next()
+                        .children()
+                        .append('<% $s_chart_tag | n %>')
+                        .find('input.chart_tag_input:last')
+                        .focus()
+                        .autocomplete(tag_acoptions)
+                        .keyup(tag_acoptions.change)
+                    ;
+                }
             }
             else if ( $target.prop("tagName") == 'INPUT' ) {
                 if ( $target.hasClass('cl_chart_line_where_template') ) {
@@ -450,6 +533,11 @@
                     }
                     else {
                         $counter.prevAll('img:first').css('visibility','visible');
+                    }
+                }
+                else if ( $target.hasClass('cl_chart_line_where_numeric') ) {
+                    if ( $target.attr('untouched') == 1 ) {
+                        $target.attr('untouched',0);
                     }
                 }
             }
@@ -500,10 +588,6 @@
                 });
                 $('#idx_create_chart_form').submit();
             }
-        });
-
-        $('input.cl_chart_line_where_template').click(function(){
-
         });
 
         // call for edit mode

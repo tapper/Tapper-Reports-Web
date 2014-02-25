@@ -7,3 +7,6 @@ span.chart_error, span.chart_info {
 span.chart_error {
     color       : red;
 }
+font.chart_error {
+    color       : red;
+}
