@@ -104,7 +104,7 @@ sub index :Path :Args(1)
         }
 
         if (not $c->stash->{report}->suite) {
-                $c->response->body("No such testsuite with id: ". $c->stash->{report}->suite_id);
+                $c->response->body("No such testsuite with id: ". ($c->stash->{report}->suite_id // ""));
                 $c->stash->{title} = "No such testsuite";
                 return;
         }
