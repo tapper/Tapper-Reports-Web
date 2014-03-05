@@ -1,9 +1,10 @@
 function get_chart_point_url ( $chart ) {
 
+    var $chart_box      = $chart.closest('div.chart_boxs');
     var chart_point_url =
           '/tapper/metareports/get_chart_points?'
         + 'json=1'
-        + '&amp;chart_id=' + $chart.closest('div.chart_boxs').attr('chart')
+        + '&amp;chart_id=' + $chart_box.attr('chart')
         + '&amp;graph_width=' + $chart.width()
     ;
 
@@ -11,6 +12,9 @@ function get_chart_point_url ( $chart ) {
     var pager_direction     = $('#hd_pager_direction_idx').val();
     var chart_tiny_url_id   = $('#hd_chart_tiny_url_idx').val();
 
+    if ( $chart_box.attr('chart_version') ) {
+        chart_point_url += '&amp;chart_version=' + $chart_box.attr('chart_version');
+    }
     if ( pager_direction ) {
         chart_point_url += '&amp;pager_direction' + pager_direction;
     }

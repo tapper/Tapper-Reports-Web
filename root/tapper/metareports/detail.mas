@@ -12,7 +12,7 @@
 <input type="hidden" id="hd_offset_idx" value="<% $c->req->params->{offset} || 0 %>" />
 <input type="hidden" id="hd_chart_tiny_url_idx" value="<% $c->req->params->{chart_tiny_url_id} || "" %>" />
 
-<div class="chart_boxs" chart="<% $chart->chart_id() %>">
+<div class="chart_boxs" chart="<% $chart->chart_id() %>" chart_version="<% $chart->chart_version() %>">
     <div class="chart_headers">
         <div class="text">
             <font class="title"><% $chart->chart_name() %> </font>
@@ -75,7 +75,7 @@
 
         $('#idx_chart_version').change(function(){
             location.href =
-                  '/tapper/metareports/detail?tag='
+                  '/tapper/metareports/detail?chart_tag='
                 + $('#idx_chart_tag').val()
                 + '&amp;chart_id='
                 + $(this).closest('div.chart_boxs').attr('chart')
