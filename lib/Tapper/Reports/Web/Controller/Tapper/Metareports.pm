@@ -435,7 +435,7 @@ sub get_chart_points : Local {
             # set select columns
             $hr_chart_search->{select} = [
                 keys {
-                    map { $_ => 1 } grep { !$hr_default_columns->{$_} }
+                    map { $_ => 1 }
                         (
                             map { $_->axis_column->chart_line_axis_column }
                             grep { $_->axis_column }
