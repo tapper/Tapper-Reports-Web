@@ -29,6 +29,47 @@ function get_chart_point_url ( $chart ) {
 
 }
 
+function showTooltip( x, y, data, id ) {
+
+    var contents  = "";
+        contents += "y-value: "     + ( data.yo ) + "<br />";
+        contents += "x-value: "     + ( data.xo ) + "<br />"
+    ;
+
+    $.each( Object.keys(data.additionals).sort(), function(index,key) {
+        var val   = data.additionals[key];
+        var value = val[0];
+        if ( val[1] != null ) {
+            value = '<a href="' + val[1].replace(/\$value\$/g, value) + '">' + value + '</a>';
+        }
+        contents += key + ": " + value + "<br />";
+    });
+
+    $('<div id="'+id+'">' + contents + '</div>').css( {
+        position: 'absolute',
+        display: 'none',
+        top: y + 5,
+        left: x + 5,
+        border: '1px solid #fdd',
+        padding: '2px',
+        'background-color': '#fee',
+        opacity: 0.80
+    }).appendTo("body").fadeIn(200);
+
+}
+
+function create_search_url( $act_chart ){
+    var url =
+          '/tapper/metareports/detail?chart_id='
+        + $act_chart.closest('div.chart_boxs').attr('chart')
+        + '&amp;offset='
+        + $('#hd_offset_idx').val()
+        + '&amp;chart_tag='
+        + $('#idx_chart_tag').val()
+    ;
+    return url;
+}
+
 function get_chart_points ( $act_chart, params ) {
 
     var chart_id = $act_chart.closest('div.chart_boxs').attr('chart');
@@ -112,8 +153,10 @@ function get_chart_points ( $act_chart, params ) {
                     options.yaxis.show  = false;
                 }
 
+                var last_ranges;
                 var x_axis_labels           = [];
                 var y_axis_labels           = [];
+                var choiceContainer         = $("#choices");
                 var chart_identifier        = "#mainchart_" + chart_id;
                 var chart_identifier_height = $(chart_identifier).height();
 
@@ -133,16 +176,29 @@ function get_chart_points ( $act_chart, params ) {
                     options.yaxis.ticks = chart_data.yaxis_alphas;
                 }
 
-                function getData( x1, x2 ) {
+                function getData() {
 
+                    var x1, x2;
                     var returner = { chart : [] };
 
+                    if ( last_ranges ) {
+                       x1 =  last_ranges.xaxis.from;
+                       x2 =  last_ranges.xaxis.to;
+                    }
+
+                    SERIES:
                     for ( var i = 0; i < chart_data.series.length; i++ ) {
 
                         var line = {
+                            color : i,
                             label : chart_data.series[i].label,
                             data  : []
                         };
+                        if ( choiceContainer.length > 0 ) {
+                            if ( choiceContainer.find("input[line='"+i+"']:checked").length == 0 ) {
+                                continue SERIES;
+                            }
+                        }
                         for ( var j = 0; j < chart_data.series[i].data.length; j++ ) {
                             if ( ( !x1 && !x2 ) || ( x1 < chart_data.series[i].data[j].x && chart_data.series[i].data[j].x < x2 ) ) {
                                 line.data.push([
@@ -186,50 +242,20 @@ function get_chart_points ( $act_chart, params ) {
                 if ( params.detail ) {
 
                     var plot;
-                    var serialized = getData();
-
-                    // hard-code color indices to prevent them from shifting as
-                    // lines are turned on/off
-                    var i = 0;
-                    $.each( serialized.chart, function( key, val ) {
-                        val.color = i;
-                        ++i;
-                    });
+                    var $overview;
 
                     // insert checkboxes
-                    var choiceContainer = $("#choices");
-                    $.each( serialized.chart, function( key, val ) {
+                    $.each( chart_data.series, function( key, val ) {
                         choiceContainer.append(
-                            '<br/><input type="checkbox" name="' + key +
-                            '" checked="checked" id="id' + key + '">' +
+                            '<br/><input type="checkbox" checked="checked" line="'+key+'" id="id' + key + '">' +
                             '<label for="id' + key + '">' +
                             val.label + '</label>'
                         );
                     });
 
                     function plotAccordingToChoices() {
-                        var data = [];
-                        choiceContainer.find("input:checked").each(function () {
-                            var key = $(this).attr("name");
-                            if (key && serialized.chart[key])
-                                data.push(serialized.chart[key]);
-                        });
-
-                        if ( data.length > 0 ) {
-
-                            function set_plot_height( identifier ) {
-                                // get width of text
-                                var width = 0;
-                                $('div.xAxis > div.tickLabel').each(function(){
-                                    var label = $('<font>' + $(this).text() + '</font>').appendTo("body");
-                                    if ( width < label.width() ) {
-                                        width = label.width();
-                                    }
-                                    label.remove();
-                                });
-                                $(identifier).css( 'height', $(identifier).height() + Math.floor(width/2) );
-                            }
-
+                        var data = getData();
+                        if ( data.chart.length > 0 ) {
                             if (! options.grid ) {
                                 options.grid = {};
                             }
@@ -266,214 +292,151 @@ function get_chart_points ( $act_chart, params ) {
 
                             // set original height
                             $(chart_identifier).height(chart_identifier_height);
-                            plot = $.plot( chart_identifier, serialized.chart, options );
+                            var $extend;
+                            if ( last_ranges ) {
+                                $.extend(true, {}, options, {
+                                    xaxis: { min: last_ranges.xaxis.from, max: last_ranges.xaxis.to },
+                                    yaxis: { min: last_ranges.yaxis.from, max: last_ranges.yaxis.to }
+                                });
+                            }
+                            plot = $.plot( chart_identifier, data.chart, options, $extend );
                             set_plot_height( chart_identifier );
-
-                            var $overview = $.plot( overview_identifier, data, options_overview );
-                            $(chart_identifier).bind("plotselected", function (event, ranges) {
-
-                                // clamp the zooming to prevent eternal zoom
-                                if (ranges.xaxis.to - ranges.xaxis.from < 0.00001) {
-                                    ranges.xaxis.to = ranges.xaxis.from + 0.00001;
-                                }
-                                if (ranges.yaxis.to - ranges.yaxis.from < 0.00001) {
-                                    ranges.yaxis.to = ranges.yaxis.from + 0.00001;
-                                }
-
-                                // set original height
-                                $(chart_identifier).height(chart_identifier_height);
-
-                                // do the zooming
-                                serialized = getData( ranges.xaxis.from, ranges.xaxis.to );
-                                plot = $.plot( chart_identifier, serialized.chart,
-                                    $.extend(true, {}, options, {
-                                        xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
-                                        yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
-                                    })
-                                );
-
-                                // set new height
-                                set_plot_height( chart_identifier );
-
-                                // don't fire event on the overview to prevent eternal loop
-                                $overview.setSelection(ranges, true);
-
-                            });
-
-                            $(overview_identifier).bind("plotselected", function (event, ranges) {
-                                plot.setSelection(ranges);
-                            });
-                            $(overview_identifier).bind("plotunselected", function (event, ranges) {
-                                plot = $.plot( chart_identifier, data, options );
-                                set_plot_height( chart_identifier );
-                            });
-
-                            function showTooltip( x, y, data, id ) {
-
-                                var contents  = "";
-                                    contents += "y-value: "     + ( data.yo ) + "<br />";
-                                    contents += "x-value: "     + ( data.xo ) + "<br />"
-                                ;
-
-                                $.each( Object.keys(data.additionals).sort(), function(index,key) {
-                                    var val   = data.additionals[key];
-                                    var value = val[0];
-                                    if ( val[1] != null ) {
-                                        value = '<a href="' + val[1].replace(/\$value\$/g, value) + '">' + value + '</a>';
-                                    }
-                                    contents += key + ": " + value + "<br />";
-                                });
-
-                                $('<div id="'+id+'">' + contents + '</div>').css( {
-                                    position: 'absolute',
-                                    display: 'none',
-                                    top: y + 5,
-                                    left: x + 5,
-                                    border: '1px solid #fdd',
-                                    padding: '2px',
-                                    'background-color': '#fee',
-                                    opacity: 0.80
-                                }).appendTo("body").fadeIn(200);
-
-                            }
-
-                            var previousPointHover = null;
-                            $(chart_identifier).bind("plothover", function (event, pos, item) {
-                                if ( item ) {
-                                    if ( previousPointHover != item.dataIndex ) {
-                                        previousPointHover = item.dataIndex;
-                                        $("#hovertip").remove();
-                                        var x    = item.datapoint[0].toFixed(2),
-                                            y    = item.datapoint[1].toFixed(2),
-                                            data = item.series.data[item.dataIndex][2]
-                                        ;
-                                        showTooltip( item.pageX, item.pageY, data, 'hovertip' );
-                                    }
-                                }
-                                else {
-                                    $("#hovertip").remove();
-                                    previousPointHover = null;
-                                }
-                            });
-
-                            var previousPointClick = null;
-                            $(chart_identifier).bind("plotclick", function (event, pos, item) {
-                                if ( item ) {
-                                    if ( previousPointClick != item.dataIndex ) {
-                                        previousPointClick = item.dataIndex;
-                                        $("#clicktip").remove();
-                                        var x    = item.datapoint[0].toFixed(2),
-                                            y    = item.datapoint[1].toFixed(2),
-                                            data = item.series.data[item.dataIndex][2]
-                                        ;
-                                        showTooltip( item.pageX, item.pageY, data, 'clicktip' );
-                                    }
-                                }
-                                else {
-                                    $("#clicktip").remove();
-                                    previousPointClick = null;
-                                }
-                            });
-
-                            function create_search_url(){
-                                var url =
-                                      '/tapper/metareports/detail?chart_id='
-                                    + $act_chart.closest('div.chart_boxs').attr('chart')
-                                    + '&amp;offset='
-                                    + $('#hd_offset_idx').val()
-                                    + '&amp;chart_tag='
-                                    + $('#idx_chart_tag').val()
-                                ;
-                                return url;
-                            }
-
-                            var max_series_length = 0;
-                            for ( var i = 0; i < chart_data.series.length; i = i + 1 ) {
-                                if ( chart_data.series[i].data.length > max_series_length ) {
-                                    max_series_length = chart_data.series[i].data.length;
-                                }
-                            }
-                            if ( Math.floor( $act_chart.width() / 4 ) == max_series_length ) {
-                                $('#dv_searchleft_idx').click(function(){
-                                    location.href = create_search_url() + '&amp;pager_direction=prev';
-                                }).css('cursor','pointer');
-                            }
-                            if (
-                                   $('#hd_offset_idx').val() != 0
-                                && $('#hd_offset_idx').val() != ( 2 * chart_data.offset )
-                            ) {
-                                $('#dv_searchright_idx').click(function(){
-                                    location.href = create_search_url() + '&amp;pager_direction=next';
-                                }).css('cursor','pointer');
-                            }
-
-                            $('#hd_offset_idx').val( chart_data.offset );
-                            $('#bt_create_static_url_idx').click(function(){
-                                $(this)
-                                    .attr('disabled','disabled')
-                                    .val('Saving ...')
-                                ;
-                                var ids = [];
-                                for ( var i = 0; i < chart_data.series.length; i = i + 1 ) {
-                                    ids[i] = {
-                                        data          : [],
-                                        chart_line_id : chart_data.series[i].chart_line_id
-                                    };
-                                    for ( var j = 0; j < chart_data.series[i].data.length; j = j + 1 ) {
-                                        ids[i].data[j] = chart_data.series[i].data[j].additionals.VALUE_ID[0];
-                                    }
-                                }
-
-                                $.ajax({
-                                    method   : 'POST',
-                                    dataType : 'json',
-                                    url      : '/tapper/metareports/create_static_url',
-                                    data     : {
-                                        'json'      : 1,
-                                        'ids'       : $.toJSON( ids ),
-                                        'chart_tag' : $('#idx_chart_tag').val()
-                                    },
-                                    success  : function ( data ) {
-                                        $('#bt_create_static_url_idx').replaceWith(
-                                              '<a href="/tapper/metareports/detail?chart_tiny_url='
-                                            + data.chart_tiny_url_id
-                                            + '&amp;chart_tag='
-                                            + $('#idx_chart_tag').val()
-                                            + '">'
-                                            + 'Go to static URL'
-                                            + '</a>'
-                                        );
-                                    }
-                                });
-                            });
-
-                            if ( chart_data.xaxis_type == 'date' ) {
-                                $.timepicker.regional['de'] = {
-                                    timeOnlyTitle   : 'Select time',
-                                    timeText        : 'Time',
-                                    hourText        : 'Hour',
-                                    minuteText      : 'Minute',
-                                    secondText      : 'Second',
-                                    currentText     : 'New',
-                                    closeText       : 'Select',
-                                    ampm            : false
-                                };
-                                $.timepicker.setDefaults($.timepicker.regional['de']);
-
-                                $('#tx_searchfrom_idx').datetimepicker({
-                                    dateFormat: 'yy-mm-dd',
-                                });
-                                $('#tx_searchto_idx').datetimepicker({
-                                    dateFormat: 'yy-mm-dd',
-                                });
+                            if (! $overview) {
+                                $overview = $.plot( overview_identifier, data.chart, options_overview );
                             }
 
                         }
 
                     }
 
-                    choiceContainer.find("input").click( plotAccordingToChoices );
+                    var max_series_length = 0;
+                    for ( var i = 0; i < chart_data.series.length; i = i + 1 ) {
+                        if ( chart_data.series[i].data.length > max_series_length ) {
+                            max_series_length = chart_data.series[i].data.length;
+                        }
+                    }
+                    if ( Math.floor( $act_chart.width() / 4 ) == max_series_length ) {
+                        $('#dv_searchleft_idx').click(function(){
+                            location.href = create_search_url($act_chart) + '&amp;pager_direction=prev';
+                        }).css('cursor','pointer');
+                    }
+                    if (
+                           $('#hd_offset_idx').val() != 0
+                        && $('#hd_offset_idx').val() != ( 2 * chart_data.offset )
+                    ) {
+                        $('#dv_searchright_idx').click(function(){
+                            location.href = create_search_url($act_chart) + '&amp;pager_direction=next';
+                        }).css('cursor','pointer');
+                    }
 
+                    $(chart_identifier).bind("plotselected", function (event, ranges) {
+
+                        // clamp the zooming to prevent eternal zoom
+                        if (ranges.xaxis.to - ranges.xaxis.from < 0.00001) {
+                            ranges.xaxis.to = ranges.xaxis.from + 0.00001;
+                        }
+                        if (ranges.yaxis.to - ranges.yaxis.from < 0.00001) {
+                            ranges.yaxis.to = ranges.yaxis.from + 0.00001;
+                        }
+
+                        last_ranges = ranges;
+
+                        // set original height
+                        $(chart_identifier).height(chart_identifier_height);
+
+                        plotAccordingToChoices();
+
+                        // don't fire event on the overview to prevent eternal loop
+                        $overview.setSelection(ranges, true);
+
+                    });
+                    $(overview_identifier).bind("plotselected", function (event, ranges) {
+                        plot.setSelection(ranges);
+                    });
+                    $(overview_identifier).bind("plotunselected", function (event, ranges) {
+                        last_ranges = null;
+                        plotAccordingToChoices();
+                    });
+
+                    var previousPointHover = null;
+                    $(chart_identifier).bind("plothover", function (event, pos, item) {
+                        if ( item ) {
+                            if ( previousPointHover != item.dataIndex ) {
+                                previousPointHover = item.dataIndex;
+                                $("#hovertip").remove();
+                                var x    = item.datapoint[0].toFixed(2),
+                                    y    = item.datapoint[1].toFixed(2),
+                                    data = item.series.data[item.dataIndex][2]
+                                ;
+                                showTooltip( item.pageX, item.pageY, data, 'hovertip' );
+                            }
+                        }
+                        else {
+                            $("#hovertip").remove();
+                            previousPointHover = null;
+                        }
+                    });
+
+                    var previousPointClick = null;
+                    $(chart_identifier).bind("plotclick", function (event, pos, item) {
+                        if ( item ) {
+                            if ( previousPointClick != item.dataIndex ) {
+                                previousPointClick = item.dataIndex;
+                                $("#clicktip").remove();
+                                var x    = item.datapoint[0].toFixed(2),
+                                    y    = item.datapoint[1].toFixed(2),
+                                    data = item.series.data[item.dataIndex][2]
+                                ;
+                                showTooltip( item.pageX, item.pageY, data, 'clicktip' );
+                            }
+                        }
+                        else {
+                            $("#clicktip").remove();
+                            previousPointClick = null;
+                        }
+                    });
+
+                    $('#hd_offset_idx').val( chart_data.offset );
+                    $('#bt_create_static_url_idx').click(function(){
+                        $(this)
+                            .attr('disabled','disabled')
+                            .val('Saving ...')
+                        ;
+                        var ids = [];
+                        for ( var i = 0; i < chart_data.series.length; i = i + 1 ) {
+                            ids[i] = {
+                                data          : [],
+                                chart_line_id : chart_data.series[i].chart_line_id
+                            };
+                            for ( var j = 0; j < chart_data.series[i].data.length; j = j + 1 ) {
+                                ids[i].data[j] = chart_data.series[i].data[j].additionals.VALUE_ID[0];
+                            }
+                        }
+
+                        $.ajax({
+                            method   : 'POST',
+                            dataType : 'json',
+                            url      : '/tapper/metareports/create_static_url',
+                            data     : {
+                                'json'      : 1,
+                                'ids'       : $.toJSON( ids ),
+                                'chart_tag' : $('#idx_chart_tag').val()
+                            },
+                            success  : function ( data ) {
+                                $('#bt_create_static_url_idx').replaceWith(
+                                      '<a href="/tapper/metareports/detail?chart_tiny_url='
+                                    + data.chart_tiny_url_id
+                                    + '&amp;chart_tag='
+                                    + $('#idx_chart_tag').val()
+                                    + '">'
+                                    + 'Go to static URL'
+                                    + '</a>'
+                                );
+                            }
+                        });
+                    });
+
+                    choiceContainer.find("input").click( plotAccordingToChoices );
                     plotAccordingToChoices();
 
                 }
@@ -485,6 +448,19 @@ function get_chart_points ( $act_chart, params ) {
             },
         });
     }
+}
+
+function set_plot_height( identifier ) {
+    // get width of text
+    var width = 0;
+    $('div.xAxis > div.tickLabel').each(function(){
+        var label = $('<font>' + $(this).text() + '</font>').appendTo("body");
+        if ( width < label.width() ) {
+            width = label.width();
+        }
+        label.remove();
+    });
+    $(identifier).css( 'height', $(identifier).height() + Math.floor(width/2) );
 }
 
 $(document).ready(function(){
