@@ -537,12 +537,7 @@
                 }
                 else if ( $target.hasClass('clone_line') ) {
                     $('table.chart_marking_add:first')
-                        .before(
-                            $target
-                                .closest('table')
-                                .clone()
-                                .add('<br />')
-                         )
+                        .before($target.closest('table').clone())
                         .prevAll('table.chart_line:first')
                         .find('input.accolumn')
                         .autocomplete(acoptions)
