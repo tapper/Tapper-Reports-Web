@@ -1,10 +1,30 @@
-div.chart_boxs {
-    width           : 1200px;
-    float           : left;
-    margin          :   5px;
+#primaryContent_2columns {
+    margin-right: 0;
 }
-div.charts,
-div.chartsoverview {
+#secondaryContent_2columns {
+    display: none;
+}
+#columnA_2columns {
+    left   : 0;
+    bottom : 0;
+    right  : 0;
+}
+
+#right_box {
+    position: absolute;
+    right: 5px;
+    bottom: 0;
+    top: 25px;
+    left: 1212px;
+}
+div.chart_boxs {
+    position: absolute;
+    left: 5px;
+    top: 25px;
+    right: 410px;
+    bottom: 0;
+}
+div.charts {
     width           : 1200px;
     height          : 600px;
     text-align      : center;
@@ -12,7 +32,10 @@ div.chartsoverview {
     margin-top      :  5px;
 }
 div.chartsoverview {
-    height: 100px;
+    text-align      : center;
+    border          : 1px solid #E1E1E1;
+    width           : 660px;
+    height          : 100px;
 }
 div.charts img,
 div.chartsoverview img {
@@ -64,16 +87,15 @@ div.chart_headers div.icons img {
 #main_inner {
     margin-left: 15px;
 }
-#columnA_2columns {
-    width: 1240px;
-}
 #bt_create_static_url_idx {
     width: 120px;
+    float:left;
+    margin-top: -2px;
 }
 
 #choices {
     border      :    1px solid #E1E1E1;
-    width       : 385px;
+    width       : 650px;
     min-height  :  55px;
     margin-top  :   5px;
     padding     :   5px;
@@ -82,19 +104,17 @@ div.chart_headers div.icons img {
 }
 #idx_tags_area {
     border      :    1px solid #E1E1E1;
-    width       : 385px;
+    width       : 650px;
     min-height  :  50px;
     margin-top  :   5px;
-    margin-left :   5px;
     padding     :   5px;
     float       : left;
 }
 #idx_marking_area {
     border      :    1px solid #E1E1E1;
-    width       : 385px;
+    width       : 650px;
     min-height  :  50px;
     margin-top  :   5px;
-    margin-left :   4px;
     padding     :   5px;
     float       :   left;
 }
@@ -124,8 +144,9 @@ div.chart_headers div.icons img {
     font-size: 30px;
     margin-top: -10px;
 }
-#bt_create_static_url_idx {
-    float: left;
+#idx_chart_version {
+    width: 170px;
+    margin-top:-4px;
 }
 
 .xAxis > .tickLabel {

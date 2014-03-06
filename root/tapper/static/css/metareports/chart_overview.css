@@ -1,3 +1,20 @@
+#primaryContent_2columns {
+    margin-right: 0;
+}
+#secondaryContent_2columns {
+    display: none;
+}
+#columnA_2columns {
+    position: relative;
+    top     : 0;
+    left    : 0;
+    bottom  : 0;
+    right   : 0;
+}
+#main_inner {
+    width   : 1800px;
+}
+
 div.chart_boxs {
     width           : 300px;
     float           : left;
@@ -54,9 +71,6 @@ div.chart_headers div.icons img {
 }
 #main_inner {
     margin-left: 15px;
-}
-#columnA_2columns {
-    width: 1240px;
 }
 input.missing_value {
     border-color: red;

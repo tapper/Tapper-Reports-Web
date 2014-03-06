@@ -112,9 +112,10 @@ function get_chart_points ( $act_chart, params ) {
                     options.yaxis.show  = false;
                 }
 
-                var x_axis_labels    = [];
-                var y_axis_labels    = [];
-                var chart_identifier = "#mainchart_" + chart_id;
+                var x_axis_labels           = [];
+                var y_axis_labels           = [];
+                var chart_identifier        = "#mainchart_" + chart_id;
+                var chart_identifier_height = $(chart_identifier).height();
 
                 if ( chart_data.xaxis_type == 'date' ) {
                     options.xaxis.mode       = "time";
@@ -236,6 +237,7 @@ function get_chart_points ( $act_chart, params ) {
                                 options.grid.markings = [];
                             }
 
+                            $('#idx_marking_area').html('');
                             $.each(chart_data.markings, function( index, marking ){
 
                                 // set marking legend
@@ -262,7 +264,9 @@ function get_chart_points ( $act_chart, params ) {
 
                             });
 
-                            plot = $.plot( chart_identifier, data, options );
+                            // set original height
+                            $(chart_identifier).height(chart_identifier_height);
+                            plot = $.plot( chart_identifier, serialized.chart, options );
                             set_plot_height( chart_identifier );
 
                             var $overview = $.plot( overview_identifier, data, options_overview );
@@ -276,8 +280,11 @@ function get_chart_points ( $act_chart, params ) {
                                     ranges.yaxis.to = ranges.yaxis.from + 0.00001;
                                 }
 
+                                // set original height
+                                $(chart_identifier).height(chart_identifier_height);
+
                                 // do the zooming
-                                var serialized = getData( ranges.xaxis.from, ranges.xaxis.to );
+                                serialized = getData( ranges.xaxis.from, ranges.xaxis.to );
                                 plot = $.plot( chart_identifier, serialized.chart,
                                     $.extend(true, {}, options, {
                                         xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
@@ -285,6 +292,7 @@ function get_chart_points ( $act_chart, params ) {
                                     })
                                 );
 
+                                // set new height
                                 set_plot_height( chart_identifier );
 
                                 // don't fire event on the overview to prevent eternal loop
@@ -398,8 +406,8 @@ function get_chart_points ( $act_chart, params ) {
                                     location.href = create_search_url() + '&amp;pager_direction=next';
                                 }).css('cursor','pointer');
                             }
-                            $('#hd_offset_idx').val( chart_data.offset );
 
+                            $('#hd_offset_idx').val( chart_data.offset );
                             $('#bt_create_static_url_idx').click(function(){
                                 $(this)
                                     .attr('disabled','disabled')
@@ -415,6 +423,7 @@ function get_chart_points ( $act_chart, params ) {
                                         ids[i].data[j] = chart_data.series[i].data[j].additionals.VALUE_ID[0];
                                     }
                                 }
+
                                 $.ajax({
                                     method   : 'POST',
                                     dataType : 'json',
@@ -426,7 +435,7 @@ function get_chart_points ( $act_chart, params ) {
                                     },
                                     success  : function ( data ) {
                                         $('#bt_create_static_url_idx').replaceWith(
-                                              '<a href="/tapper/metareports/detail?chart_tiny_url_id='
+                                              '<a href="/tapper/metareports/detail?chart_tiny_url='
                                             + data.chart_tiny_url_id
                                             + '&amp;chart_tag='
                                             + $('#idx_chart_tag').val()

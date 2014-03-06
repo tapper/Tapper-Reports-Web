@@ -35,9 +35,10 @@ sub hr_get_search : Private {
 
     my ( $or_schema, $hr_params ) = @_;
 
-    my $hr_search;
-    if ( $hr_params->{chart_search_id} ) {
-        $hr_search->{chart_search_id} = $hr_params->{chart_search_id};
+    my ( $hr_search, $ar_join ) = ({},[]);
+    if ( $hr_params->{chart_tiny_url} ) {
+        $hr_search->{chart_tiny_url_id} = $hr_params->{chart_tiny_url};
+        push @{$ar_join}, { 'chart_lines' => 'chart_tiny_url_lines' };
     }
     elsif ( $hr_params->{chart_id} ) {
         if (! $hr_params->{chart_version} ) {
@@ -55,7 +56,7 @@ sub hr_get_search : Private {
         return;
     }
 
-    return $hr_search;
+    return ( $hr_search, $ar_join );
 
 }
 
@@ -64,11 +65,6 @@ sub detail : Local {
     my ( $or_self, $or_c ) = @_;
 
     $or_c->stash->{head_overview} = 'Metareports - Detail';
-
-    # set css file
-    push @{$or_c->stash->{css_files}},
-          '/tapper/static/css/metareports/chart_overview.css'
-    ;
 
     # set css file
     push @{$or_c->stash->{css_files}},
@@ -95,50 +91,27 @@ sub detail : Local {
     my $hr_params = $or_c->req->params;
     my $or_schema = $or_c->model('TestrunDB');
 
-    if ( $hr_params->{chart_tiny_url_id} ) {
-        $or_c->stash->{chart} = $or_schema
-            ->resultset('ChartVersions')
-            ->search({
-                'chart_tiny_url_lines.chart_tiny_url_id' => $hr_params->{chart_tiny_url_id}
-            },{
-                rows => 1,
-                join => [
-                    {
-                        'chart_lines' => 'chart_tiny_url_lines',
-                    },{
-                        'chart' => [
-                            'chart_versions',
-                            { 'chart_tag_relations' => 'chart_tag', },
-                        ],
-                    }
-                ],
-                prefetch => {
-                    'chart' => [
-                        'chart_versions',
-                        { 'chart_tag_relations' => 'chart_tag', },
-                    ],
-                },
-            })
-            ->first
-        ;
-    }
-    elsif ( my $hr_search = hr_get_search( $or_schema, $hr_params ) ) {
+    my ( $hr_search, $ar_join ) = hr_get_search( $or_schema, $hr_params );
+    if ( $hr_search ) {
 
         $or_c->stash->{chart} = $or_schema
             ->resultset('ChartVersions')
             ->search(
                 $hr_search,
                 {
-                    prefetch => [{
-                        'chart_lines' => {
-                            'chart_line_restrictions' => 'chart_line_restriction_values',
+                    join     => $ar_join,
+                    prefetch => [
+                        {
+                            'chart_lines' => {
+                                'chart_line_restrictions' => 'chart_line_restriction_values',
+                            },
+                        },{
+                            'chart' => [
+                                'chart_versions',
+                                { 'chart_tag_relations' => 'chart_tag', },
+                            ],
                         },
-                    },{
-                        'chart' => [
-                            'chart_versions',
-                            { 'chart_tag_relations' => 'chart_tag', },
-                        ],
-                    }],
+                    ],
                 }
             )
             ->first()
@@ -242,7 +215,7 @@ sub get_chart_points : Local {
     my $or_schema = $or_c->model('TestrunDB');
 
     # get chart information
-    my $hr_search = hr_get_search( $or_schema, \%h_params );
+    my ( $hr_search, $ar_join ) = hr_get_search( $or_schema, \%h_params );
     if (! $hr_search ) {
         $or_c->res->status( 500 );
         $or_c->stash->{content} = { error => 'cannot create search condition' };
@@ -251,6 +224,7 @@ sub get_chart_points : Local {
     my $or_chart  = $or_schema->resultset('ChartVersions')->search(
         $hr_search,
         {
+            join     => $ar_join,
             prefetch => [
                 {
                     'chart_lines' => [
@@ -279,7 +253,7 @@ sub get_chart_points : Local {
 
     # update tiny url counter if exists
     my $or_tiny_url;
-    if ( my $i_chart_tiny_url_id = $h_params{chart_tiny_url_id} ) {
+    if ( my $i_chart_tiny_url_id = $h_params{chart_tiny_url} ) {
         $or_tiny_url = $or_c
             ->model('TestrunDB')
             ->resultset('ChartTinyUrls')
@@ -446,6 +420,9 @@ sub get_chart_points : Local {
                         )
                 }
             ];
+
+require Data::Dumper;
+warn Data::Dumper::Dumper($hr_chart_search);
 
             my @a_chart_line_points;
             my $ar_chart_points = $or_bench->search_array( $hr_chart_search );
@@ -845,9 +822,11 @@ sub get_edit_page_chart_hash_by_chart_id {
 
     my ( $hr_params, $or_schema ) = @_;
 
+    my ( $hr_search, $ar_join ) = hr_get_search( $or_schema, $hr_params );
     my $or_chart = $or_schema->resultset('ChartVersions')->search(
-        hr_get_search( $or_schema, $hr_params ),
+        $hr_search,
         {
+            join     => $ar_join,
             prefetch => {
                 'chart'       => {
                     'chart_tag_relations' => 'chart_tag',
