@@ -2293,7 +2293,7 @@ started when the machine boots.
 
      <li>test_program
 
-     <p>startet after boot by the PRC
+     <p>started after boot by the PRC
 
      <li>runtime
 
@@ -2396,7 +2396,7 @@ shell when <code>some_script.sh</code> is called, because we use
 quotes!) is given as parameter <code>--bar</code> to the program. This
 usually <strong>not</strong> what you want.
 
-          <li>Summary: Yo nearly never need quotes.
+          <li>Summary: You nearly never need quotes.
 
           <p>This is good enough:
 
@@ -2865,7 +2865,7 @@ called <dfn>Lazy Precondition</dfn>.
 
 <p>Dynamic precondition assignment is implemented using <dfn>Precondition
 Producers</dfn>. A producer is a modul that is called by the scheduler for
-handling of lazy preconditions. To use a lazy preconditio the user has
+handling of lazy preconditions. To use a lazy precondition the user has
 to assign a precondition of type &lsquo;<samp><span class="samp">producer</span></samp>&rsquo; to the testrun. This
 precondition has to contain the basename of an existing producer
 module and may contain additional parameters. The producer will
@@ -2880,7 +2880,7 @@ package into your test. This can be achieved with the existing
 with a certain filename you should assign the following precondition
 to your testrun.
 
-<pre class="example"><pre class="verbatim">     precontition_type: producer
+<pre class="example"><pre class="verbatim">     precondition_type: producer
      producer: Kernel
 </pre>
 </pre>
