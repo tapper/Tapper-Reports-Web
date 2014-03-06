@@ -263,7 +263,7 @@ function get_chart_points ( $act_chart, params ) {
                                 options.grid.markings = [];
                             }
 
-                            $('#idx_marking_area').html('');
+                            $('#idx_marking_area').html('<legend>markings</legend>');
                             $.each(chart_data.markings, function( index, marking ){
 
                                 // set marking legend
