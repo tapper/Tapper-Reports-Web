@@ -9,6 +9,12 @@ use parent 'Tapper::Reports::Web::Controller::Base';
 use Try::Tiny;
 use Tapper::Benchmark;
 use List::MoreUtils qw( any );
+use Sereal qw(encode_sereal decode_sereal);
+use MCE::Loop
+    chunk_size => 1,
+    freeze     => \&encode_sereal,
+    thaw       => \&decode_sereal,
+;
 
 use 5.010;
 
@@ -275,11 +281,6 @@ sub get_chart_points : Local {
 
         require JSON::XS;
         require YAML::Syck;
-        require Tapper::Benchmark;
-        my $or_bench = Tapper::Benchmark
-            ->new({ dbh => $or_schema->storage->dbh, })
-        ;
-
         require DateTime;
         require DateTime::Format::Epoch;
         require DateTime::Format::Strptime;
@@ -319,7 +320,14 @@ sub get_chart_points : Local {
             $h_params{offset} = 0;
         }
 
-        CHART_LINE: for my $or_chart_line ( @a_chart_lines ) {
+        @a_result = mce_loop {
+
+            require Tapper::Benchmark;
+            my $or_bench = Tapper::Benchmark
+                ->new({ dbh => $or_c->model('TestrunDB')->storage->dbh, })
+            ;
+
+            my $or_chart_line = $a_chart_lines[$_];
 
             my @a_additionals;
             my $b_value_id_exists = 0;
@@ -530,13 +538,13 @@ sub get_chart_points : Local {
 
             } # LOADING_DATA
 
-            push @a_result, {
+            MCE->gather({
                 data          => \@a_chart_line_points,
                 label         => $or_chart_line->chart_line_name,
                 chart_line_id => $or_chart_line->chart_line_id,
-            };
+            });
 
-        }
+        } 0..$#a_chart_lines;
 
         my %h_sort_function = (
             date                  => sub { $_[0] <=> $_[1] },
@@ -1047,9 +1055,6 @@ sub get_edit_page_chart_hash_by_params : Private {
         }
 
     }
-
-require Data::Dumper;
-warn Data::Dumper::Dumper($hr_chart);
 
     return $hr_chart;
 
