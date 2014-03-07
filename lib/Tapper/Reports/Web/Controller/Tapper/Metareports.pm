@@ -254,8 +254,7 @@ sub get_chart_points : Local {
     # update tiny url counter if exists
     my $or_tiny_url;
     if ( my $i_chart_tiny_url_id = $h_params{chart_tiny_url} ) {
-        $or_tiny_url = $or_c
-            ->model('TestrunDB')
+        $or_tiny_url = $or_schema
             ->resultset('ChartTinyUrls')
             ->search({
                 'me.chart_tiny_url_id' => $i_chart_tiny_url_id,
@@ -278,7 +277,7 @@ sub get_chart_points : Local {
         require YAML::Syck;
         require Tapper::Benchmark;
         my $or_bench = Tapper::Benchmark
-            ->new({ dbh => $or_c->model('TestrunDB')->storage->dbh, })
+            ->new({ dbh => $or_schema->storage->dbh, })
         ;
 
         require DateTime;
@@ -414,12 +413,6 @@ sub get_chart_points : Local {
                 else {
                     last LOADING_DATA;
                 }
-
-                my $hr_default_columns = Tapper::Benchmark
-                    ->new({ dbh => Tapper::Model::model()->storage->dbh, })
-                    ->{query}
-                    ->default_columns()
-                ;
 
                 # set select columns
                 $hr_chart_search->{select} = [

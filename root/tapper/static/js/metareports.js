@@ -29,7 +29,7 @@ function get_chart_point_url ( $chart ) {
             chart_point_url += '&amp;offset='           + offset;
         }
 
-        chart_point_ur l    += '&amp;chart_id=' + $chart_box.attr('chart');
+        chart_point_url     += '&amp;chart_id=' + $chart_box.attr('chart');
 
     }
 
