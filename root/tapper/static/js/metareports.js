@@ -1,28 +1,36 @@
 function get_chart_point_url ( $chart ) {
 
-    var $chart_box      = $chart.closest('div.chart_boxs');
     var chart_point_url =
           '/tapper/metareports/get_chart_points?'
         + 'json=1'
-        + '&amp;chart_id=' + $chart_box.attr('chart')
         + '&amp;graph_width=' + $chart.width()
     ;
 
-    var offset              = $('#hd_offset_idx').val();
-    var pager_direction     = $('#hd_pager_direction_idx').val();
-    var chart_tiny_url_id   = $('#hd_chart_tiny_url_idx').val();
-
-    if ( $chart_box.attr('chart_version') ) {
-        chart_point_url += '&amp;chart_version=' + $chart_box.attr('chart_version');
-    }
-    if ( pager_direction ) {
-        chart_point_url += '&amp;pager_direction=' + pager_direction;
-    }
-    if ( offset ) {
-        chart_point_url += '&amp;offset=' + offset;
-    }
+    var chart_tiny_url_id = $('#hd_chart_tiny_url_idx').val();
     if ( chart_tiny_url_id ) {
+
         chart_point_url += '&amp;chart_tiny_url=' + chart_tiny_url_id;
+
+    }
+    else {
+
+        var offset           = $('#hd_offset_idx').val();
+        var $chart_box       = $chart.closest('div.chart_boxs');
+        var chart_version    = $chart_box.attr('chart_version');
+        var pager_direction  = $('#hd_pager_direction_idx').val();
+
+        if ( chart_version ) {
+            chart_point_url += '&amp;chart_version='    + chart_version;
+        }
+        if ( pager_direction ) {
+            chart_point_url += '&amp;pager_direction='  + pager_direction;
+        }
+        if ( offset ) {
+            chart_point_url += '&amp;offset='           + offset;
+        }
+
+        chart_point_ur l    += '&amp;chart_id=' + $chart_box.attr('chart');
+
     }
 
     return chart_point_url;

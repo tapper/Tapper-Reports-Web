@@ -49,11 +49,11 @@
     <div class="charts" id="mainchart_<% $chart->chart_id() %>">
         <img src="/tapper/static/images_red/loader.gif" />
     </div>
-</div>
-<div id="right_box">
     <div class="chartsoverview" id="overviewchart_<% $chart->chart_id() %>">
         <img src="/tapper/static/images_red/loader.gif" />
     </div>
+</div>
+<div id="right_box">
     <fieldset id="choices">
         <legend>chart lines</legend>
     </fieldset>

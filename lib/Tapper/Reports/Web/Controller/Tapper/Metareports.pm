@@ -320,7 +320,7 @@ sub get_chart_points : Local {
             $h_params{offset} = 0;
         }
 
-        for my $or_chart_line ( @a_chart_lines ) {
+        CHART_LINE: for my $or_chart_line ( @a_chart_lines ) {
 
             my @a_additionals;
             my $b_value_id_exists = 0;
@@ -353,177 +353,189 @@ sub get_chart_points : Local {
                 }
             }
 
-            # set where clause with bench_value_id for tiny url
-            if ( $or_tiny_url ) {
-                my $or_chart_tiny_url_line;
-                for my $or_act_line ( $or_tiny_url->chart_tiny_url_line ) {
-                    if ( $or_act_line->chart_line_id == $or_chart_line->chart_line_id ) {
-                        $or_chart_tiny_url_line = $or_act_line;
+            my @a_chart_line_points;
+            LOADING_DATA: {
+
+                # set where clause with bench_value_id for tiny url
+                if ( $or_tiny_url ) {
+                    my $or_chart_tiny_url_line;
+                    for my $or_act_line ( $or_tiny_url->chart_tiny_url_line ) {
+                        if ( $or_act_line->chart_line_id == $or_chart_line->chart_line_id ) {
+                            $or_chart_tiny_url_line = $or_act_line;
+                        }
                     }
-                }
-                $hr_chart_search->{where} = [{
-                    operator => '=',
-                    column   => 'VALUE_ID',
-                    values   => [
-                        map { $_->bench_value_id } $or_chart_tiny_url_line->chart_tiny_url_relation,
-                    ],
-                }];
-            }
-            # set where clause
-            elsif ( $or_chart_line->chart_line_restrictions ) {
-                $hr_chart_search->{where} ||= [];
-                for my $or_chart_line_restriction ( $or_chart_line->chart_line_restrictions ) {
-                    my @a_chart_line_restriction_value;
-                    if ( $or_chart_line_restriction->is_template_restriction ) {
-                        my ( $s_restriction_value_identifier )
-                            = ($or_chart_line_restriction->chart_line_restriction_values)[0]->chart_line_restriction_value
-                        ;
-                        if ( defined $h_params{$s_restriction_value_identifier} ) {
-                            @a_chart_line_restriction_value = @{toarrayref( $h_params{$s_restriction_value_identifier} )};
-                        }
-                        else {
-                            $or_c->stash->{content} = {
-                                error => "missing template parameter '$s_restriction_value_identifier'",
-                            };
-                            return 0;
-                        }
+                    my @a_bench_value_ids = $or_chart_tiny_url_line
+                        ->chart_tiny_url_relation
+                        ->get_column('bench_value_id')
+                        ->all
+                    ;
+                    if ( @a_bench_value_ids ) {
+                        $hr_chart_search->{where} = [{
+                            operator => '=',
+                            column   => 'VALUE_ID',
+                            values   => \@a_bench_value_ids,
+                        }];
                     }
                     else {
-                        @a_chart_line_restriction_value = map {
-                            $_->chart_line_restriction_value
-                        } $or_chart_line_restriction->chart_line_restriction_values;
-                    }
-                    push @{$hr_chart_search->{where}}, {
-                        operator => $or_chart_line_restriction->chart_line_restriction_operator,
-                        column   => $or_chart_line_restriction->chart_line_restriction_column,
-                        values   => \@a_chart_line_restriction_value,
-                    };
-                }
-            }
-
-            my $hr_default_columns = Tapper::Benchmark
-                ->new({ dbh => Tapper::Model::model()->storage->dbh, })
-                ->{query}
-                ->default_columns()
-            ;
-
-            # set select columns
-            $hr_chart_search->{select} = [
-                keys {
-                    map { $_ => 1 }
-                        (
-                            map { $_->axis_column->chart_line_axis_column }
-                            grep { $_->axis_column }
-                            $or_chart_line->chart_axis_elements
-                        ), (
-                            map { $_->[0] } @a_additionals
-                        )
-                }
-            ];
-
-require Data::Dumper;
-warn Data::Dumper::Dumper($hr_chart_search);
-
-            my @a_chart_line_points;
-            my $ar_chart_points = $or_bench->search_array( $hr_chart_search );
-
-            if ( $ar_chart_points && @{$ar_chart_points} ) {
-
-                for my $or_element ( sort { $a->chart_line_axis_element_number <=> $b->chart_line_axis_element_number } $or_chart_line->chart_axis_elements ) {
-                    if ( $or_element->axis_column ) {
-                        push @a_first, [ $or_element->axis_column->chart_line_axis_column, $ar_chart_points->[-1]{$or_element->axis_column->chart_line_axis_column} ];
-                        push @a_last , [ $or_element->axis_column->chart_line_axis_column, $ar_chart_points->[ 0]{$or_element->axis_column->chart_line_axis_column} ];
+                        last LOADING_DATA;
                     }
                 }
+                # set where clause
+                elsif ( $or_chart_line->chart_line_restrictions ) {
+                    $hr_chart_search->{where} ||= [];
+                    for my $or_chart_line_restriction ( $or_chart_line->chart_line_restrictions ) {
+                        my @a_chart_line_restriction_value;
+                        if ( $or_chart_line_restriction->is_template_restriction ) {
+                            my ( $s_restriction_value_identifier )
+                                = ($or_chart_line_restriction->chart_line_restriction_values)[0]->chart_line_restriction_value
+                            ;
+                            if ( defined $h_params{$s_restriction_value_identifier} ) {
+                                @a_chart_line_restriction_value = @{toarrayref( $h_params{$s_restriction_value_identifier} )};
+                            }
+                            else {
+                                $or_c->stash->{content} = {
+                                    error => "missing template parameter '$s_restriction_value_identifier'",
+                                };
+                                return 0;
+                            }
+                        }
+                        else {
+                            @a_chart_line_restriction_value = map {
+                                $_->chart_line_restriction_value
+                            } $or_chart_line_restriction->chart_line_restriction_values;
+                        }
+                        push @{$hr_chart_search->{where}}, {
+                            operator => $or_chart_line_restriction->chart_line_restriction_operator,
+                            column   => $or_chart_line_restriction->chart_line_restriction_column,
+                            values   => \@a_chart_line_restriction_value,
+                        };
+                    }
+                }
+                else {
+                    last LOADING_DATA;
+                }
 
-                for my $hr_point ( @{$ar_chart_points} ) {
+                my $hr_default_columns = Tapper::Benchmark
+                    ->new({ dbh => Tapper::Model::model()->storage->dbh, })
+                    ->{query}
+                    ->default_columns()
+                ;
 
-                    eval {
+                # set select columns
+                $hr_chart_search->{select} = [
+                    keys {
+                        map { $_ => 1 }
+                            (
+                                map { $_->axis_column->chart_line_axis_column }
+                                grep { $_->axis_column }
+                                $or_chart_line->chart_axis_elements
+                            ), (
+                                map { $_->[0] } @a_additionals
+                            )
+                    }
+                ];
 
-                        my $hr_chart_point = { x => q##, y => q##, additionals => {} };
-                        for my $or_element ( sort { $a->chart_line_axis_element_number <=> $b->chart_line_axis_element_number } $or_chart_line->chart_axis_elements ) {
-                            if ( $or_element->axis_column ) {
-                                if ( defined $hr_point->{$or_element->axis_column->chart_line_axis_column} ) {
-                                    $hr_chart_point->{$or_element->chart_line_axis} .= $hr_point->{$or_element->axis_column->chart_line_axis_column};
+                my $ar_chart_points = $or_bench->search_array( $hr_chart_search );
+
+                if ( $ar_chart_points && @{$ar_chart_points} ) {
+
+                    for my $or_element ( sort { $a->chart_line_axis_element_number <=> $b->chart_line_axis_element_number } $or_chart_line->chart_axis_elements ) {
+                        if ( $or_element->axis_column ) {
+                            push @a_first, [ $or_element->axis_column->chart_line_axis_column, $ar_chart_points->[-1]{$or_element->axis_column->chart_line_axis_column} ];
+                            push @a_last , [ $or_element->axis_column->chart_line_axis_column, $ar_chart_points->[ 0]{$or_element->axis_column->chart_line_axis_column} ];
+                        }
+                    }
+
+                    for my $hr_point ( @{$ar_chart_points} ) {
+
+                        eval {
+
+                            my $hr_chart_point = { x => q##, y => q##, additionals => {} };
+                            for my $or_element ( sort { $a->chart_line_axis_element_number <=> $b->chart_line_axis_element_number } $or_chart_line->chart_axis_elements ) {
+                                if ( $or_element->axis_column ) {
+                                    if ( defined $hr_point->{$or_element->axis_column->chart_line_axis_column} ) {
+                                        $hr_chart_point->{$or_element->chart_line_axis} .= $hr_point->{$or_element->axis_column->chart_line_axis_column};
+                                    }
+                                    else {
+                                        die 'missing value for ' . $or_element->chart_line_axis . "-axis\n";
+                                    }
                                 }
                                 else {
-                                    die 'missing value for ' . $or_element->chart_line_axis . "-axis\n";
+                                    $hr_chart_point->{$or_element->chart_line_axis} .= $or_element->axis_separator->chart_line_axis_separator;
                                 }
                             }
-                            else {
-                                $hr_chart_point->{$or_element->chart_line_axis} .= $or_element->axis_separator->chart_line_axis_separator;
+
+                            my ( %h_strp );
+                            if ( $or_chart->chart_axis_type_x->chart_axis_type_name eq 'date' ) {
+                                if ( my $dt_format = $or_chart_line->chart_axis_x_column_format ) {
+                                    require DateTime::Format::Strptime;
+                                    $h_strp{x} = DateTime::Format::Strptime->new( pattern => $dt_format );
+                                }
+                                else {
+                                    $or_c->response->status( 500 );
+                                    $or_c->body('xaxis type is date but no date format is given for "' . $or_chart_line->chart_line_name . '"');
+                                    return 1;
+                                }
                             }
+                            if ( $or_chart->chart_axis_type_y->chart_axis_type_name eq 'date' ) {
+                                if ( my $dt_format = $or_chart_line->chart_axis_y_column_format ) {
+                                    require DateTime::Format::Strptime;
+                                    $h_strp{y} = DateTime::Format::Strptime->new( pattern => $dt_format );
+                                }
+                                else {
+                                    $or_c->response->status( 500 );
+                                    $or_c->body('yaxis type is date but no date format is given for "' . $or_chart_line->chart_line_name . '"');
+                                    return 1;
+                                }
+                            }
+
+                            for my $s_axis (qw/ x y /) {
+                                $hr_chart_point->{$s_axis.'o'} = $hr_chart_point->{$s_axis};
+                                if ( $h_strp{$s_axis} ) {
+                                    $hr_chart_point->{$s_axis} = $formatter->format_datetime(
+                                        $h_strp{$s_axis}->parse_datetime( $hr_chart_point->{$s_axis.'o'} )
+                                    );
+                                }
+                            }
+
+                            if ( $or_chart->order_by_x_axis == 1 && $or_chart->order_by_y_axis == 2 ) {
+                                $hr_chart_point->{'yh'} = $hr_chart_point->{'x'}.'|-|'.$hr_chart_point->{'y'};
+                            }
+                            elsif ( $or_chart->order_by_x_axis == 2 && $or_chart->order_by_y_axis == 1 ) {
+                                $hr_chart_point->{'xh'} = $hr_chart_point->{'y'}.'|-|'.$hr_chart_point->{'x'};
+                            }
+
+                            for my $s_axis (qw/ x y /) {
+                                if ( $h_label_type{$s_axis} eq 'list' ) {
+                                    $hr_chart_point->{$s_axis.'h'} //= $hr_chart_point->{$s_axis.'o'};
+                                    $hr_chart_point->{$s_axis}       = $h_axis{$s_axis}{$hr_chart_point->{$s_axis.'h'}} //= $h_counter{$s_axis}++;
+                                }
+                            }
+
+                            for my $ar_chart_line_addition ( @a_additionals ) {
+                                $hr_chart_point->{additionals}{$ar_chart_line_addition->[0]} = [
+                                    $hr_point->{$ar_chart_line_addition->[0]},
+                                ];
+                                if ( $ar_chart_line_addition->[1] ) {
+                                    $hr_chart_point->{additionals}{$ar_chart_line_addition->[0]}[1] =
+                                        $ar_chart_line_addition->[1];
+                                }
+                            }
+
+                            if (( defined $hr_chart_point->{x} ) && ( defined $hr_chart_point->{y} )) {
+                                push @a_chart_line_points, $hr_chart_point;
+                            }
+
+                        };
+                        if ( $@ ) {
+                            push @a_chart_line_point_warnings, $@;
                         }
 
-                        my ( %h_strp );
-                        if ( $or_chart->chart_axis_type_x->chart_axis_type_name eq 'date' ) {
-                            if ( my $dt_format = $or_chart_line->chart_axis_x_column_format ) {
-                                require DateTime::Format::Strptime;
-                                $h_strp{x} = DateTime::Format::Strptime->new( pattern => $dt_format );
-                            }
-                            else {
-                                $or_c->response->status( 500 );
-                                $or_c->body('xaxis type is date but no date format is given for "' . $or_chart_line->chart_line_name . '"');
-                                return 1;
-                            }
-                        }
-                        if ( $or_chart->chart_axis_type_y->chart_axis_type_name eq 'date' ) {
-                            if ( my $dt_format = $or_chart_line->chart_axis_y_column_format ) {
-                                require DateTime::Format::Strptime;
-                                $h_strp{y} = DateTime::Format::Strptime->new( pattern => $dt_format );
-                            }
-                            else {
-                                $or_c->response->status( 500 );
-                                $or_c->body('yaxis type is date but no date format is given for "' . $or_chart_line->chart_line_name . '"');
-                                return 1;
-                            }
-                        }
-
-                        for my $s_axis (qw/ x y /) {
-                            $hr_chart_point->{$s_axis.'o'} = $hr_chart_point->{$s_axis};
-                            if ( $h_strp{$s_axis} ) {
-                                $hr_chart_point->{$s_axis} = $formatter->format_datetime(
-                                    $h_strp{$s_axis}->parse_datetime( $hr_chart_point->{$s_axis.'o'} )
-                                );
-                            }
-                        }
-
-                        if ( $or_chart->order_by_x_axis == 1 && $or_chart->order_by_y_axis == 2 ) {
-                            $hr_chart_point->{'yh'} = $hr_chart_point->{'x'}.'|-|'.$hr_chart_point->{'y'};
-                        }
-                        elsif ( $or_chart->order_by_x_axis == 2 && $or_chart->order_by_y_axis == 1 ) {
-                            $hr_chart_point->{'xh'} = $hr_chart_point->{'y'}.'|-|'.$hr_chart_point->{'x'};
-                        }
-
-                        for my $s_axis (qw/ x y /) {
-                            if ( $h_label_type{$s_axis} eq 'list' ) {
-                                $hr_chart_point->{$s_axis.'h'} //= $hr_chart_point->{$s_axis.'o'};
-                                $hr_chart_point->{$s_axis}       = $h_axis{$s_axis}{$hr_chart_point->{$s_axis.'h'}} //= $h_counter{$s_axis}++;
-                            }
-                        }
-
-                        for my $ar_chart_line_addition ( @a_additionals ) {
-                            $hr_chart_point->{additionals}{$ar_chart_line_addition->[0]} = [
-                                $hr_point->{$ar_chart_line_addition->[0]},
-                            ];
-                            if ( $ar_chart_line_addition->[1] ) {
-                                $hr_chart_point->{additionals}{$ar_chart_line_addition->[0]}[1] =
-                                    $ar_chart_line_addition->[1];
-                            }
-                        }
-
-                        if (( defined $hr_chart_point->{x} ) && ( defined $hr_chart_point->{y} )) {
-                            push @a_chart_line_points, $hr_chart_point;
-                        }
-
-                    };
-                    if ( $@ ) {
-                        push @a_chart_line_point_warnings, $@;
                     }
 
                 }
 
-            }
+            } # LOADING_DATA
 
             push @a_result, {
                 data          => \@a_chart_line_points,
@@ -1117,7 +1129,10 @@ sub toarrayref : Private {
 
     my ( $value ) = @_;
 
-    if ( ref( $value ) ne 'ARRAY' ) {
+    if ( not defined $value ) {
+        return [];
+    }
+    elsif ( ref( $value ) ne 'ARRAY' ) {
         return [ $value ];
     }
 

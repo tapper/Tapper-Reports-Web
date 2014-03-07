@@ -32,9 +32,10 @@ div.charts {
     margin-top      :  5px;
 }
 div.chartsoverview {
+    margin-top      : 5px;
     text-align      : center;
     border          : 1px solid #E1E1E1;
-    width           : 660px;
+    width           : 1200px;
     height          : 100px;
 }
 div.charts img,
@@ -97,7 +98,7 @@ div.chart_headers div.icons img {
     border      :    1px solid #E1E1E1;
     width       : 650px;
     min-height  :  55px;
-    margin-top  :   5px;
+    margin-top  :  -8px;
     padding     :   5px;
     padding-top :   0;
     float       : left;
