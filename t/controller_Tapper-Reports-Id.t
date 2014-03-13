@@ -7,7 +7,7 @@ use Test::Fixture::DBIC::Schema;
 use Test::More;
 
 # -----------------------------------------------------------------------------------------------------------------
-construct_fixture( schema  => reportsdb_schema, fixture => 't/fixtures/reportsdb/report.yml' );
+construct_fixture( schema  => testrundb_schema, fixture => 't/fixtures/testrundb/report.yml' );
 # -----------------------------------------------------------------------------------------------------------------
 
 
@@ -17,7 +17,7 @@ BEGIN { use_ok 'Tapper::Reports::Web::Controller::Tapper::Reports::Id' }
 #ok( request('/tapper/reports/id')->is_success, 'Request should succeed' );
 
 #my $controller = Tapper::Reports::Web::Controller::Tapper::Reports::Id->new;
-my $report     = reportsdb_schema->resultset('Report')->find(23);
+my $report     = testrundb_schema->resultset('Report')->find(23);
 unlike($report->tap->tapdom, qr/\$VAR1/, "no tapdom yet");
 my $tapdom = $report->get_cached_tapdom;
 is(Scalar::Util::reftype($tapdom), "ARRAY", "got tapdom");

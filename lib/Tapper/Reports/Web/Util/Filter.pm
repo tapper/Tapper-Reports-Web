@@ -70,7 +70,7 @@ sub date
                 return $filter_condition;
         }
 
-        my $dtf = model("ReportsDB")->storage->datetime_parser;
+        my $dtf = model("TestrunDB")->storage->datetime_parser;
 
         $filter_condition->{date} = $requested_day->ymd('/');
         $self->requested_day($requested_day);
@@ -92,7 +92,7 @@ sub days
         my $requested_day  = $parser->parse_datetime("today at midnight");
         $self->requested_day($requested_day);
 
-        my $dtf = model("ReportsDB")->storage->datetime_parser;
+        my $dtf = model("TestrunDB")->storage->datetime_parser;
 
         my $yesterday = $parser->parse_datetime("today at midnight")->subtract(days => $days);
         $filter_condition->{early}->{created_at} = {'>' => $dtf->format_datetime($yesterday)};

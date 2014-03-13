@@ -4,6 +4,7 @@
 %       my $href  = $nav->{href}  || '';
 %       my $title = $nav->{title} || '';
 %       my $image = $nav->{image} || '';
+%       my $i_id  = $nav->{id}    || '';
 %       my $subnavi = $nav->{subnavi};
 	<h4>
 %           if ($subnavi) {
@@ -18,22 +19,28 @@
                 </span>
 %           }
         </h4>
+        <ul id="<% $i_id %>">
 %               if ($subnavi and @$subnavi) {
-                        <ul>
 %                       foreach my $snav (@$subnavi) {
 %                               my $shref  = $snav->{href}  || '';
 %                               my $stitle = $snav->{title} || '';
 %                               my $simage = $snav->{image} || '';
                                 <li>
-%                                if ($simage) {
-                                    <a class="navilink" href="<% $shref %>" ><img src="<% $simage %>"></a>
-%                                } else {
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-%                                }
-                                <a href="<% $shref %>" ><% $stitle %></a><br /></li>
+%                                       if ( $shref ) {
+%                                               if ($simage) {
+                                                        <a class="navilink" href="<% $shref %>" ><img src="<% $simage %>"></a>
+%                                               } else {
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;
+%                                               }
+                                                <a href="<% $shref %>" ><% $stitle %></a><br />
+%                                       }
+%                                       else {
+                                                <% $stitle %>
+%                                       }
+                                </li>
 %                       }
-                        </ul>
 %               }
+        </ul>
 % }
 </%method>
 % my %metareport;

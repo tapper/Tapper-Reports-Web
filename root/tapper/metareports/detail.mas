@@ -1,0 +1,203 @@
+<%args>
+    $chart
+</%args>
+
+<style type="text/css">
+    div.chart_boxs {
+        width           : 1200px;
+        float           : left;
+        margin          :   5px;
+    }
+    div.charts,
+    div.chartsoverview {
+        width           : 1200px;
+        height          : 600px;
+        text-align      : center;
+        border          : 1px solid #E1E1E1;
+        margin-top      :  5px;
+    }
+    div.chartsoverview {
+        height: 100px;
+    }
+    div.charts img,
+    div.chartsoverview img {
+        position        : relative;
+        top             : 35px;
+        border          : none;
+    }
+    div.charts img.newimage {
+        top             : 30px;
+    }
+    div.chart_headers {
+        border          :    1px solid #E1E1E1;
+        width           : 1200px;
+        height          :   21px;
+    }
+    div.chart_headers div.search {
+        float: left;
+        width: 646px;
+        padding-left: 4px;
+    }
+    div.chart_headers div.search a,
+    div.chart_headers div.search div {
+        float: left;
+    }
+    div.chart_headers div.search a,
+    div.chart_headers div.search font {
+        margin-top  : 3px;
+        margin-left : 3px;
+        margin-right: 3px;
+    }
+    div.chart_headers div.text {
+        float: left;
+        width: 502px;
+        margin-top: 3px;
+        padding-left: 4px;
+    }
+    div.chart_headers div.icons {
+        float: left;
+        width: 42px;
+        margin-top: 3px;
+    }
+    div.chart_headers div.icons img {
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-left: -4px;
+        margin-top: -1px;
+    }
+    #main_inner {
+        margin-left: 15px;
+    }
+    #columnA_2columns {
+        width: 1240px;
+    }
+    #bt_create_static_url_idx {
+        width: 120px;
+    }
+    #choices {
+        border      :    1px solid #E1E1E1;
+        width       : 1195px;
+        margin-top  : 5px;
+        padding-left: 5px;
+        padding-top : 0;
+    }
+    #choices input {
+        position: relative;
+        top: -10px;
+    }
+    #choices label {
+        position: relative;
+        top: -12px;
+        margin-left: 3px;
+    }
+    #dv_searchleft_idx,
+    #dv_searchright_idx {
+        font-size: 30px;
+        margin-top: -10px;
+    }
+    #bt_create_static_url_idx {
+        float: left;
+    }
+
+    .xAxis > .tickLabel {
+        white-space         : nowrap;
+        margin-top          : 5px;
+        /* set 90° Rotation of x-axis labels for Firefox, IE, Safari and Chrome */
+        -moz-transform      : rotate(45deg);
+        -o-transform        : rotate(45deg);
+        -webkit-transform   : rotate(45deg);
+        filter              : progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+    }
+
+    /* css for timepicker */
+    .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+    .ui-timepicker-div dl { text-align: left; }
+    .ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }
+    .ui-timepicker-div dl dd { margin: 0 10px 10px 45%; }
+    .ui-timepicker-div td { font-size: 90%; }
+    .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+    .ui-timepicker-rtl{ direction: rtl; }
+    .ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
+    .ui-timepicker-rtl dl dt{ float: right; clear: right; }
+    .ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }
+
+</style>
+
+<a href="/tapper/metareports?owner_id=<% $c->req->params->{owner_id} %>">&laquo; back to overview</a>
+
+<br /><br />
+
+<input type="hidden" id="idx_owner" value="<% $c->req->params->{owner_id} %>" />
+<input type="hidden" id="hd_pager_direction_idx" value="<% $c->req->params->{pager_direction} %>" />
+<input type="hidden" id="hd_offset_idx" value="<% $c->req->params->{offset} || 0 %>" />
+<input type="hidden" id="hd_chart_tiny_url_idx" value="<% $c->req->params->{chart_tiny_url_id} %>" />
+
+<div class="chart_boxs" chart="<% $chart->chart_id() %>">
+    <div class="chart_headers">
+        <div class="text">
+            <% $chart->chart_name() %>
+        </div>
+        <div class="search">
+%           if ( $c->req->params->{chart_tiny_url_id} ) {
+                &nbsp;<font>Static Url called</font>&nbsp;
+%           }
+%           else {
+                <div id="dv_searchleft_idx">&laquo;</div>
+                &nbsp;<input id="bt_create_static_url_idx" type="button" value="Create static Url" />&nbsp;
+                <div id="dv_searchright_idx">&raquo;</div>
+%           }
+        </div>
+        <div class="icons">
+            <img src="/tapper/static/images/edit.small.png" title="edit" class="imgedit" />
+            <img src="/tapper/static/images/clone.small.png" title="edit as new" class="imgeditasnew" />
+            <img src="/tapper/static/images/delete.small.png" title="delete" class="imgdel" />
+        </div>
+    </div>
+    <div class="charts" id="mainchart_<% $chart->chart_id() %>">
+        <img src="/tapper/static/images_red/loader.gif" />
+    </div>
+    <div class="chartsoverview" id="overviewchart_<% $chart->chart_id() %>">
+        <img src="/tapper/static/images_red/loader.gif" />
+    </div>
+    <div id="choices"></div>
+</div>
+
+<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.css" />
+<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.core.css" />
+<link rel="stylesheet" type="text/css" href="/tapper/static/css/jquery-ui/jquery.ui.datepicker.css" />
+
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.core.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.datepicker.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-ui/jquery.ui.effect-slide.js"></script>
+
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/metareports.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.json.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.time.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.flot.selection.js"></script>
+<script language="JavaScript" type="text/javascript" src="/tapper/static/js/jquery-plugins/jquery.timepicker.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+        get_chart_points( $("div.charts"), true );
+
+        $('#columnA_2columns img.imgdel').click(function(){
+            if ( confirm("Really delete chart?") == true ) {
+                location.href = '/tapper/metareports/delete_chart?owner_id='+$('#idx_owner').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');
+            }
+        });
+        $('#columnA_2columns img.imgedit').click(function(){
+            location.href = '/tapper/metareports/edit_chart?owner_id='+$('#idx_owner').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');
+        });
+        $('#columnA_2columns img.imgeditasnew').click(function(){
+            location.href = '/tapper/metareports/edit_chart?asnew=1&amp;owner_id='+$('#idx_owner').val()+"&amp;chart_id="+$(this).closest('.chart_boxs').attr('chart');
+        });
+
+    });
+
+</script>

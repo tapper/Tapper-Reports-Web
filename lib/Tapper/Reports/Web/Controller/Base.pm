@@ -54,6 +54,10 @@ sub begin :Private
 {
         my ( $self, $c ) = @_;
 
+        require Tapper::Config;
+        if (Tapper::Config->subconfig->{web}->{we_have_a_problem}) {
+                $c->stash->{we_have_a_problem} = Tapper::Config->subconfig->{web}->{we_have_a_problem};
+        }
         $c->stash->{logo}   = Tapper::Config->subconfig->{web}{logo};
         $c->stash->{title}  = Tapper::Config->subconfig->{web}{title};
         $c->stash->{footer} = Tapper::Config->subconfig->{web}{footer};

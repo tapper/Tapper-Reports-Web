@@ -31,7 +31,7 @@ sub recently_used_suites
         } else {
                 $timeframe = DateTime->now->subtract(weeks => 12);
         }
-        my $dtf = $c->model("ReportsDB")->storage->datetime_parser;
+        my $dtf = $c->model("TestrunDB")->storage->datetime_parser;
         $suite_rs  = $suite_rs->search({'reports.created_at' => {'>=' => $dtf->format_datetime($timeframe) }});
         return $suite_rs;
 }
@@ -67,7 +67,7 @@ sub suite
 
         my %search_options    = ( prefetch => ['reports'] );
 
-        my $suite_rs = $c->model('ReportsDB')->resultset('Suite')->search($filter_condition->{early}, { %search_options } );
+        my $suite_rs = $c->model('TestrunDB')->resultset('Suite')->search($filter_condition->{early}, { %search_options } );
         foreach my $filter (@{$filter_condition->{late}}) {
                 $suite_rs = $suite_rs->search($filter);
         }
@@ -82,7 +82,7 @@ sub host
 {
         my ( $self, $c, $filter_condition ) = @_;
 
-        my $reports = $c->model('ReportsDB')->resultset('Report')->search($filter_condition->{early},
+        my $reports = $c->model('TestrunDB')->resultset('Report')->search($filter_condition->{early},
                                                                           { columns => [ qw/machine_name/ ],
                                                                             distinct => 1,
                                                                           });

@@ -7,4 +7,4 @@ BEGIN { use_ok 'Tapper::Reports::Web::Controller::Tapper' }
 
 ok( request('/tapper')->is_success, 'Request should succeed' );
 
-
+done_testing();
