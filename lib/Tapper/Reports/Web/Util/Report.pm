@@ -7,15 +7,15 @@ extends 'Tapper::Reports::Web::Util';
 
 use common::sense;
 
+sub prepare_simple_reportlist {
 
-sub prepare_simple_reportlist
-{
         my ( $self, $c, $reports ) = @_;
 
         # Mnemonic:
         #           rga = ReportGroup Arbitrary
         #           rgt = ReportGroup Testrun
 
+        my $or_schema = model('TestrunDB');
         my @all_reports;
         my @reports;
         my %rgt;
@@ -41,7 +41,6 @@ sub prepare_simple_reportlist
                          created_at_ymd        => $report->created_at->ymd('-'),
                          success_ratio         => $report->success_ratio,
                          successgrade          => $report->parse_errors ? 'ERROR' : $report->successgrade,
-                         reviewed_successgrade => $report->reviewed_successgrade,
                          total                 => $report->total,
                          rga_id                => $rga_id,
                          rga_primary           => $rga_primary,
@@ -51,10 +50,10 @@ sub prepare_simple_reportlist
                          peerport              => $report->peerport,
                          peeraddr              => $report->peeraddr,
                          peerhost              => $report->peerhost,
-                        };
+                };
 
                 # --- scheduling state ---
-                my $testrun_scheduling = model('TestrunDB')->resultset('TestrunScheduling')->search({testrun_id => $rgt_id}, {rows => 1})->first;
+                my $testrun_scheduling = $or_schema->resultset('TestrunScheduling')->search({testrun_id => $rgt_id}, {rows => 1})->first;
                 $r->{testrunscheduling_status} = $testrun_scheduling->status if $testrun_scheduling;
 
                 # --- arbitrary ---
@@ -120,7 +119,7 @@ sub prepare_simple_reportlist
                 reports     => \@reports,
                 rga         => \%rga,
                 rgt         => \%rgt,
-               };
+        };
 }
 
 

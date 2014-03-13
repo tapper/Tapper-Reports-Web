@@ -95,7 +95,7 @@ sub index :Path :Args(1)
         $c->stash->{reportlist_rga} = {};
         $c->stash->{reportlist_rgt} = {};
         $c->stash->{overview}       = undef;
-        $c->stash->{report}         = $c->model('ReportsDB')->resultset('Report')->find($report_id);
+        $c->stash->{report}         = $c->model('TestrunDB')->resultset('Report')->find($report_id);
 
         if (not $c->stash->{report}) {
                 $c->response->body("No such report");
@@ -116,8 +116,8 @@ sub index :Path :Args(1)
         my $util_report = Tapper::Reports::Web::Util::Report->new();
 
         if (my $rga = $c->stash->{report}->reportgrouparbitrary) {
-                #my $rga_reports = $c->model('ReportsDB')->resultset('ReportgroupArbitrary')->search ({ arbitrary_id => $rga->arbitrary_id });
-                my $rga_reports = $c->model('ReportsDB')->resultset('Report')->search
+                #my $rga_reports = $c->model('TestrunDB')->resultset('ReportgroupArbitrary')->search ({ arbitrary_id => $rga->arbitrary_id });
+                my $rga_reports = $c->model('TestrunDB')->resultset('Report')->search
                     (
                      {
                       "reportgrouparbitrary.arbitrary_id" => $rga->arbitrary_id
@@ -140,8 +140,8 @@ sub index :Path :Args(1)
         }
 
         if (my $rgt = $c->stash->{report}->reportgrouptestrun) {
-                #my $rgt_reports = $c->model('ReportsDB')->resultset('ReportgroupTestrun')->search ({ testrun_id => $rgt->testrun_id });
-                my $rgt_reports = $c->model('ReportsDB')->resultset('Report')->search
+                #my $rgt_reports = $c->model('TestrunDB')->resultset('ReportgroupTestrun')->search ({ testrun_id => $rgt->testrun_id });
+                my $rgt_reports = $c->model('TestrunDB')->resultset('Report')->search
                     (
                      {
                       "reportgrouptestrun.testrun_id" => $rgt->testrun_id

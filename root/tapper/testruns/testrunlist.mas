@@ -49,7 +49,7 @@
                         </td>
                         <td>
 % if ($testrun->{status} eq 'finished'){
-<a href="/tapper/reports/id/<% $testrun->{primary_report_id} || '' %>" title="<% $testrun->{success_ratio} || '' %>% - Click to show details"><img src="/tapper/static/images/green_bar.png" height="16" width="<% $green_width %>"><img src="/tapper/static/images/red_bar.png" height="16" width="<% $red_width %>"></a>
+<a href="/tapper/testruns/id/<% $testrun->{testrun_id} || '' %>" title="<% $testrun->{success_ratio} || '' %>% - Click to show details"><img src="/tapper/static/images/green_bar.png" height="16" width="<% $green_width %>"><img src="/tapper/static/images/red_bar.png" height="16" width="<% $red_width %>"></a>
 % }
                         </td>
                         <td>

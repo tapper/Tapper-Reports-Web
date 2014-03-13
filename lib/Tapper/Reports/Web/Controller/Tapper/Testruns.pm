@@ -7,9 +7,12 @@ use DateTime::Format::DateParse;
 use DateTime;
 use File::Basename;
 use File::Path;
+use List::Util 'max';
 use Template;
+use YAML::Syck;
 
 use Tapper::Cmd::Testrun;
+use Tapper::Cmd::Precondition;
 use Tapper::Config;
 use Tapper::Model 'model';
 use Tapper::Reports::Web::Util::Testrun;
@@ -18,14 +21,6 @@ use Tapper::Reports::Web::Util::Filter::Testrun;
 use common::sense;
 ## no critic (RequireUseStrict)
 
-
-
-sub auto :Private
-{
-        my ( $self, $c ) = @_;
-
-        $c->forward('/tapper/testruns/prepare_navi');
-}
 
 
 =head2 index
@@ -47,9 +42,10 @@ sub index :Path :Args()
 
         if ($filter_condition->{error}) {
                 $c->flash->{error_msg} = join("; ", @{$filter_condition->{error}});
-                $c->res->redirect("/tapper/testruns/days/2");
+                $c->res->redirect("/tapper/testruns");
         }
         $c->forward('/tapper/testruns/prepare_testrunlists', [ $filter_condition, $filter->requested_day ]);
+        $c->forward('/tapper/testruns/prepare_navi');
         return;
 }
 
@@ -180,13 +176,16 @@ sub rerun : Chained('id') PathPart('rerun') Args(0)
                 $c->response->body(qq(Can not rerun testrun));
                 return;
         }
-        $c->stash(testrun => $c->model('TestrunDB')->resultset('Testrun')->find($retval));
+        $c->stash(testrun => $retval);
 }
 
 sub preconditions : Chained('id') PathPart('preconditions') CaptureArgs(0)
 {
         my ( $self, $c ) = @_;
         $c->stash(preconditions => [$c->stash->{testrun}->ordered_preconditions]);
+        my @preconditions_as_hash = map { $_->precondition_as_hash } $c->stash->{testrun}->ordered_preconditions;
+        $YAML::Syck::SortKeys  = 1;
+        $c->stash->{precondition_string} = YAML::Syck::Dump(@preconditions_as_hash);
 }
 
 sub as_yaml : Chained('preconditions') PathPart('yaml') Args(0)
@@ -195,18 +194,75 @@ sub as_yaml : Chained('preconditions') PathPart('yaml') Args(0)
 
         my $id = $c->stash->{testrun}->id;
 
-        my @preconditions;
-        foreach my $precondition (@{$c->stash->{preconditions}}) {
-                push @preconditions, $precondition->precondition;
-        }
-        if (@preconditions) {
+        if (@{$c->stash->{preconditions} || []}) {
                 $c->response->content_type ('text/plain');
                 $c->response->header ("Content-Disposition" => 'inline; filename="precondition-'.$id.'.yml"');
-                $c->response->body ( join "", @preconditions);
+                $c->response->body ( $c->stash->{precondition_string});
         } else {
                 $c->response->body ("No preconditions assigned");
         }
 }
+
+sub validate_yaml
+{
+        my ($data) = @_;
+        eval {
+                YAML::Syck::Load($data);
+        };
+        return $@;
+}
+
+sub edit : Chained('preconditions') PathPart('edit') Args(0) :FormConfig
+{
+        my ($self, $c) = @_;
+        my ($max_line, $line_count) = (0,0);
+
+        my @lines = split "\n", $c->stash->{precondition_string};
+        foreach my $line (@lines) {
+                $max_line = max($max_line, length($line));
+        }
+
+        my $form = $c->stash->{form};
+
+        if ($form->submitted_and_valid) {
+                my $data = $form->input->{preconditions};
+
+                # check whether user entered valid YAML
+                my $error = validate_yaml($data);
+                if ($error) {
+                        $c->stash(message => "<emp>Error</emp>: $error");
+                } else {
+                        my @precondition_ids = eval {
+                                my $precond_cmd = Tapper::Cmd::Precondition->new();
+                                $precond_cmd->add($data);
+                        };
+                        if ($@) {
+                                $c->stash(message => "<emp>Error</emp>: $@");
+                                return;
+                        }
+
+                        $c->stash->{testrun}->disassign_preconditions();
+                        my $retval = $c->stash->{testrun}->assign_preconditions(@precondition_ids);
+                        if ($retval) {
+                                $c->stash(message => "<emp>Error</emp>: $retval");
+                        } else {
+                                $c->stash(message => "New precondition assigned to testrun");
+                        }
+                }
+        } else {
+                my $text = $form->get_element({type => 'Textarea',
+                                               name => 'preconditions'});
+                $text->rows(int @lines);
+                $text->cols($max_line);
+                $text->default($c->stash->{precondition_string});
+        }
+}
+
+sub update_precondition : Chained('base') PathPart('update_precondition')
+{
+        my ($self, $c) = @_;
+}
+
 
 sub show_precondition : Chained('preconditions') PathPart('show') Args(0)
 {
@@ -548,11 +604,11 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
 
                         $c->stash->{all_testruns}[$i]{host} = $host;
 
-                        $testrun_settings{requested_hosts} = [ requested_hosts => $host ];
+                        $testrun_settings{requested_hosts} = $host;
                         my $cmd = Tapper::Cmd::Testrun->new();
                         eval { $config->{testrun_id} = $cmd->add(\%testrun_settings)};
                         if ($@) {
-                                $c->stash->{all_testruns}[$i]{ error } = @_;
+                                $c->stash->{all_testruns}[$i]{error} = $@;
                                 next HOST;
                         }
                         $c->stash->{all_testruns}[$i]{id} = $config->{testrun_id};
@@ -570,118 +626,127 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
 }
 
 
-sub prepare_testrunlists : Private
-{
-        my ( $self, $c, $filter_condition, $requested_day ) = @_;
+sub prepare_testrunlists : Private {
 
-        $filter_condition = {} unless ref $filter_condition eq 'HASH';
+        my ( $or_self, $or_c, $hr_filter_condition ) = @_;
 
-        # requested time period
-        $c->stash->{days}   = $filter_condition->{days};
-        $c->stash->{date}   = $filter_condition->{date};
-        $requested_day ||= DateTime::Format::Natural->new->parse_datetime("today at midnight");
+        my $b_view_pager  = 0;
+        my $hr_params     = $or_c->req->params;
+        my $hr_query_vals = {
+            testrun_id          => $hr_filter_condition->{testrun_id},
+            host                => $hr_filter_condition->{host},
+            topic               => $hr_filter_condition->{topic},
+            state               => $hr_filter_condition->{state},
+            success             => $hr_filter_condition->{success},
+            owner               => $hr_filter_condition->{owner},
+        };
 
-        my $lastday = $c->stash->{days} ? $c->stash->{days} - 1 : 6;
-        my $util    = Tapper::Reports::Web::Util::Testrun->new();
-        # ----- general -----
-
-        my $testruns = $c->model('TestrunDB')->resultset('Testrun')->search
-          (
-           $filter_condition->{early},
-           { order_by => 'me.id desc' }
-          );
-        foreach my $filter (@{$filter_condition->{late}}) {
-                $testruns = $testruns->search($filter);
+        require DateTime;
+        if ( $hr_params->{testrun_date} ) {
+            $hr_filter_condition->{testrun_date} = DateTime::Format::Strptime->new(
+                pattern => '%F',
+            )->parse_datetime( $hr_params->{testrun_date} );
+        }
+        elsif (! $hr_filter_condition->{testrun_id} ) {
+                $hr_filter_condition->{testrun_date} = DateTime->now();
+        }
+        if ( $hr_params->{pager_sign} && $hr_params->{pager_value} ) {
+            if ( $hr_params->{pager_sign} eq 'negative' ) {
+                $hr_filter_condition->{testrun_date}->subtract(
+                    $hr_params->{pager_value} => 1
+                );
+            }
+            elsif ( $hr_params->{pager_sign} eq 'positive' ) {
+                $hr_filter_condition->{testrun_date}->add(
+                    $hr_params->{pager_value} => 1
+                );
+            }
         }
 
+        if ( $hr_filter_condition->{testrun_date} ) {
 
-        my $parser = new DateTime::Format::Natural;
+            $or_c->stash->{pager_interval}  = $hr_params->{pager_interval} || 1;
+            $or_c->stash->{testrun_date}    = $hr_filter_condition->{testrun_date};
 
-        my @day    = ( $requested_day );
-        push @day, $requested_day->clone->subtract( days => $_ ) foreach 1..$lastday;
+            # set testrun date
+            my $d_testrun_date_from = $hr_filter_condition->{testrun_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%d %b %Y');
+            my $d_testrun_date_to   = $hr_filter_condition->{testrun_date}->strftime('%d %b %Y');
 
-        my $dtf = $c->model("TestrunDB")->storage->datetime_parser;
+            if ( $d_testrun_date_from ne $d_testrun_date_to ) {
+                $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_to - $d_testrun_date_from )";
+            }
+            else {
+                $or_c->stash->{head_overview}   = "Testruns ( $d_testrun_date_from )";
+            }
 
-        # ----- today -----
-        my $day0_testruns = $testruns->search ( { '-or' => [ { created_at => { '>', $dtf->format_datetime($day[0]) }}, { starttime_testrun => { '>', $dtf->format_datetime($day[0]) }}] });
-        push @{$c->stash->{requested_testrunlists}}, {
-                                                      day => $day[0],
-                                                      (testruns => $util->prepare_testrunlist( $day0_testruns ) ),
-                                                     };
-        # ----- last week days -----
-        foreach (1..$lastday) {
-                my $day_testruns = $testruns->search ({-or => [
-                                                               { -and => [ created_at => { '>', $dtf->format_datetime($day[$_])            },
-                                                                           created_at => { '<', $dtf->format_datetime($day[$_ - 1])        } ] },
-                                                               { -and => [ starttime_testrun => { '>', $dtf->format_datetime($day[$_])     },
-                                                                           starttime_testrun => { '<', $dtf->format_datetime($day[$_ - 1]) } ] },
-                                                              ]} );
-                push @{$c->stash->{requested_testrunlists}}, {
-                                                              day => $day[$_],
-                                                              ( testruns => $util->prepare_testrunlist( $day_testruns ) ),
-                                                             };
+            $hr_query_vals->{testrun_date_from} = $hr_filter_condition->{testrun_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%F');
+            $hr_query_vals->{testrun_date_to}   = $hr_filter_condition->{testrun_date}->strftime('%F');
+
+            $or_c->stash->{view_pager} = 1;
+
         }
-        $c->stash->{title} = "Testruns of last ".$c->stash->{days}." days";
+        else {
+            $or_c->stash->{head_overview}   = 'Testruns';
+        }
+
+        $or_c->stash->{testruns} = $or_c->model('TestrunDB')->fetch_raw_sql({
+                query_name  => 'testruns::web_list',
+                fetch_type  => '@%',
+                query_vals  => $hr_query_vals,
+        });
+
+        return 1;
 
 }
 
 sub prepare_navi : Private
 {
         my ( $self, $c ) = @_;
-        my %args = @{$c->req->arguments};
 
-        $c->stash->{navi} =[
-                            {
-                             title  => "Testruns by date",
-                             href   => "/tapper/testruns/days/2",
-                             active => 0,
-                             subnavi => [
-                                         {
-                                          title  => "today",
-                                          href   => "/tapper/testruns/days/1",
-                                         },
-                                         {
-                                          title  => "1 week",
-                                          href   => "/tapper/testruns/days/7",
-                                         },
-                                         {
-                                          title  => "2 weeks",
-                                          href   => "/tapper/testruns/days/14",
-                                         },
-                                         {
-                                          title  => "3 weeks",
-                                          href   => "/tapper/testruns/days/21",
-                                         },
-                                         {
-                                          title  => "1 month",
-                                          href   => "/tapper/testruns/days/30",
-                                         },
-                                         {
-                                          title  => "2 months",
-                                          href   => "/tapper/testruns/days/60",
-                                         },
-                                        ],
-                            },
-                            {
-                             title  => "Control",
-                             href   => "",
-                             active => 0,
-                             subnavi => [
-                                         {
-                                          title  => "Create new Testrun",
-                                          href   => "/tapper/testruns/create/",
-                                         },
-                                        ],
-                            },
-                           ];
-        push @{$c->stash->{navi}}, {title   => 'Active Filters',
-                      subnavi => [
-                                  map {
-                                          { title => "$_: ".$args{$_},
-                                              href => "/tapper/testruns/".$self->reduced_filter_path(\%args, $_),
-                                                image  => "/tapper/static/images/minus.png",
-                                          }
-                                  } keys %args ]};
+        my @a_args = @{$c->req->arguments};
+
+        $c->stash->{navi} = [
+                {
+                        title  => 'Control',
+                        href   => q##,
+                        active => 0,
+                        subnavi => [
+                                {
+                                        title  => 'Create new Testrun',
+                                        href   => '/tapper/testruns/create/',
+                                 },
+                        ],
+                },
+        ];
+
+        my @a_subnavi;
+        OUTER: for ( my $i = 0; $i < @a_args; $i+=2 ) {
+            my $s_reduced_filter_path = q##;
+            for ( my $j = 0; $j < @a_args; $j+=2 ) {
+                    next if $i == $j;
+                    $s_reduced_filter_path .= "/$a_args[$j]/".$a_args[$j+1];
+            }
+            push @a_subnavi, {
+                    title   => "$a_args[$i]: ".$a_args[$i+1],
+                    image   => '/tapper/static/images/minus.png',
+                    href    => '/tapper/testruns'
+                             . $s_reduced_filter_path
+                             . (
+                                $c->stash->{view_pager}
+                                    ? '?testrun_date='
+                                    . $c->stash->{testrun_date}->strftime('%F')
+                                    . '&amp;pager_interval='
+                                    . $c->stash->{pager_interval}
+                                    : ''
+                                )
+            };
+        } # OUTER
+
+        push @{$c->stash->{navi}},
+            { title   => 'Active Filters', subnavi => \@a_subnavi, },
+            { title   => 'New Filters', id => 'idx_new_filter' },
+            { title   => 'Help', id => 'idx_help', subnavi => [{ title => 'Press Shift for multiple Filters' }] },
+        ;
 
 }
 

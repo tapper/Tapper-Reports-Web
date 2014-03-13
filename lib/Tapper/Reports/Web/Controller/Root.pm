@@ -34,10 +34,28 @@ sub default :Path
         $c->response->status(404);
 }
 
+sub end : ActionClass('RenderView') {
+
+    my ( $self, $or_c ) = @_;
+
+    if (
+           !$or_c->response->body
+        && ( $or_c->res->status < 300 || $or_c->res->status > 399 )
+        && ( $or_c->res->status != 204 )
+    ) {
+        if ( $or_c->req->params->{json} ) {
+            $or_c->forward('Tapper::Reports::Web::View::JSON');
+        }
+        else {
+            $or_c->forward('Tapper::Reports::Web::View::Mason');
+        }
+    }
+
+    return 1;
+
+}
+
 1;
-
-sub end : ActionClass('RenderView') {}
-
 
 __END__
 

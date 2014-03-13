@@ -87,7 +87,7 @@ sub index :Path :Args()
 
         $c->stash->{testplan_days} = [];
         my $today = DateTime::Format::Natural->new->parse_datetime("today at midnight");
-        my $dtf = $c->model("ReportsDB")->storage->datetime_parser;
+        my $dtf = $c->model("TestrunDB")->storage->datetime_parser;
 
         # testplans after "today at midnight"
         # handling them special makes later code more readable
@@ -150,11 +150,10 @@ sub get_testrun_details
 
         while ( my $instance = $todays_instances->next) {
 
-                my $details = {
-                               name => $instance->name,
-                               id   => $instance->id,
-                               path => $instance->path,
-                              };
+                my $details = {};
+                foreach my $col ($instance->columns) {
+                        $details->{$col} = $instance->$col;
+                }
                 $details->{count_unfinished} = int grep {$_->testrun_scheduling and
                                                            $_->testrun_scheduling->status ne 'finished'} $instance->testruns->all;
 
@@ -163,7 +162,7 @@ sub get_testrun_details
         TESTRUN:
                 while ( my $testrun = $testruns->next) {
                         next TESTRUN if $testrun->testrun_scheduling->status ne 'finished';
-                        my $stats   = model('ReportsDB')->resultset('ReportgroupTestrunStats')->search({testrun_id => $testrun->id}, {rows => 1})->first;
+                        my $stats   = model('TestrunDB')->resultset('ReportgroupTestrunStats')->search({testrun_id => $testrun->id}, {rows => 1})->first;
 
                         $details->{count_fail}++ if $stats and $stats->success_ratio  < 100;
                         $details->{count_pass}++ if $stats and $stats->success_ratio == 100;
