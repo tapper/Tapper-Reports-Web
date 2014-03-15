@@ -33,6 +33,54 @@
 
 </%method>
 
+<%method single_chart_marking>
+    <%args>
+        $chart_marking => {}
+    </%args>
+
+    <table class="chart_marking">
+        <tr>
+            <td class="header" colspan="2">
+                <img class="delete_chart_marking" src="/tapper/static/images/minus.png" />
+                Chart marking
+            </td>
+        </tr>
+        <tr>
+            <td>name</td>
+            <td><input name="chart_marking_name" value="<% $chart_marking->{chart_marking_name} %>" /></td>
+        </tr>
+        <tr>
+            <td>color</td>
+            <td><input name="chart_marking_color" class="chart_marking_color_input" value="<% $chart_marking->{chart_marking_color} || '000000' %>" /></td>
+        </tr>
+        <tr>
+            <td>x-axis from</td>
+            <td><input name="chart_marking_x_from" class="optional chart_marking_x_from_input" value="<% $chart_marking->{chart_marking_x_from} %>" /></td>
+        </tr>
+        <tr>
+            <td>x-axis to</td>
+            <td><input name="chart_marking_x_to" class="optional chart_marking_x_to_input" value="<% $chart_marking->{chart_marking_x_to} %>" /></td>
+        </tr>
+        <tr>
+            <td>x-axis format</td>
+            <td><input name="chart_marking_x_format" class="optional chart_marking_x_format_input" value="<% $chart_marking->{chart_marking_x_format} %>" /></td>
+        </tr>
+        <tr>
+            <td>y-axis from</td>
+            <td><input name="chart_marking_y_from" class="optional chart_marking_y_from_input" value="<% $chart_marking->{chart_marking_y_from} %>" /></td>
+        </tr>
+        <tr>
+            <td>y-axis to</td>
+            <td><input name="chart_marking_y_to" class="optional chart_marking_y_to_input" value="<% $chart_marking->{chart_marking_y_to} %>" /></td>
+        </tr>
+        <tr>
+            <td>y-axis format</td>
+            <td><input name="chart_marking_y_format" class="optional chart_marking_y_format_input" value="<% $chart_marking->{chart_marking_y_format} %>" /></td>
+        </tr>
+    </table>
+
+</%method>
+
 <%method single_restricted_value>
     <%args>
         $restricted_value
@@ -118,14 +166,9 @@
     <table class="chart_line">
         <tr>
             <td colspan="2" class="header">
-%               if ( $show_add_image ) {
-                    <img src="/tapper/static/images/plus.png" class="add_chart_line" />
-                    Add a new chart line
-%               }
-%               else {
-                    <img src="/tapper/static/images/minus.png" class="delete_line" />
-                    Delete this chart line
-%               }
+                <img src="/tapper/static/images/minus.png" class="delete_line" title="delete this chart line" />
+                <img src="/tapper/static/images/clone.small.png" class="clone_line" title="clone this chart line" />
+                Chart line
             </td>
         </tr>
         <tr>
@@ -217,7 +260,10 @@
 %   }
 </%method>
 
-<a href="/tapper/metareports?chart_tag=<% $c->req->params->{chart_tag} %>">&laquo; back to overview</a>
+<a href="/tapper/metareports?chart_tag=<% $c->req->params->{chart_tag} %>">&laquo;&laquo; back to overview</a>
+%   if ( $chart->{chart_id} ) {
+        <a href="/tapper/metareports/detail?chart_tag=<% $c->req->params->{chart_tag} %>&amp;chart_id=<% $chart->{chart_id} %>">&laquo; back to detail</a>
+%   }
 
 <br /><br />
 
@@ -277,6 +323,12 @@
                     </select>
                 </td>
             </tr>
+            <tr>
+                <td colspan="2" class="header">
+                    <img src="/tapper/static/images/plus.png" class="add_chart_line" />
+                    Add a new chart line
+                </td>
+            </tr>
         </table>
 
 %       my $chart_line_counter = 0;
@@ -303,6 +355,19 @@
 %           $chart_line_counter = $chart_line_counter + 1;
 %       }
 
+        <table class="chart_marking_add">
+            <tr>
+                <td colspan="2" class="header">
+                    <img src="/tapper/static/images/plus.png" class="add_chart_marking" />
+                    Add a new chart marking
+                </td>
+            </tr>
+        </table>
+
+%       for my $hr_chart_marking ( @{$chart->{chart_markings}} ) {
+            <& SELF:single_chart_marking, chart_marking => $hr_chart_marking &>
+%       }
+
         <table class="chart_tags">
             <tr>
                 <td colspan="2" class="header">
@@ -327,6 +392,8 @@
 
 <script type="text/javascript">
 
+%   my $s_chart_marking  =  $m->scomp("SELF:single_chart_marking", chart_marking => {}, %ARGS );
+%      $s_chart_marking  =~ s/\n//g;
 %   my $s_chart_tag      =  $m->scomp("SELF:single_chart_tag", chart_tag => '', %ARGS );
 %      $s_chart_tag      =~ s/\n//g;
 %   my $s_chart_line     =  $m->scomp("SELF:single_chart_line", show_add_image => 0, chart_line => {}, %ARGS );
@@ -411,23 +478,25 @@
             else if ( $(this).val() == 2 && $other.val() == 0 ) {
                 $(this).find('option[value="1"]')[0].selected = true;
             }
+
         });
-        $('#idx_sl_axis_type_x').change(function(){
+        $('#idx_sl_axis_type_x, #idx_sl_axis_type_y').change(function(){
+            var axis = $(this).attr('id') == 'idx_sl_axis_type_x' ? 'x' : 'y';
             if ( $(this).find('option:selected').text() == 'date' ) {
-                $('table.chart_line tr.axis_format_x.hideit').removeClass('hideit');
+                $('table.chart_line tr.axis_format_'+axis+'.hideit').removeClass('hideit');
+                $('tr.hideit input.chart_marking_'+axis+'_format_input').closest('tr').removeClass('hideit');
             }
             else {
-                $('table.chart_line tr.axis_format_x:not(.hideit)').addClass('hideit');
+                $('table.chart_line tr.axis_format_'+axis+':not(.hideit)').addClass('hideit');
+                $('tr:not(.hideit) input.chart_marking_'+axis+'_format_input').val('').closest('tr').addClass('hideit');
             }
-        });
-        $('#idx_sl_axis_type_y').change(function(){
-            if ( $(this).find('option:selected').text() == 'date' ) {
-                $('table.chart_line tr.axis_format_y.hideit').removeClass('hideit');
+            if ( $(this).find('option:selected').text() == 'alphanumeric' ) {
+                $('input.chart_marking_'+axis+'_from_input, input.chart_marking_'+axis+'_to_input').val('').closest('tr').addClass('hideit');
             }
             else {
-                $('table.chart_line tr.axis_format_y:not(.hideit)').addClass('hideit');
+                $('input.chart_marking_'+axis+'_from_input, input.chart_marking_'+axis+'_to_input').closest('tr').removeClass('hideit');
             }
-        });
+        }).change();
 
         $('#idx_helper_div').focusout(function( e ){
             var $target  = $(e.target);
@@ -463,13 +532,22 @@
                         $counter.val( $counter.val() - 1 );
                     $target.closest('tr').remove();
                 }
-                else if ( $target.hasClass('delete_line') ) {
-                    $target.closest('table').next().remove().end().next().remove().end().remove();
+                else if ( $target.hasClass('delete_line') || $target.hasClass('delete_chart_marking') ) {
+                    $target.closest('table').nextUntil('table').add($target.closest('table')).remove();
+                }
+                else if ( $target.hasClass('clone_line') ) {
+                    $('table.chart_markings:first')
+                        .before($target.closest('table').clone())
+                        .prevAll('table.chart_line:first')
+                        .find('input.accolumn')
+                        .autocomplete(acoptions)
+                        .keyup(acoptions.change)
+                    ;
                 }
                 else if ( $target.hasClass('delete_restict_value') ) {
                     var $counter = $target.closest('td').find('input[name="chart_line_where_counter"]');
                         $counter.val( $counter.val() - 1 );
-                    $target.next().remove().end().remove();
+                    $target.nextUntil('img').add($target).remove();
                 }
                 else if ( $target.hasClass('delete_chart_axis_elements') ) {
                     var $counter = $target.closest('td').find('input:hidden:first');
@@ -557,8 +635,56 @@
 
             var errors = [];
             if ( $inputs.length > 0 ) {
-                errors.push( 'missing input field values found' );
+                errors.push('missing input field values found');
             }
+            if ( $('table.chart_line').length < 1 ) {
+                $('img.add_chart_line').parent().addClass('redfont');
+                errors.push('you must have at least one chart line');
+            }
+            else {
+                $('img.add_chart_line').parent().removeClass('redfont');
+            }
+
+            var $color_inputs = $('input.chart_marking_color_input')
+                .not($inputs)
+                .removeClass('redborder')
+                .filter(function(){return !(/^[0-9A-Fa-f]*$/).test( $(this).val() )})
+                .addClass('redborder')
+            ;
+            if ( $color_inputs.length > 0 ) {
+                errors.push('wrong color code format found');
+            }
+
+            $('table.chart_marking').each(function(){
+
+                // check for marking value
+                var $marking  = $(this);
+                var $markings = $marking.find('input.optional').filter(function(){return !(/^\s*$/).test( $(this).val() )});
+                if ( $markings.length < 1 ) {
+                    errors.push('you have to set a least one axis value for a chart marking');
+                }
+
+                // check for format if date is used
+                $.each(['x','y'],function(index,axis){
+                    var $format = $marking
+                        .find('input.chart_marking_'+axis+'_format_input')
+                        .removeClass('redborder')
+                    ;
+                    if ( !$format.val() || (/^\s*$/).test($format.val()) ) {
+                        if ( $('#idx_sl_axis_type_'+axis+' option:selected').text() == 'date' ) {
+                            if (
+                                   !(/^\s*$/).test($marking.find('input.chart_marking_'+axis+'_from_input').val())
+                                || !(/^\s*$/).test($marking.find('input.chart_marking_'+axis+'_to_input').val())
+                            ) {
+                                errors.push('missing format for chart marking axis '+axis);
+                                $format.addClass('redborder');
+                            }
+                        }
+                    }
+                });
+
+
+            });
 
             var $selects = $('select.bench_operator')
                 .removeClass('redfont')
