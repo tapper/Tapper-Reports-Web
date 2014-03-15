@@ -50,13 +50,18 @@
     <div class="chartsoverview" id="overviewchart_<% $chart->chart_id() %>">
         <img src="/tapper/static/images_red/loader.gif" />
     </div>
-    <div id="choices"></div>
-    <div id="idx_tags_area">
-        tags:
+    <fieldset id="choices">
+        <legend>legend</legend>
+    </fieldset>
+    <fieldset id="idx_marking_area">
+        <legend>markings</legend>
+    </fieldset>
+    <fieldset id="idx_tags_area">
+        <legend>tags</legend>
 %       for my $or_tag ( $chart->chart->chart_tag_relations ) {
             <a href="/tapper/metareports?chart_tag=<% $or_tag->chart_tag_id %>"><% $or_tag->chart_tag->chart_tag %></a>
 %       }
-    </div>
+    </fieldset>
     <div id="idx_clear"></div>
 </div>
 
