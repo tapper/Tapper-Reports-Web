@@ -16,13 +16,13 @@ function get_chart_point_url ( $chart ) {
         chart_point_url += '&amp;chart_version=' + $chart_box.attr('chart_version');
     }
     if ( pager_direction ) {
-        chart_point_url += '&amp;pager_direction' + pager_direction;
+        chart_point_url += '&amp;pager_direction=' + pager_direction;
     }
     if ( offset ) {
         chart_point_url += '&amp;offset=' + offset;
     }
     if ( chart_tiny_url_id ) {
-        chart_point_url += '&amp;chart_tiny_url=' + chart_tiny_url;
+        chart_point_url += '&amp;chart_tiny_url=' + chart_tiny_url_id;
     }
 
     return chart_point_url;
@@ -229,12 +229,43 @@ function get_chart_points ( $act_chart, params ) {
                                 $(identifier).css( 'height', $(identifier).height() + Math.floor(width/2) );
                             }
 
-                            plot = $.plot( chart_identifier, data, options );
+                            if (! options.grid ) {
+                                options.grid = {};
+                            }
+                            if (! options.grid.markings ) {
+                                options.grid.markings = [];
+                            }
 
+                            $.each(chart_data.markings, function( index, marking ){
+
+                                // set marking legend
+                                $('#idx_marking_area').append(
+                                      "<div style='background-color:#"
+                                    + marking.chart_marking_color
+                                    + ";'></div>"
+                                    + marking.chart_marking_name
+                                    + "<br />"
+                                );
+
+                                // set markings inside options
+                                options.grid.markings.push({
+                                    color : '#'+marking.chart_marking_color,
+                                    yaxis : {
+                                        from : marking.chart_marking_y_from,
+                                        to   : marking.chart_marking_y_to
+                                    },
+                                    xaxis : {
+                                        from : marking.chart_marking_x_from,
+                                        to   : marking.chart_marking_x_to
+                                    }
+                                });
+
+                            });
+
+                            plot = $.plot( chart_identifier, data, options );
                             set_plot_height( chart_identifier );
 
                             var $overview = $.plot( overview_identifier, data, options_overview );
-
                             $(chart_identifier).bind("plotselected", function (event, ranges) {
 
                                 // clamp the zooming to prevent eternal zoom
@@ -276,7 +307,8 @@ function get_chart_points ( $act_chart, params ) {
                                     contents += "x-value: "     + ( data.xo ) + "<br />"
                                 ;
 
-                                $.each( data.additionals, function( key, val ) {
+                                $.each( Object.keys(data.additionals).sort(), function(index,key) {
+                                    var val   = data.additionals[key];
                                     var value = val[0];
                                     if ( val[1] != null ) {
                                         value = '<a href="' + val[1].replace(/\$value\$/g, value) + '">' + value + '</a>';
