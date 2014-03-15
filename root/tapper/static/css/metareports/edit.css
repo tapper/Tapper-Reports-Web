@@ -31,12 +31,21 @@ table select {
 }
 table img {
     border: none;
-    margin-bottom: -2px;
+    margin-bottom: -3px;
     cursor: pointer;
 }
+table img.clone_line {
+    margin-bottom : -6px;
+    margin-left   : -8px;
+    margin-right  : -3px;
+}
 table.chart_line,
-table.chart_tags {
+table.chart_tags,
+table.chart_marking_add {
     margin-top: 5px;
+}
+table.chart_marking {
+    margin-top: -1px;
 }
 table tr td:first-child {
     width: 130px;
@@ -98,5 +107,9 @@ input.cl_chart_line_where_column {
     width        : 280px;
 }
 input.chart_tag_input {
-    width       : 475px;
+    width        : 475px;
+}
+input.chart_marking_color_input {
+    width        : 344px;
+    border-right :  20px solid green;
 }
