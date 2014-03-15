@@ -266,6 +266,7 @@ sub get_chart_points : Local {
                         },
                     ],
                 },
+                'chart_markings',
                 'chart_axis_type_x',
                 'chart_axis_type_y',
                 'chart_type',
@@ -273,8 +274,8 @@ sub get_chart_points : Local {
         }
     )->first();
 
-    my ( @a_first, @a_last, @a_result, @a_chart_line_point_warnings );
     my %h_axis = ( x => {}, y => {}, );
+    my ( @a_first, @a_last, @a_result, @a_markings, @a_chart_line_point_warnings );
 
     # update tiny url counter if exists
     my $or_tiny_url;
@@ -625,6 +626,48 @@ sub get_chart_points : Local {
             }
         } # AXIS
 
+        # set chart markings
+        for my $or_marking ( $or_chart->chart_markings ) {
+            push @a_markings, {
+                chart_marking_name      => $or_marking->chart_marking_name,
+                chart_marking_color     => $or_marking->chart_marking_color,
+                chart_marking_x_from    => $or_marking->chart_marking_x_from,
+                chart_marking_x_to      => $or_marking->chart_marking_x_to,
+                chart_marking_y_from    => $or_marking->chart_marking_y_from,
+                chart_marking_y_to      => $or_marking->chart_marking_y_to,
+            };
+            if ( $a_markings[-1]{chart_marking_x_from} || $a_markings[-1]{chart_marking_x_to} ) {
+                if ( $or_chart->chart_axis_type_x->chart_axis_type_name eq 'date' ) {
+                    if ( my $dt_format = $or_marking->chart_marking_x_format ) {
+                        require DateTime::Format::Strptime;
+                        my $or_format_x = DateTime::Format::Strptime->new( pattern => $dt_format );
+                        $a_markings[-1]{chart_marking_x_from} &&= $formatter->format_datetime($or_format_x->parse_datetime($a_markings[-1]{chart_marking_x_from}));
+                        $a_markings[-1]{chart_marking_x_to}   &&= $formatter->format_datetime($or_format_x->parse_datetime($a_markings[-1]{chart_marking_x_to}));
+                    }
+                    else {
+                        $or_c->response->status( 500 );
+                        $or_c->body('xaxis type is date but no date format is given for marking "' . $or_marking->chart_marking_name . '"');
+                        return 1;
+                    }
+                }
+            }
+            if ( $a_markings[-1]{chart_marking_y_from} || $a_markings[-1]{chart_marking_y_to} ) {
+                if ( $or_chart->chart_axis_type_y->chart_axis_type_name eq 'date' ) {
+                    if ( my $dt_format = $or_marking->chart_marking_y_format ) {
+                        require DateTime::Format::Strptime;
+                        my $or_format_y = DateTime::Format::Strptime->new( pattern => $dt_format );
+                        $a_markings[-1]{chart_marking_y_from} &&= $formatter->format_datetime($or_format_y->parse_datetime($a_markings[-1]{chart_marking_y_from}));
+                        $a_markings[-1]{chart_marking_y_to}   &&= $formatter->format_datetime($or_format_y->parse_datetime($a_markings[-1]{chart_marking_y_to}));
+                    }
+                    else {
+                        $or_c->response->status( 500 );
+                        $or_c->body('yaxis type is date but no date format is given for marking "' . $or_marking->chart_marking_name . '"');
+                        return 1;
+                    }
+                }
+            }
+        }
+
     }
 
     $or_c->stash->{content} = {
@@ -635,8 +678,9 @@ sub get_chart_points : Local {
         yaxis_type      => $or_chart->chart_axis_type_y->chart_axis_type_name,
         order_by_x_axis => $or_chart->order_by_x_axis,
         order_by_y_axis => $or_chart->order_by_y_axis,
-        offset          => $h_params{offset} + $h_params{limit},
+        offset          => ($h_params{offset} || 0) + ($h_params{limit} || 0),
         warnings        => \@a_chart_line_point_warnings,
+        markings        => \@a_markings,
         series          => \@a_result,
     };
 
@@ -835,6 +879,18 @@ sub get_edit_page_chart_hash_by_chart_id {
                 $_->chart_tag->chart_tag
             } $or_chart->chart->chart_tag_relations
         ],
+        chart_markings          => [
+            map {{
+                chart_marking_name       => $_->chart_marking_name,
+                chart_marking_color      => $_->chart_marking_color,
+                chart_marking_x_format   => $_->chart_marking_x_format,
+                chart_marking_x_from     => $_->chart_marking_x_from,
+                chart_marking_x_to       => $_->chart_marking_x_to,
+                chart_marking_y_format   => $_->chart_marking_y_format,
+                chart_marking_y_from     => $_->chart_marking_y_from,
+                chart_marking_y_to       => $_->chart_marking_y_to,
+            }} $or_chart->chart_markings
+        ],
     };
 
     for my $or_line ( $or_chart->chart_lines ) {
@@ -879,9 +935,22 @@ sub get_edit_page_chart_hash_by_chart_id {
 
 }
 
-sub get_edit_page_chart_hash_by_params {
+sub get_undef_on_empty_string {
+    return defined $_[0] && $_[0] eq q## ? undef : $_[0];
+}
+
+sub get_edit_page_chart_hash_by_params : Private {
 
     my ( $or_self, $or_c, $hr_params, $or_schema ) = @_;
+
+    my @a_chart_marking_name     = @{toarrayref($hr_params->{chart_marking_name})};
+    my @a_chart_marking_color    = @{toarrayref($hr_params->{chart_marking_color})};
+    my @a_chart_marking_x_from   = @{toarrayref($hr_params->{chart_marking_x_from})};
+    my @a_chart_marking_x_to     = @{toarrayref($hr_params->{chart_marking_x_to})};
+    my @a_chart_marking_x_format = @{toarrayref($hr_params->{chart_marking_x_format})};
+    my @a_chart_marking_y_from   = @{toarrayref($hr_params->{chart_marking_y_from})};
+    my @a_chart_marking_y_to     = @{toarrayref($hr_params->{chart_marking_y_to})};
+    my @a_chart_marking_y_format = @{toarrayref($hr_params->{chart_marking_y_format})};
 
     my $hr_chart = {
         chart_id                => $hr_params->{chart_id},
@@ -897,6 +966,16 @@ sub get_edit_page_chart_hash_by_params {
         chart_tag_new           => [
             grep { $_ } @{toarrayref($hr_params->{chart_tag_new})}
         ],
+        chart_markings          => [map{{
+            chart_marking_name      => $_,
+            chart_marking_color     => shift @a_chart_marking_color,
+            chart_marking_x_from    => get_undef_on_empty_string( shift @a_chart_marking_x_from ),
+            chart_marking_x_to      => get_undef_on_empty_string( shift @a_chart_marking_x_to ),
+            chart_marking_x_format  => get_undef_on_empty_string( shift @a_chart_marking_x_format ),
+            chart_marking_y_from    => get_undef_on_empty_string( shift @a_chart_marking_y_from ),
+            chart_marking_y_to      => get_undef_on_empty_string( shift @a_chart_marking_y_to),
+            chart_marking_y_format  => get_undef_on_empty_string( shift @a_chart_marking_y_format ),
+        }} @a_chart_marking_name],
     };
 
     # column values for chart lines
@@ -985,6 +1064,9 @@ sub get_edit_page_chart_hash_by_params {
 
     }
 
+require Data::Dumper;
+warn Data::Dumper::Dumper($hr_chart);
+
     return $hr_chart;
 
 }
@@ -1030,8 +1112,9 @@ sub save_chart : Local {
                     $hr_params->{chart_version_id}, $or_schema
                 );
             }
-            $i_chart_id = $or_self->insert_chart( $or_c, $or_schema );
-                          $or_self->insert_chart_tags( $or_c, $or_schema );
+            $or_self->insert_chart( $or_c, $or_schema );
+            $or_self->insert_chart_tags( $or_c, $or_schema );
+            $or_self->insert_chart_markings( $or_c, $or_schema, );
         });
     }
     catch {
@@ -1041,7 +1124,7 @@ sub save_chart : Local {
 
     $or_c->redirect(
           '/tapper/metareports/detail?chart_id='
-        . $i_chart_id
+        . $or_c->stash->{chart}{chart_id}
         . '&amp;chart_tag='
         . $or_c->req->params->{chart_tag}
     );
@@ -1202,6 +1285,10 @@ sub insert_chart : Private {
 
                 }
 
+                # set new chart_id and chart_version_id for later use
+                $hr_params->{chart_id}         = $i_chart_id;
+                $hr_params->{chart_version_id} = $i_chart_version_id;
+
             }
             else {
                 die 'cannot insert chart line'
@@ -1214,7 +1301,24 @@ sub insert_chart : Private {
         die 'cannot insert chart';
     }
 
-    return $hr_params->{chart_id} = $i_chart_id;
+    return 1;
+
+}
+
+sub insert_chart_markings : Private {
+
+    my ( $or_self, $or_c, $or_schema ) = @_;
+
+    my $hr_params = $or_c->stash->{chart};
+    for my $hr_marking ( @{$hr_params->{chart_markings}} ) {
+        $or_schema
+            ->resultset('ChartMarkings')
+            ->new({ chart_version_id => $hr_params->{chart_version_id}, %{$hr_marking} })
+            ->insert()
+        ;
+    }
+
+    return 1;
 
 }
 
@@ -1231,25 +1335,17 @@ sub insert_chart_tags : Private {
         )
     ;
 
-require Data::Dumper;
-warn $hr_params->{chart_id};
-warn Data::Dumper::Dumper($hr_params->{chart_tag_new});
-warn Data::Dumper::Dumper(scalar(@a_chart_tags));
-
     my %h_chart_tags_new = map { $_ => 1 } @{$hr_params->{chart_tag_new}};
     for my $or_chart_tag ( @a_chart_tags ) {
         if ( $h_chart_tags_new{$or_chart_tag->chart_tag->chart_tag} ) {
-            warn "OBEN 1 " . $or_chart_tag->chart_tag->chart_tag;
             delete $h_chart_tags_new{$or_chart_tag->chart_tag->chart_tag};
         }
         else {
-            warn "OBEN 2 " . $or_chart_tag->chart_tag->chart_tag;
             $or_chart_tag->delete();
         }
     }
 
     for my $s_chart_tag ( keys %h_chart_tags_new ) {
-        warn "UNTEN $s_chart_tag";
         $or_schema
             ->resultset('ChartTagRelations')
             ->find_or_create({
