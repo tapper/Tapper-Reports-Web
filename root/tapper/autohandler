@@ -13,6 +13,17 @@
 <script language="JavaScript"  type="text/javascript" src="/tapper/static/js/qTip.js"></script>
 <script language="JavaScript"  type="text/javascript" src="/tapper/static/js/jquery-2.0.3.min.js"></script>
 
+%   if ( $c->stash->{css_files} ) {
+%       my %h_css_files;
+%       my $i_counter = 0;
+%       for my $s_key ( @{$c->stash->{css_files}} ) {
+%           $h_css_files{$s_key} ||= $i_counter++;
+%       }
+%       for my $s_css_file ( sort { $h_css_files{$a} <=> $h_css_files{$b} } keys %h_css_files ) {
+            <link rel="stylesheet" type="text/css" href="<% $s_css_file %>" />
+%       }
+%   }
+
 <style type="text/css" media="print">
     #secondaryContent_2columns { display: none; }
     #primaryContent_2columns   { margin-right: 1.5em; }
@@ -180,6 +191,17 @@
 </div>
 
 <& /tapper/footer.mas &>
+
+%   if ( $c->stash->{js_files} ) {
+%       my %h_js_files;
+%       my $i_counter = 0;
+%       for my $s_key ( @{$c->stash->{js_files}} ) {
+%           $h_js_files{$s_key} ||= $i_counter++;
+%       }
+%       for my $s_js_file ( sort { $h_js_files{$a} <=> $h_js_files{$b} } keys %h_js_files ) {
+            <script type="text/javascript" src="<% $s_js_file %>"></script>
+%       }
+%   }
 
 </body>
 </html>

@@ -130,7 +130,7 @@
                                 <% $hr_testrun->{testrun_state} %>
                             </a>
                         </td>
-                        <td class="<% lc $hr_testrun->{successgrade} %>">
+                        <td class="<% lc($hr_testrun->{successgrade} || "") %>">
 %                           if ( $hr_testrun->{successgrade} ) {
                                 <div class="plus success"></div>
                                 <a key="success"><% $hr_testrun->{successgrade} %></a>
@@ -250,7 +250,7 @@
                     }
                 }
             }
-            return false;
+
         });
     });
 
