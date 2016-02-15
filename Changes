@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.0     2016-02-15
         - big performance scale-up refactoring
           * use raw sql statements
           * rework report list
