@@ -511,7 +511,7 @@ sub handle_precondition
                 next if $name eq 'submit';
                 # checkboxgroups return an array but since you don't
                 # know its order in advance its easier to access a hash
-                if (ref $all_form_elements{$name} ~~ 'ARRAY') {
+                if (ref $all_form_elements{$name} =~ /ARRAY/) {
                         foreach my $element (@{$all_form_elements{$name}}) {
                                 $macros{$name}->{$element} = 1;
                         }
