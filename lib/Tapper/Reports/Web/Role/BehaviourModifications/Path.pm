@@ -1,4 +1,5 @@
 package Tapper::Reports::Web::Role::BehaviourModifications::Path;
+
 use Moose::Role;
 
 # I am sick of getting relocated/rebase on our local path!
