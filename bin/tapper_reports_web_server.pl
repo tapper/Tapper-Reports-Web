@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 # PODNAME: tapper_reports_web_server.pl
 # ABSTRACT: Tapper - web gui test server
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 # PODNAME: tapper_reports_web_create.pl
 # ABSTRACT: Tapper - web gui create controller script
 
@@ -9,10 +9,6 @@ use Catalyst::ScriptRunner;
 Catalyst::ScriptRunner->run('Tapper::Reports::Web', 'Create');
 
 1;
-
-=head1 NAME
-
-tapper_reports_web_create.pl - Create a new Catalyst Component
 
 =head1 SYNOPSIS
 
@@ -49,14 +45,5 @@ Create a new Catalyst Component.
 Existing component files are not overwritten.  If any of the component files
 to be created already exist the file will be written with a '.new' suffix.
 This behavior can be suppressed with the C<-force> option.
-
-=head1 AUTHORS
-
-Catalyst Contributors, see Catalyst.pm
-
-=head1 COPYRIGHT
-
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =cut

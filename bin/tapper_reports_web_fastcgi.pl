@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 # PODNAME: tapper_reports_web_fastcgi.pl
 # ABSTRACT: Tapper - web gui start script - fastcgi
 
@@ -33,18 +33,5 @@ tapper_reports_web_fastcgi.pl [options]
    -e --keeperr  send error messages to STDOUT, not
                  to the webserver
    --proc_title  Set the process title (if possible)
-
-=head1 DESCRIPTION
-
-Run a Catalyst application as fastcgi.
-
-=head1 AUTHORS
-
-Catalyst Contributors, see Catalyst.pm
-
-=head1 COPYRIGHT
-
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =cut

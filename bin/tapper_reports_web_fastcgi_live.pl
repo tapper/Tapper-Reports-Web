@@ -45,10 +45,6 @@ Tapper::Reports::Web->run(
 
 1;
 
-=head1 NAME
-
-tapper_reports_web_fastcgi_live.pl - Catalyst FastCGI
-
 =head1 SYNOPSIS
 
 tapper_reports_web_fastcgi_live.pl [options]
@@ -74,14 +70,5 @@ tapper_reports_web_fastcgi_live.pl [options]
 =head1 DESCRIPTION
 
 Run a Tapper Reports Web application as fastcgi.
-
-=head1 AUTHOR
-
-Sebastian Riedel, C<sri@oook.de>
-Maintained by the Catalyst Core Team.
-
-=head1 COPYRIGHT
-
-This program is released under the following license: freebsd
 
 =cut
