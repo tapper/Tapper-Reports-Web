@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.1     2016-02-15
         - fix smart match usage
 	- let EU::MM decide about Perl binary paths
 	- no experimental keys on hashref
