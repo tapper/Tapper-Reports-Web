@@ -415,17 +415,16 @@ sub get_chart_points : Local {
                 }
 
                 # set select columns
-                $hr_chart_search->{select} = [
-                    keys {
-                        map { $_ => 1 }
+                my %h_chart_search_select = map { $_ => 1 }
                             (
                                 map { $_->axis_column->chart_line_axis_column }
                                 grep { $_->axis_column }
                                 $or_chart_line->chart_axis_elements
                             ), (
                                 map { $_->[0] } @a_additionals
-                            )
-                    }
+                            );
+                $hr_chart_search->{select} = [
+                    keys %h_chart_search_select
                 ];
 
                 my $ar_chart_points = $or_bench->search_array( $hr_chart_search );
@@ -757,10 +756,11 @@ sub get_columns : Private {
         ->all()
     ;
 
-    push @a_columnlist, keys Tapper::Benchmark
+    push @a_columnlist, keys %{Tapper::Benchmark
         ->new({ dbh => Tapper::Model::model()->storage->dbh, })
         ->{query}
         ->default_columns()
+        }
     ;
 
     return \@a_columnlist;
