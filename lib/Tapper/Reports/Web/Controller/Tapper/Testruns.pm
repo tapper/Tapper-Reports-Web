@@ -98,7 +98,7 @@ sub get_testrun_overview : Private
                         $retval->{name}  = $precondition->{name} || "Virtualisation Test";
                         $retval->{arch}  = $precondition->{host}->{root}{arch};
                         $retval->{image} = $precondition->{host}->{root}{image} || $precondition->{host}->{root}{name}; # can be an image or copyfile or package
-                        ($retval->{xen_package}) = grep { m!repository/packages/xen/builds! } @{ $precondition ~~ dpath '/host/preconditions//filename' };
+                        ($retval->{xen_package}) = grep { m!repository/packages/xen/builds! } dpath('/host/preconditions//filename')->match($precondition);
                         push @{$retval->{test}}, get_test_list_from_precondition($precondition->{host});
 
                         foreach my $guest (@{$precondition->{guests}}) {

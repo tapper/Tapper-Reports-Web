@@ -36,14 +36,14 @@ sub parse_testrun
         my %testrun;
 
         # several places for the root system
-        push @{$testrun{image}}, @{ $description ~~ dpath '/preconditions/*/mount[value eq "/"]/../image' };
-        push @{$testrun{image}}, @{ $description ~~ dpath '//root/precondition_type[value eq "autoinstall"]/../name' };
-        push @{$testrun{image}}, @{ $description ~~ dpath '//precondition_type[value eq "autoinstall"]/../name' };
+        push @{$testrun{image}}, dpath('/preconditions/*/mount[value eq "/"]/../image')->match($description);
+        push @{$testrun{image}}, dpath('//root/precondition_type[value eq "autoinstall"]/../name')->match($description);
+        push @{$testrun{image}}, dpath('//precondition_type[value eq "autoinstall"]/../name')->match($description);
 
-        push @{$testrun{kernel}}, @{$description ~~ dpath '/preconditions/*/filename[ value =~ /linux-.*\d+.\d+/]'};
+        push @{$testrun{kernel}}, dpath('/preconditions/*/filename[ value =~ /linux-.*\d+.\d+/]')->match($description);
         push @{$testrun{test}},
          map { basename($_) }
-          @{$description ~~ dpath '/preconditions/*/precondition_type[ value eq "testprogram"]/../program'};
+          dpath('/preconditions/*/precondition_type[ value eq "testprogram"]/../program')->match($description);
         $testrun{shortname} = $description->{shortname};
         return \%testrun;
 }

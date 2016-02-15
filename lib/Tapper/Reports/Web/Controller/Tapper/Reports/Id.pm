@@ -84,7 +84,7 @@ sub get_report_failures
 {
         my ($self, $report) = @_;
 
-        return $report->get_cached_tapdom ~~ dpath '//tap//lines//is_ok[value eq 0]/..';
+        return [ dpath('//tap//lines//is_ok[value eq 0]/..')->match($report->get_cached_tapdom) ];
 }
 
 sub index :Path :Args(1)
