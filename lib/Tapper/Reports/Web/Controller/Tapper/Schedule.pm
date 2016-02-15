@@ -24,7 +24,7 @@ Catalyst Controller.
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $body = qx(tapper-testrun listqueue -v);
+    my $body = qx(tapper queue-list -v);
 
     $c->response->body("<pre>
 $body
