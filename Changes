@@ -1,6 +1,31 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - big performance scale-up refactoring
+          * use raw sql statements
+          * rework report list
+          * more CSS instead of tables and images
+        - use PSGI
+        - use Starman
+        - continuous testing control page
+        - replaced "metareports" with a new benchmark chart subsystem:
+          * frontend to the Tapper::Benchmark backend store
+          * snapshots datasets into short URLs
+          * organize them with tags
+          * versioned chart configuration
+          * chart legend
+          * mark areas
+          * backlinks from data points to configurable URL
+        - date pager for report list and testrun list
+        - filter refactoring
+        - use quite a bit more Javascript for usability
+          * use jQuery
+        - merge TestrunDB/ReportsDB
+        - update/edit preconditions in Web UI
+        - polishing and tweaks:
+          * different color for TAP parse errors
+          * show preconditions consisting of multiple entries
+          * show motd-like headers (like "under maintenance")
 
 4.1.2     2012-11-20
         - fix missing deps
