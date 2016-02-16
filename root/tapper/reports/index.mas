@@ -123,9 +123,9 @@
                                 </a>
 %                           }
                         </td>
-                        <td class="<% lc $hr_report->{successgrade} %>">
+                        <td class="<% lc( $hr_report->{'r.successgrade'} || 'UNKNOWN' ) %>">
                             <div class="plus success"></div>
-                            <a key="success"><% $hr_report->{successgrade} %></a>
+                            <a key="success"><% $hr_report->{'r.successgrade'} %></a>
                         </td>
                         <td>
 %                           my $i_success_width = int($hr_report->{success_ratio} / 2);
