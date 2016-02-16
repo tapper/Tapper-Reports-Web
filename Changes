@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - fix 'successgrade' in report list
 
 5.0.2     2016-02-16
         - fix tests
