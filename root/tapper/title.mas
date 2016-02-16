@@ -7,3 +7,9 @@
 % } else {
 <title>Tapper</title>
 %}
+<!-- DEBUG AREA:
+% if ($c->stash->{DEBUG}) {
+
+<% $c->stash->{DEBUG} %>
+% }
+-->
