@@ -106,16 +106,16 @@
         float: left;
     }
     #idx_reportlist div.bgred {
-        background-color: #DA4848;
+        background-color: #ef5440;
     }
     #idx_reportlist div.bggreen {
-        background-color: #53D73D;
+        background-color: #89ef56;
     }
     #idx_reportlist div.dbgred {
-        background-color: #FEC7C9;
+        background-color: #ff6450;
     }
     #idx_reportlist div.dbggreen {
-        background-color: #C3FACA;
+        background-color: #99ff66;
     }
     #idx_reportlist td.transparent div.bggreen,
     #idx_reportlist td.transparent div.bgred {

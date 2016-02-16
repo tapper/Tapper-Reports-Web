@@ -137,13 +137,13 @@ line-height: 1.8em;
 tr.justgroupmember a
 {
   text-decoration: none;
-  color: #BBB;
+  color: #999;
 }
 
 tr.justgroupmember a:hover
 {
   text-decoration: underline;
-  color: #BBB;
+  color: #999;
 }
 
 tr.highlight
@@ -200,7 +200,7 @@ display: inline;
 color: #fff;
 font-size: 1.5em;
 top: 10px;
-left: 215px;
+left: 315px;
 width: 600px;
 }
 

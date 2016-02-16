@@ -85,10 +85,10 @@ sub prepare_this_weeks_reportlists : Private {
             my $d_report_date_to   = $hr_filter_condition->{report_date}->strftime('%d %b %Y');
 
             if ( $d_report_date_from ne $d_report_date_to ) {
-                $or_c->stash->{head_overview}   = "Reports ( $d_report_date_to - $d_report_date_from )";
+                $or_c->stash->{head_overview}   = "Reports ($d_report_date_to - $d_report_date_from)";
             }
             else {
-                $or_c->stash->{head_overview}   = "Testruns ( $d_report_date_from )";
+                $or_c->stash->{head_overview}   = "Reports ($d_report_date_from)";
             }
 
             $hr_query_vals->{report_date_from} = $hr_filter_condition->{report_date}->clone->subtract( days => $or_c->stash->{pager_interval} - 1 )->strftime('%F');
