@@ -116,10 +116,10 @@
                             </a>
                         </td>
                         <td>
-%                           if ( $hr_report->{machine_name} ) {
+%                           if ( $hr_report->{'r.machine_name'} || $hr_report->{machine_name} ) {
                                 <div class="plus host"></div>
-                                <a title="Click to show reports on '<% $hr_report->{machine_name} %>' <% $hr_report->{peeraddr} ? '(reported from ip '.$hr_report->{peeraddr} .')' : ''%>" key="host">
-                                    <% $hr_report->{machine_name} %>
+                                <a title="Click to show reports on '<% $hr_report->{'r.machine_name'} || $hr_report->{machine_name} %>' <% $hr_report->{'r.peeraddr'} || $hr_report->{peeraddr} ? '(reported from ip '.($hr_report->{'r.peeraddr'} || $hr_report->{peeraddr}) .')' : ''%>" key="host">
+                                    <% $hr_report->{'r.machine_name'} || $hr_report->{machine_name} %>
                                 </a>
 %                           }
                         </td>

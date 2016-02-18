@@ -109,13 +109,13 @@
         background-color: #ef5440;
     }
     #idx_reportlist div.bggreen {
-        background-color: #89ef56;
+        background-color: #79df46;
     }
     #idx_reportlist div.dbgred {
         background-color: #ff6450;
     }
     #idx_reportlist div.dbggreen {
-        background-color: #99ff66;
+        background-color: #a9ff76;
     }
     #idx_reportlist td.transparent div.bggreen,
     #idx_reportlist td.transparent div.bgred {
