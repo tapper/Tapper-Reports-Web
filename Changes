@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.4     2016-02-18
         - fix other fields in report list due to missing r. prefix
 
 5.0.3     2016-02-17
