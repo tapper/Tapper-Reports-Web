@@ -7,7 +7,6 @@ use warnings;
 use parent 'Tapper::Reports::Web::Controller::Base';
 
 use Try::Tiny;
-use Tapper::Benchmark;
 use List::MoreUtils qw( any );
 
 use 5.010;
@@ -276,10 +275,11 @@ sub get_chart_points : Local {
 
         require JSON::XS;
         require YAML::Syck;
-        require Tapper::Benchmark;
-        my $or_bench = Tapper::Benchmark
-            ->new({ dbh => $or_schema->storage->dbh, })
-        ;
+        require Tapper::Config;
+        require BenchmarkAnything::Storage::Frontend::Lib;
+
+        my $balib = BenchmarkAnything::Storage::Frontend::Lib->new
+          (cfgfile => Tapper::Config->subconfig->{_last_used_tapper_config_file});
 
         require DateTime;
         require DateTime::Format::Epoch;
@@ -428,7 +428,7 @@ sub get_chart_points : Local {
                     keys %h_chart_search_select
                 ];
 
-                my $ar_chart_points = $or_bench->search_array( $hr_chart_search );
+                my $ar_chart_points = $balib->search( $hr_chart_search );
 
                 if ( $ar_chart_points && @{$ar_chart_points} ) {
 
@@ -751,18 +751,14 @@ sub get_columns : Private {
 
     my ( $or_self, $or_c ) = @_;
 
-    my @a_columnlist = $or_c->model('TestrunDB')
-        ->resultset('BenchAdditionalTypes')
-        ->get_column('bench_additional_type')
-        ->all()
-    ;
+    require Tapper::Config;
+    require BenchmarkAnything::Storage::Frontend::Lib;
 
-    push @a_columnlist, keys %{Tapper::Benchmark
-        ->new({ dbh => Tapper::Model::model()->storage->dbh, })
-        ->{query}
-        ->default_columns()
-        }
-    ;
+    my $balib = BenchmarkAnything::Storage::Frontend::Lib->new
+      (cfgfile => Tapper::Config->subconfig->{_last_used_tapper_config_file});
+
+    my @a_columnlist = @{$balib->listkeys};
+    push @a_columnlist, keys %{$balib->_default_additional_keys}; # TODO: too much unrequested data from this?
 
     return \@a_columnlist;
 
@@ -772,20 +768,17 @@ sub is_column : Private {
 
     my ( $or_self, $or_c, $s_column ) = @_;
 
-    my $hr_columns = Tapper::Benchmark
-        ->new({ dbh => Tapper::Model::model()->storage->dbh, })
-        ->{query}
-        ->default_columns()
-    ;
+    require Tapper::Config;
+    require BenchmarkAnything::Storage::Frontend::Lib;
+
+    my $balib = BenchmarkAnything::Storage::Frontend::Lib->new
+      (cfgfile => Tapper::Config->subconfig->{_last_used_tapper_config_file});
+
+    my $hr_columns = $balib->_default_additional_keys;
 
     return 1 if $hr_columns->{$s_column};
 
-    my @a_columnlist = $or_c->model('TestrunDB')
-        ->resultset('BenchAdditionalTypes')
-        ->search({ bench_additional_type => $s_column })
-        ->get_column('bench_additional_type_id')
-        ->all()
-    ;
+    my @a_columnlist = $balib->_get_additional_key_id($s_column);
 
     return @a_columnlist ? 1 : 0;
 
@@ -1401,12 +1394,13 @@ sub get_benchmark_operators : Private {
 
     my ( $or_self, $or_c ) = @_;
 
-    require Tapper::Benchmark;
-    return Tapper::Benchmark
-        ->new({ dbh => Tapper::Model::model()->storage->dbh, })
-        ->{query}
-        ->benchmark_operators()
-    ;
+    require Tapper::Config;
+    require BenchmarkAnything::Storage::Frontend::Lib;
+
+    my $balib = BenchmarkAnything::Storage::Frontend::Lib->new
+      (cfgfile => Tapper::Config->subconfig->{_last_used_tapper_config_file});
+
+    return @{$balib->_get_benchmark_operators || []};
 
 }
 
