@@ -311,7 +311,7 @@
                 <td class="bold">Sort x-axis:</td>
                 <td>
                     <select name="order_by_x_axis" id="idx_order_by_x_sel">
-                        <& SELF:order_by_options, order_by => $chart->{order_by_x_axis} &>
+                        <& SELF:order_by_options, order_by => ($chart->{order_by_x_axis} || 0) &>
                     </select>
                 </td>
             </tr>
@@ -319,7 +319,7 @@
                 <td class="bold">Sort y-axis:</td>
                 <td>
                     <select name="order_by_y_axis" id="idx_order_by_y_sel">
-                        <& SELF:order_by_options, order_by => $chart->{order_by_y_axis} &>
+                        <& SELF:order_by_options, order_by => ($chart->{order_by_y_axis} || 0) &>
                     </select>
                 </td>
             </tr>

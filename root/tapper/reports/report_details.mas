@@ -98,7 +98,7 @@
 %          $context_section->{name} = $section->name;
 %          $context_section->{machine_name} = $r->machine_name;
 %          my %cols = $section->get_columns;
-%           my $signature = join("~", map { "$_".":".$cols{$_} } map { s/-/_/g; $_ } sort @meta_cols);
+%           my $signature = join("~", map { "$_".":".($cols{$_}||"") } map { s/-/_/g; $_ } sort @meta_cols);
 %           if (not $already_seen{$r->suite->name}{$section->name}{$signature}) {
 %                   $already_seen{$r->suite->name}{$section->name}{$signature} = 1;
 %               my @meta_lines = ();
