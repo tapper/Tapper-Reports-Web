@@ -2,13 +2,12 @@
     $benchmark_operator
 </%args>
 
-%   my $hr_benchmark_operators = $c->controller('Tapper::Metareports')->get_benchmark_operators();
-%   for my $s_act_operator ( sort keys %{$hr_benchmark_operators} ) {
-%       my $b_numeric = $hr_benchmark_operators->{$s_act_operator}{numeric};
+%   my @a_benchmark_operators = $c->controller('Tapper::Metareports')->get_benchmark_operators();
+%   for my $s_act_operator ( sort @a_benchmark_operators ) {
 %       if ( $benchmark_operator && $s_act_operator eq $benchmark_operator ) {
-            <option selected value="<% $s_act_operator %>" numeric="<% $b_numeric %>"><% $s_act_operator %></option>
+            <option selected value="<% $s_act_operator %>"><% $s_act_operator %></option>
 %       }
 %       else {
-            <option value="<% $s_act_operator %>" numeric="<% $b_numeric %>"><% $s_act_operator %></option>
+            <option value="<% $s_act_operator %>"><% $s_act_operator %></option>
 %       }
 % }
