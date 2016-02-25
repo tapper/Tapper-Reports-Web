@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
         - avoid repetition of duplicate test execution context
+        - replace MySQL-specific parts
+        - replace Tapper::Benchmark with BenchmarkAnything
+        - fix minor HTML/CSS glitches
 
 5.0.4     2016-02-18
         - fix other fields in report list due to missing r. prefix
