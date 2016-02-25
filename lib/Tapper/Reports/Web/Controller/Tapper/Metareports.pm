@@ -1062,8 +1062,8 @@ sub save_chart : Local {
     my $hr_search_param = {
         'chart.active'  => 1,
         'chart_name'    => $hr_params->{chart_name},
-        'chart_version' => \'>= ALL(
-            SELECT cv.chart_version
+        'chart_version' => \'>= (
+            SELECT MAX(cv.chart_version)
             FROM chart_versions cv
             WHERE cv.chart_id = me.chart_id
         )',
