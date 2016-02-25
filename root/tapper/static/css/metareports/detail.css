@@ -54,7 +54,7 @@ div.chart_headers {
 }
 div.chart_headers div.search {
     float: left;
-    width: 632px;
+    width: 622px;
     padding-left: 4px;
 }
 div.chart_headers div.search a,
@@ -75,7 +75,7 @@ div.chart_headers div.text {
 }
 div.chart_headers div.icons {
     float: left;
-    width: 57px;
+    width: 67px;
     margin-top: 3px;
 }
 div.chart_headers div.icons img {

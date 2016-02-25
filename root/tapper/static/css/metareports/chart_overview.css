@@ -55,12 +55,12 @@ div.charts {
 }
 div.chart_headers div.text {
     float: left;
-    width: 238px;
+    width: 228px;
     padding-left: 4px;
 }
 div.chart_headers div.icons {
     float: left;
-    width: 57px;
+    width: 67px;
 }
 div.chart_headers div.icons img {
     border: none;
