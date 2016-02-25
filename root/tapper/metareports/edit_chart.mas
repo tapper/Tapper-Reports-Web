@@ -193,7 +193,7 @@
         </tr>
         <tr class="axis_format_x<% $chart_line->{chart_line_x_format} ? '' : ' hideit' | n %>">
             <td class="bold">Format x-axis:</td>
-            <td><input type="text" name="chart_axis_x_format" value="<% $chart_line->{chart_line_x_format} || '' %>" /></td>
+            <td><input type="text" name="chart_axis_x_format" value="<% $chart_line->{chart_line_x_format} || '%F %T' %>" /></td>
         </tr>
         <tr>
             <td class="bold">Columns y-axis:</td>
@@ -213,7 +213,7 @@
         </tr>
         <tr class="axis_format_y<% $chart_line->{chart_line_y_format} ? '' : ' hideit' | n %>">
             <td class="bold">Format y-axis:</td>
-            <td><input type="text" name="chart_axis_y_format" value="<% $chart_line->{chart_line_y_format} || '' %>" /></td>
+            <td><input type="text" name="chart_axis_y_format" value="<% $chart_line->{chart_line_y_format} || '%F %T' %>" /></td>
         </tr>
         <tr>
             <td colspan="2" class="header">
