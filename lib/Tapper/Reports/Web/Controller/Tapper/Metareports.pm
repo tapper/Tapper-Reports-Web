@@ -253,6 +253,7 @@ sub get_chart_points : Local {
 
     # update tiny url counter if exists
     my $or_tiny_url;
+    my $NOW = DateTime->now();
     if ( my $i_chart_tiny_url_id = $h_params{chart_tiny_url} ) {
         $or_tiny_url = $or_schema
             ->resultset('ChartTinyUrls')
@@ -267,7 +268,7 @@ sub get_chart_points : Local {
             ->first()
         ;
         $or_tiny_url->visit_count( $or_tiny_url->visit_count() + 1 );
-        $or_tiny_url->last_visited(\'NOW()');
+        $or_tiny_url->last_visited($NOW);
         $or_tiny_url->update();
     }
 
@@ -1169,10 +1170,11 @@ sub insert_chart : Private {
     my $hr_params  = $or_c->stash->{chart};
     my $i_chart_id = $hr_params->{chart_id};
 
+    my $NOW = DateTime->now();
     if (! $i_chart_id ) {
         my $or_chart = $or_schema->resultset('Charts')->new({
             active      => 1,
-            created_at  => \'NOW()',
+            created_at  => $NOW,
         });
         $or_chart->insert();
         $i_chart_id = $or_chart->chart_id;
@@ -1193,7 +1195,7 @@ sub insert_chart : Private {
         chart_name              => $hr_params->{chart_name},
         order_by_x_axis         => $hr_params->{order_by_x_axis},
         order_by_y_axis         => $hr_params->{order_by_y_axis},
-        created_at              => \'NOW()',
+        created_at              => $NOW,
     });
     $or_chart_version->insert();
 
@@ -1207,6 +1209,7 @@ sub insert_chart : Private {
                 chart_line_name             => $hr_chart_line->{chart_line_name},
                 chart_axis_x_column_format  => $hr_chart_line->{chart_line_x_format} || undef,
                 chart_axis_y_column_format  => $hr_chart_line->{chart_line_y_format} || undef,
+                created_at                  => $NOW,
             });
             $or_chart_line->insert();
 
@@ -1245,6 +1248,7 @@ sub insert_chart : Private {
                         chart_line_id                => $i_chart_line_id,
                         chart_line_additional_column => $hr_additionals->{chart_line_additional_column},
                         chart_line_additional_url    => $hr_additionals->{chart_line_additional_url} || undef,
+                        created_at                   => $NOW,
                     })->insert();
                 }
 
@@ -1256,7 +1260,7 @@ sub insert_chart : Private {
                         chart_line_restriction_operator => $hr_chart_line_restriction->{chart_line_restriction_operator},
                         is_template_restriction         => $hr_chart_line_restriction->{is_template_restriction},
                         is_numeric_restriction          => $hr_chart_line_restriction->{is_numeric_restriction},
-                        created_at                      => \'NOW()',
+                        created_at                      => $NOW,
                     });
                     $or_chart_line_restriction->insert();
 
@@ -1329,6 +1333,7 @@ sub insert_chart_tags : Private {
         }
     }
 
+    my $NOW = DateTime->now();
     for my $s_chart_tag ( keys %h_chart_tags_new ) {
         $or_schema
             ->resultset('ChartTagRelations')
@@ -1337,11 +1342,11 @@ sub insert_chart_tags : Private {
                 chart_tag_id => $or_schema
                     ->resultset('ChartTags')
                     ->find_or_create(
-                        { chart_tag => $s_chart_tag, created_at => \'NOW()' },
+                        { chart_tag => $s_chart_tag, created_at => $NOW },
                         { key       => 'ux_chart_tags_01'                   },
                     )->chart_tag_id
                 ,
-                created_at   => \'NOW()',
+                created_at   => $NOW,
             })
         ;
     }
@@ -1362,8 +1367,9 @@ sub remove_chart : Private {
         $i_chart_id,
     );
 
+    my $NOW = DateTime->now();
     $or_chart->active(0);
-    $or_chart->updated_at(\'NOW()');
+    $or_chart->updated_at($NOW);
     $or_chart->update();
 
     return q##;
@@ -1382,8 +1388,9 @@ sub remove_chart_version : Private {
         $i_chart_version_id
     );
 
+    my $NOW = DateTime->now();
     $or_chart->active(0);
-    $or_chart->updated_at(\'NOW()');
+    $or_chart->updated_at($NOW);
     $or_chart->update();
 
     return q##;
