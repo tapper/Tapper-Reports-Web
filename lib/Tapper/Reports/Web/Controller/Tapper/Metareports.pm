@@ -344,11 +344,11 @@ sub get_chart_points : Local {
             for my $s_axis (qw/ x y /) {
                 for my $or_element ( sort { $a->chart_line_axis_element_number <=> $b->chart_line_axis_element_number } $or_chart_line->chart_axis_elements ) {
                     if ( $or_element->chart_line_axis eq $s_axis && $or_element->axis_column ) {
-                        push @{$hr_chart_search->{order_by}}, {
-                            column    => $or_element->axis_column->chart_line_axis_column,
-                            direction => 'DESC',
-                            numeric   => $h_axis_type{$s_axis} eq 'numeric',
-                        };
+                        push @{$hr_chart_search->{order_by}}, [
+                            $or_element->axis_column->chart_line_axis_column,
+                            'DESC',
+                            { numeric   => $h_axis_type{$s_axis} eq 'numeric' },
+                        ];
                     }
                 }
             }
@@ -370,11 +370,11 @@ sub get_chart_points : Local {
                         ->all
                     ;
                     if ( @a_bench_value_ids ) {
-                        $hr_chart_search->{where} = [{
-                            operator => '=',
-                            column   => 'VALUE_ID',
-                            values   => \@a_bench_value_ids,
-                        }];
+                        $hr_chart_search->{where} = [
+                            '=',
+                            'VALUE_ID',
+                            @a_bench_value_ids,
+                        ];
                     }
                     else {
                         last LOADING_DATA;
@@ -404,11 +404,11 @@ sub get_chart_points : Local {
                                 $_->chart_line_restriction_value
                             } $or_chart_line_restriction->chart_line_restriction_values;
                         }
-                        push @{$hr_chart_search->{where}}, {
-                            operator => $or_chart_line_restriction->chart_line_restriction_operator,
-                            column   => $or_chart_line_restriction->chart_line_restriction_column,
-                            values   => \@a_chart_line_restriction_value,
-                        };
+                        push @{$hr_chart_search->{where}}, [
+                            $or_chart_line_restriction->chart_line_restriction_operator,
+                            $or_chart_line_restriction->chart_line_restriction_column,
+                            @a_chart_line_restriction_value,
+                        ];
                     }
                 }
                 else {
