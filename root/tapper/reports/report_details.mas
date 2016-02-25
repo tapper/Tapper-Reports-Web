@@ -38,7 +38,7 @@
 %                             simnow-svn-repository
 %                             simnow-bsd-file
 %                             simnow-image-file
-%                             ticket-url wiki-url planning-id moreinfo-url
+%                             ticket-url wiki-url planning-id moreinfo-url codereview-url
 %                             tags
 %                            /;
 %
