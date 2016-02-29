@@ -479,7 +479,7 @@ $(document).ready(function(){
         }
     });
     $('#columnA_2columns img.imgedit').click(function(){
-        location.href = '/tapper/metareports/edit_chart?chart_tag='+$('#idx_chart_tag').val()+'&amp;chart_id='+$(this).closest('.chart_boxs').attr('chart');
+        location.href = '/tapper/metareports/edit_chart?chart_tag='+$('#idx_chart_tag').val()+'&amp;chart_id='+$(this).closest('.chart_boxs').attr('chart')+'&amp;chart_version='+$('#idx_chart_version').val();
     });
     $('#columnA_2columns img.imgeditasnew').click(function(){
         location.href = '/tapper/metareports/edit_chart?chart_tag='+$('#idx_chart_tag').val()+'&amp;asnew=1&amp;chart_id='+$(this).closest('.chart_boxs').attr('chart');
