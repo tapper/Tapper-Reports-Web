@@ -118,7 +118,7 @@ sub detail : Local {
 
         # check for template parameter
         my %h_restriction_values;
-        for my $or_chart_line ( $or_c->stash->{chart}->chart_lines ) {
+        for my $or_chart_line ( $or_c->stash->{chart} ? $or_c->stash->{chart}->chart_lines : () ) {
             for my $or_restriction ( $or_chart_line->chart_line_restrictions ) {
                 if ( $or_restriction->is_template_restriction ) {
                     my $s_restricted_value =
@@ -266,9 +266,12 @@ sub get_chart_points : Local {
             })
             ->first()
         ;
+        if ($or_tiny_url) {
         $or_tiny_url->visit_count( $or_tiny_url->visit_count() + 1 );
         $or_tiny_url->last_visited($NOW);
         $or_tiny_url->update();
+        $or_c->stash->{tiny_url_count} = $or_tiny_url->visit_count;
+        }
     }
 
     if ( my @a_chart_lines = $or_chart->chart_lines ) {

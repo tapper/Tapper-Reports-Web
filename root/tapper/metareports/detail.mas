@@ -12,15 +12,15 @@
 <input type="hidden" id="hd_offset_idx" value="<% $c->req->params->{offset} || 0 %>" />
 <input type="hidden" id="hd_chart_tiny_url_idx" value="<% $c->req->params->{chart_tiny_url} || "" %>" />
 
-<div class="chart_boxs" chart="<% $chart->chart_id() %>" chart_version="<% $chart->chart_version() %>">
+<div class="chart_boxs" chart="<% $chart ? $chart->chart_id() : 0 %>" chart_version="<% $chart ? $chart->chart_version() : 0 %>">
     <div class="chart_headers">
         <div class="text">
-            <font class="title"><% $chart->chart_name() %> - Version: </font>
+            <font class="title"><% $chart ? $chart->chart_name() : 'non-existent' %> - Version: </font>
             <select id="idx_chart_version">
-%               for my $or_version ( $chart->chart->chart_versions ) {
+%               for my $or_version ( $chart ? $chart->chart->chart_versions : () ) {
 %                   my $i_version  = $or_version->chart_version();
 %                   my $dt_created = $or_version->created_at()->strftime('%F %H:%m');
-%                   if ( $i_version == $chart->chart_version() ) {
+%                   if ( $chart and $i_version == $chart->chart_version() ) {
                         <option value="<% $i_version %>" selected="selected"><% $i_version . ' (' . $dt_created . ')' %></option>
 %                   }
 %                   else {
@@ -46,10 +46,10 @@
             <img src="/tapper/static/images/delete.small.png" title="delete" class="imgdel" />
         </div>
     </div>
-    <div class="charts" id="mainchart_<% $chart->chart_id() %>">
+    <div class="charts" id="mainchart_<% $chart ? $chart->chart_id() : 0 %>">
         <img src="/tapper/static/images_red/loader.gif" />
     </div>
-    <div class="chartsoverview" id="overviewchart_<% $chart->chart_id() %>">
+    <div class="chartsoverview" id="overviewchart_<% $chart ? $chart->chart_id() : 0 %>">
         <img src="/tapper/static/images_red/loader.gif" />
     </div>
 </div>
@@ -62,7 +62,7 @@
     </fieldset>
     <fieldset id="idx_tags_area">
         <legend>tags</legend>
-%       for my $or_tag ( $chart->chart->chart_tag_relations ) {
+%       for my $or_tag ( $chart ? $chart->chart->chart_tag_relations : () ) {
             <a href="/tapper/metareports?chart_tag=<% $or_tag->chart_tag_id %>"><% $or_tag->chart_tag->chart_tag %></a>
 %       }
     </fieldset>
