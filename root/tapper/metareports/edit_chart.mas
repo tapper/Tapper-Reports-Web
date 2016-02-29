@@ -140,18 +140,18 @@
             <input type="checkbox" class="cl_chart_line_where_numeric" name="chart_line_where_numeric" <% $hr_chart_line_restriction->{is_numeric_restriction} ? 'checked="checked"' : '' %> untouched="<% $ar_values ? 0 : 1 %>" />
             <input class="accolumn cl_chart_line_where_column" name="chart_line_where_column" value="<% $hr_chart_line_restriction->{chart_line_restriction_column} || '' %>" /><br />
             <font  class="stext">Restricted value(s)</font><br />
-%           my $i_restrict_value_counter = 0;
 %           if ( $ar_values ) {
+                <input type="hidden" name="chart_line_where_counter" value="<% scalar( @{$ar_values} ) %>" />
+%               my $i_restrict_value_counter = 0;
 %               for my $s_value ( @{$ar_values} ) {
                     <& SELF:single_restricted_value, restricted_value => $s_value, show_add_image => !$i_restrict_value_counter, is_template => $hr_chart_line_restriction->{is_template_restriction} &>
 %                   $i_restrict_value_counter++;
 %               }
 %           }
 %           else {
-%               $i_restrict_value_counter = 1;
+                <input type="hidden" name="chart_line_where_counter" value="1" />
                 <& SELF:single_restricted_value, restricted_value => '', show_add_image => 1, is_template => 0 &>
 %           }
-            <input type="hidden" name="chart_line_where_counter" value="<% $i_restrict_value_counter %>" />
         </td>
     </tr>
 
