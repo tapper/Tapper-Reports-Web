@@ -95,7 +95,7 @@ function get_chart_points ( $act_chart, params ) {
             dataType : 'json',
             url      : get_chart_point_url($act_chart),
             error    : function () {
-                $act_chart.html('<span class="chart_error">unknown error occured</span>');
+                $act_chart.html('<span class="chart_error">aborted</span>');
                 return 0;
             },
             success  : function ( chart_data ) {
