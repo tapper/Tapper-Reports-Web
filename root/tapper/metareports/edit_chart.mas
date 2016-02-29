@@ -269,7 +269,7 @@
 
 <div id="idx_div_errors"><% $error %></div>
 <div id="idx_helper_div">
-    <form id="idx_create_chart_form" action="/tapper/metareports/save_chart">
+    <form id="idx_create_chart_form" action="/tapper/metareports/save_chart" method="post">
         <input type="hidden" name="asnew" value="<% $c->req->params->{asnew} || 0 %>" />
         <input type="hidden" name="chart_id" value="<% $c->req->params->{asnew} ? q## : $chart->{chart_id} || q## %>" />
         <input type="hidden" name="chart_tag" value="<% $c->req->params->{chart_tag} || q## %>" />
