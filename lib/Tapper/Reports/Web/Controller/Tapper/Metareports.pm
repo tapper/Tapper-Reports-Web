@@ -373,11 +373,11 @@ sub get_chart_points : Local {
                         ->all
                     ;
                     if ( @a_bench_value_ids ) {
-                        $hr_chart_search->{where} = [
+                        $hr_chart_search->{where} = [[
                             '=',
                             'VALUE_ID',
                             @a_bench_value_ids,
-                        ];
+                        ]];
                     }
                     else {
                         last LOADING_DATA;
