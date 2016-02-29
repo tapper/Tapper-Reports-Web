@@ -1,5 +1,6 @@
 <%args>
     $chart
+    $tiny_url_count => 0
 </%args>
 
 <a href="/tapper/metareports?chart_tag=<% $c->req->params->{chart_tag} %>">&laquo; back to overview</a>
