@@ -275,7 +275,7 @@
         <input type="hidden" name="chart_tag" value="<% $c->req->params->{chart_tag} || q## %>" />
         <input type="hidden" id="idx_path" value="<% $c->req->path %>" />
 
-        <table lass="chart">
+        <table class="chart">
             <tr>
                 <td colspan="2" class="header"><% $chart->{chart_id} ? $c->req->params->{asnew} ? 'Clone' : 'Edit' : 'Create new' %> chart</td>
             </tr>
