@@ -118,6 +118,7 @@ function get_chart_points ( $act_chart, params ) {
                 }
 
                 var options = {
+                    legend      : { position    : "nw" },
                     points      : { show        : true },
                     xaxis       : { show        : true },
                     yaxis       : { show        : true },
