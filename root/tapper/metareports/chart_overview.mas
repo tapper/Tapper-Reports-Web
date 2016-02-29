@@ -27,6 +27,7 @@
                             <img src="/tapper/static/images/delete.small.png" title="delete" class="imgdel" />
                         </div>
                     </div>
+                    <a href="/tapper/metareports/detail?chart_tag=<% $c->req->params->{chart_tag} || '' %>&amp;chart_id=<% $or_chart_version->chart_id() %>">
                     <div class="charts" id="mainchart_<% $or_chart_version->chart_id() %>">
 %                       my @a_template_value;
 %                       for my $or_chart_line ( $or_chart_version->chart_lines ) {
@@ -50,6 +51,7 @@
                             <img class="loaderimage" src="/tapper/static/images_red/loader.gif" />
 %                       }
                     </div>
+                    </a>
                 </div>
 %           }
 %       }
