@@ -34,9 +34,9 @@
                 &nbsp;<font>Static Url <% $c->req->params->{chart_tiny_url} %> called</font>&nbsp;
 %           }
 %           else {
-                <div id="dv_searchleft_idx">&laquo;</div>
+                <div id="dv_searchleft_idx" class="invisible">&laquo;</div>
                 &nbsp;<input id="bt_create_static_url_idx" type="button" value="Create static Url" />&nbsp;
-                <div id="dv_searchright_idx">&raquo;</div>
+                <div id="dv_searchright_idx" class="invisible">&raquo;</div>
 %           }
         </div>
         <div class="icons">

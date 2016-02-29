@@ -47,35 +47,35 @@
         </tr>
         <tr>
             <td>name</td>
-            <td><input name="chart_marking_name" value="<% $chart_marking->{chart_marking_name} %>" /></td>
+            <td><input name="chart_marking_name" type="text" value="<% $chart_marking->{chart_marking_name} %>" /></td>
         </tr>
         <tr>
             <td>color</td>
-            <td><input name="chart_marking_color" class="chart_marking_color_input" value="<% $chart_marking->{chart_marking_color} || '000000' %>" /></td>
+            <td><input name="chart_marking_color" type="text" class="chart_marking_color_input" value="<% $chart_marking->{chart_marking_color} || '000000' %>" /></td>
         </tr>
         <tr>
             <td>x-axis from</td>
-            <td><input name="chart_marking_x_from" class="optional chart_marking_x_from_input" value="<% $chart_marking->{chart_marking_x_from} %>" /></td>
+            <td><input name="chart_marking_x_from" type="text" class="optional chart_marking_x_from_input" value="<% $chart_marking->{chart_marking_x_from} %>" /></td>
         </tr>
         <tr>
             <td>x-axis to</td>
-            <td><input name="chart_marking_x_to" class="optional chart_marking_x_to_input" value="<% $chart_marking->{chart_marking_x_to} %>" /></td>
+            <td><input name="chart_marking_x_to" type="text" class="optional chart_marking_x_to_input" value="<% $chart_marking->{chart_marking_x_to} %>" /></td>
         </tr>
         <tr>
             <td>x-axis format</td>
-            <td><input name="chart_marking_x_format" class="optional chart_marking_x_format_input" value="<% $chart_marking->{chart_marking_x_format} %>" /></td>
+            <td><input name="chart_marking_x_format" type="text" class="optional chart_marking_x_format_input" value="<% $chart_marking->{chart_marking_x_format} %>" /></td>
         </tr>
         <tr>
             <td>y-axis from</td>
-            <td><input name="chart_marking_y_from" class="optional chart_marking_y_from_input" value="<% $chart_marking->{chart_marking_y_from} %>" /></td>
+            <td><input name="chart_marking_y_from" type="text" class="optional chart_marking_y_from_input" value="<% $chart_marking->{chart_marking_y_from} %>" /></td>
         </tr>
         <tr>
             <td>y-axis to</td>
-            <td><input name="chart_marking_y_to" class="optional chart_marking_y_to_input" value="<% $chart_marking->{chart_marking_y_to} %>" /></td>
+            <td><input name="chart_marking_y_to" type="text" type="text" class="optional chart_marking_y_to_input" value="<% $chart_marking->{chart_marking_y_to} %>" /></td>
         </tr>
         <tr>
             <td>y-axis format</td>
-            <td><input name="chart_marking_y_format" class="optional chart_marking_y_format_input" value="<% $chart_marking->{chart_marking_y_format} %>" /></td>
+            <td><input name="chart_marking_y_format" type="text" class="optional chart_marking_y_format_input" value="<% $chart_marking->{chart_marking_y_format} %>" /></td>
         </tr>
     </table>
 
