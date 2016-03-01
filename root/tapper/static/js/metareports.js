@@ -328,6 +328,8 @@ function get_chart_points ( $act_chart, params ) {
                         $('#dv_searchleft_idx').click(function(){
                             location.href = create_search_url($act_chart) + '&amp;pager_direction=prev';
                         }).css('cursor','pointer');
+                    } else {
+                        $('#dv_searchleft_idx').css('visibility', 'hidden');
                     }
                     if (
                            $('#hd_offset_idx').val() != 0
@@ -336,6 +338,8 @@ function get_chart_points ( $act_chart, params ) {
                         $('#dv_searchright_idx').click(function(){
                             location.href = create_search_url($act_chart) + '&amp;pager_direction=next';
                         }).css('cursor','pointer');
+                    } else {
+                        $('#dv_searchright_idx').css('visibility', 'hidden');
                     }
 
                     $(chart_identifier).bind("plotselected", function (event, ranges) {
