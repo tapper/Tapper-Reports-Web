@@ -3,6 +3,7 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
 
 5.0.5     2016-02-29
+        - edit/resurrect older chart versions as new version
         - avoid repetition of duplicate test execution context
         - replace MySQL-specific parts
         - replace Tapper::Benchmark with BenchmarkAnything
