@@ -5,13 +5,13 @@
 <form action="/tapper/metareports">
     <input type="hidden" id="idx_chart_tag" value="<% $c->req->params->{chart_tag} || '' %>" />
     <select name="chart_tag">
-        <option value="all">all</option>
+        <option value="0">all</option>
         <& /tapper/metareports/chart_tags.mas, chart_tag => $c->req->params->{chart_tag} &>
     </select>
     <input type="submit" />
 </form>
 
-%   if ( $c->req->params->{chart_tag} ) {
+%   if ( defined $c->req->params->{chart_tag} ) {
 %       if ( @{$charts} > 0 ) {
 %           for my $or_chart ( @{$charts} ) {
 %               my $or_chart_version = $or_chart->chart_versions->first;
@@ -27,7 +27,7 @@
                             <img src="/tapper/static/images/delete.small.png" title="delete" class="imgdel" />
                         </div>
                     </div>
-                    <a href="/tapper/metareports/detail?chart_tag=<% $c->req->params->{chart_tag} || '' %>&amp;chart_id=<% $or_chart_version->chart_id() %>">
+                    <a href="/tapper/metareports/detail?chart_tag=<% $c->req->params->{chart_tag} || 0 %>&amp;chart_id=<% $or_chart_version->chart_id() %>">
                     <div class="charts" id="mainchart_<% $or_chart_version->chart_id() %>">
 %                       my @a_template_value;
 %                       for my $or_chart_line ( $or_chart_version->chart_lines ) {

@@ -12,7 +12,7 @@
 %               group_by    => ['chart_tag.chart_tag'],
 %           })
 %   ) {
-%       if ( $chart_tag && $chart_tag == $or_tag->chart_tag_id ) {
+%       if ( defined $chart_tag && $chart_tag == $or_tag->chart_tag_id ) {
             <option value="<% $or_tag->chart_tag_id %>" selected="selected"><% $or_tag->chart_tag->chart_tag %></option>
 %       }
 %       else {

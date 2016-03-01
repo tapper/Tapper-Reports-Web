@@ -190,7 +190,7 @@ sub chart_overview : Local {
     };
 
     my $i_chart_tag = $or_c->req->params->{chart_tag};
-    if ( $i_chart_tag && $i_chart_tag ne 'all' ) {
+    if ( defined($i_chart_tag) && $i_chart_tag ne '0' ) {
         $hr_where->{'chart_tag_relations.chart_tag_id'} = $i_chart_tag;
         push @{$hr_options->{join}}, 'chart_tag_relations';
     }
