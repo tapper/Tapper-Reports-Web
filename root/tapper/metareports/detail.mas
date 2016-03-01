@@ -85,12 +85,12 @@
 
         $('#idx_chart_version').change(function(){
             location.href =
-                  '/tapper/metareports/detail?chart_tag='
+                  '/tapper/metareports/detail?chart_version='
+                + $(this).val()
+                + '&amp;chart_tag='
                 + $('#idx_chart_tag').val()
                 + '&amp;chart_id='
                 + $(this).closest('div.chart_boxs').attr('chart')
-                + '&amp;chart_version='
-                + $(this).val()
             ;
         });
 

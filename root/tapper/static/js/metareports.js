@@ -61,19 +61,19 @@ function showTooltip( x, y, data, id ) {
         border: '1px solid #fdd',
         padding: '2px',
         'background-color': '#fee',
-        opacity: 0.80
+        opacity: 0.90
     }).appendTo("body").fadeIn(200);
 
 }
 
 function create_search_url( $act_chart ){
     var url =
-          '/tapper/metareports/detail?chart_id='
-        + $act_chart.closest('div.chart_boxs').attr('chart')
-        + '&amp;offset='
+          '/tapper/metareports/detail?offset='
         + $('#hd_offset_idx').val()
         + '&amp;chart_tag='
         + $('#idx_chart_tag').val()
+        + '&amp;chart_id='
+        + $act_chart.closest('div.chart_boxs').attr('chart')
     ;
     return url;
 }
@@ -479,7 +479,7 @@ $(document).ready(function(){
         }
     });
     $('#columnA_2columns img.imgedit').click(function(){
-        location.href = '/tapper/metareports/edit_chart?chart_tag='+$('#idx_chart_tag').val()+'&amp;chart_id='+$(this).closest('.chart_boxs').attr('chart')+'&amp;chart_version='+$('#idx_chart_version').val();
+        location.href = '/tapper/metareports/edit_chart?chart_tag='+$('#idx_chart_tag').val()+'&amp;chart_version='+$('#idx_chart_version').val()+'&amp;chart_id='+$(this).closest('.chart_boxs').attr('chart');
     });
     $('#columnA_2columns img.imgeditasnew').click(function(){
         location.href = '/tapper/metareports/edit_chart?chart_tag='+$('#idx_chart_tag').val()+'&amp;asnew=1&amp;chart_id='+$(this).closest('.chart_boxs').attr('chart');

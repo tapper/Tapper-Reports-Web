@@ -1101,10 +1101,10 @@ sub save_chart : Local {
     };
 
     $or_c->redirect(
-          '/tapper/metareports/detail?chart_id='
-        . $or_c->stash->{chart}{chart_id}
-        . '&amp;chart_tag='
+          '/tapper/metareports/detail?chart_tag='
         . $or_c->req->params->{chart_tag}
+        . '&amp;chart_id='
+        . $or_c->stash->{chart}{chart_id}
     );
     $or_c->detach();
 
