@@ -23,7 +23,7 @@
 
 <%method single_chart_tag>
     <%args>
-        $chart_tag => ''
+        $chart_tag => 0
     </%args>
 
     <img class="delete_chart_tag_input" src="/tapper/static/images/minus.png" />
