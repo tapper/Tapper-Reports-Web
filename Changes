@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.6     2016-03-03
         - bugfixes and polishing around charts
 
 5.0.5     2016-02-29
