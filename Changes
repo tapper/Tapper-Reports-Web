@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - bugfixes and polishing around charts
 
 5.0.5     2016-02-29
         - edit/resurrect older chart versions as new version
