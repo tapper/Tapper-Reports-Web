@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - more explicit deps
 
 5.0.7     2016-03-22
         - reportlist: fix successgrade column with MySQL backend
