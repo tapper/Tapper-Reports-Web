@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.8     2016-03-30
         - more explicit deps
 
 5.0.7     2016-03-22
