@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - some test diagnostics to investigate cpantesters fails
 
 5.0.8     2016-03-30
         - more explicit deps
