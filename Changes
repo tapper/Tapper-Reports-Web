@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - rt#113510 - require higher version of DateTime::Format::Strptime
+          [Kudos to Andreas König]
 
 5.0.9     2016-03-31
         - some test diagnostics to investigate cpantesters fails
