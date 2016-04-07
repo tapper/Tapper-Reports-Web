@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.10    2016-04-07
         - rt#113510 - require higher version of DateTime::Format::Strptime
           [Kudos to Andreas König]
 
