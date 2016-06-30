@@ -35,6 +35,7 @@ $all_testruns => undef
 %         if ($description_text) {
               <p>
               <h4>Description</h4>
+              <p><b>(Please note, that <strong>queueing</strong> can not be influenced from the precondition parameters, regardless of what the self-description says.)</b></p>
               <pre>
 <% $description_text %>
               </pre>

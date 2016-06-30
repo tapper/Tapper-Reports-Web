@@ -310,7 +310,7 @@ sub new_create : Chained('base') :PathPart('create') :Args(0) :FormConfig
                         open my $fh, "<", $file or $c->response->body(qq(Can not open $file: $!)), return;
                         my $desc;
                         while (my $line = <$fh>) {
-                                ($desc) = $line =~/# (?:tapper[_-])?description:\s*(.+)/;
+                                ($desc) = $line =~/^#+ *(?:tapper[_-])?description:\s*(.+)/;
                                 last if $desc;
                         }
 
@@ -410,9 +410,9 @@ sub parse_macro_precondition :Private
         while (my $line = <$fh>) {
                 $config->{description_text} .= "$1\n" if $line =~ /^### ?(.*)$/;
 
-                ($required)   = $line =~/# (?:tapper[_-])?mandatory[_-]fields:\s*(.+)/ if not $required;
-                ($optional)   = $line =~/# (?:tapper[_-])?optional[_-]fields:\s*(.+)/ if not $optional;
-                ($mpc_config) = $line =~/# (?:tapper[_-])?config[_-]file:\s*(.+)/ if not $mpc_config;
+                ($required)   = $line =~/^#+ *(?:tapper[_-])?mandatory[_-]fields?:\s*(.+)/ if not $required;
+                ($optional)   = $line =~/^#+ *(?:tapper[_-])?optional[_-]fields?:\s*(.+)/ if not $optional;
+                ($mpc_config) = $line =~/^#+ *(?:tapper[_-])?config[_-]file:\s*(.+)/ if not $mpc_config;
         }
 
         my $delim = qr/,+\s*/;
