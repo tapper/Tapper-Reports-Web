@@ -134,6 +134,7 @@ sub index :Path :Args(1)
                 while (my $r = $rga_reports->next) {
                         if (my @report_failures = @{ $self->get_report_failures($r) }) {
                                 $c->stash->{failures}->{$r->id}{name} = $r->suite->name;
+                                $c->stash->{failures}->{$r->id}{machine_name} = $r->machine_name;
                                 push @{$c->stash->{failures}->{$r->id}{failures}}, @report_failures;
                         }
                 }
@@ -158,6 +159,7 @@ sub index :Path :Args(1)
                 while (my $r = $rgt_reports->next) {
                         if (my @report_failures = @{ $self->get_report_failures($r) }) {
                                 $c->stash->{failures}->{$r->id}{name} = $r->suite->name;
+                                $c->stash->{failures}->{$r->id}{machine_name} = $r->machine_name;
                                 push @{$c->stash->{failures}->{$r->id}{failures}}, @report_failures;
                         }
                 }
@@ -177,6 +179,7 @@ sub index :Path :Args(1)
 
         unless (my @report_failures = @{$c->stash->{failures}->{$c->stash->{report}->id}{failures} || []}) {
                 $c->stash->{failures}->{$c->stash->{report}->id}{name} = $c->stash->{report}->suite->name;
+                $c->stash->{failures}->{$c->stash->{report}->id}{machine_name} = $c->stash->{report}->machine_name;
                 push @{$c->stash->{failures}->{$c->stash->{report}->id}{failures}}, @report_failures;
         }
         %{$c->stash->{metareport}} = $self->generate_metareport_link($report_data);

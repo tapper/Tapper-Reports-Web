@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - report details - failures with machine name
         - testrun list now based on 'updated at'
 
 5.0.10    2016-04-07
