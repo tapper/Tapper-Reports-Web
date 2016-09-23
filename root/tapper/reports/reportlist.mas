@@ -10,8 +10,8 @@
   $mark_report_id    => 0
   </%args>
 %               my $full_width   = 50;
-%               my $green_width  = int (       ($report->{success_ratio}||0)  * $full_width / 100);
-%               my $red_width    = int ((100 - ($report->{success_ratio}||0)) * $full_width / 100);
+%               my $green_width  = sprintf("%d",        ($report->{success_ratio}||0)  * $full_width / 100);
+%               my $red_width    = sprintf("%d", $full_width - $green_width);
 %               my $successgrade = $report->{successgrade} ? $report->{successgrade} : 'UNKNOWN';
 %               my $class_attr   = $just_group_member ? ' class="justgroupmember"' : '';
 %               if ($mark_report_id == $report->{id}) {

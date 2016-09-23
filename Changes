@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - report list - fix rounding bugs in success ratio bar length
 
 5.0.11    2016-08-24
         - report details - failures with machine name
