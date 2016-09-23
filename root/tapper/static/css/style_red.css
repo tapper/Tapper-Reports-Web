@@ -140,6 +140,16 @@ tr.justgroupmember a
   color: #999;
 }
 
+tr.justgroupmember .fail a
+{
+  color: #b55;
+}
+
+tr.justgroupmember .pass a
+{
+  color: #8b8;
+}
+
 tr.justgroupmember a:hover
 {
   text-decoration: underline;
