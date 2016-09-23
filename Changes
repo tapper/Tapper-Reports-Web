@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.12    2016-09-23
         - report list - fix rounding bugs in success ratio bar length
 
 5.0.11    2016-08-24
