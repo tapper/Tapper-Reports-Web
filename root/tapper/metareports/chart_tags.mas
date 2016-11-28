@@ -9,7 +9,8 @@
 %           ->search( undef, {
 %               prefetch    => 'chart_tag',
 %               order_by    => { -asc => 'chart_tag' },
-%               group_by    => ['chart_tag.chart_tag'],
+%               select      => ['me.chart_tag_id', 'chart_tag.chart_tag'],
+%               group_by    => ['me.chart_tag_id', 'chart_tag.chart_tag'],
 %           })
 %   ) {
 %       if ( defined $chart_tag && $chart_tag == $or_tag->chart_tag_id ) {
