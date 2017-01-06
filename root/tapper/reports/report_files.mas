@@ -13,7 +13,8 @@
 %         push @files, {
 %                       id                 => $file->id,
 %                       filename           => $file->filename,
-%                       length_filecontent => length($file->filecontent),
+%#                       length_filecontent => length($file->filecontent),
+%                       length_filecontent => 0, #length($file->filecontent),
 %                       contenttype        => $file->contenttype,
 %                       created_at         => $file->created_at,
 %                      };
@@ -23,7 +24,9 @@
 
 	  <tr>
             <th align="right"><a href="/tapper/reportfile/id/<% $file->{id}%>#reports/id/<% $report->id %>"><% $file->{filename} %></a></th>          <!--"-->
-            <td align="right"><% $file->{length_filecontent} %> Bytes</td>
+<!--
+            <td align="right"><% $file->{length_filecontent} %> Bytes (compressed)</td>
+-->
             <th>
 % if ($file->{contenttype} =~ /plain/) {
               view
