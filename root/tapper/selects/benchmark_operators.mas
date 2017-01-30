@@ -3,7 +3,7 @@
 </%args>
 
 %   my @a_benchmark_operators = $c->controller('Tapper::Metareports')->get_benchmark_operators();
-%   for my $s_act_operator ( sort @a_benchmark_operators ) {
+%   for my $s_act_operator ( @a_benchmark_operators ) {
 %       if ( $benchmark_operator && $s_act_operator eq $benchmark_operator ) {
             <option selected value="<% $s_act_operator %>"><% $s_act_operator %></option>
 %       }
