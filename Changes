@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.13    2017-03-07
         - fix sloppy grouping now needed for stricter MySQL 5.7
         - deactivate super-slow size info in reports
         - testrun control: pause/continue/cancel
