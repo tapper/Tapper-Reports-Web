@@ -24,6 +24,7 @@
 %                       foreach my $snav (@$subnavi) {
 %                               my $shref  = $snav->{href}  || '';
 %                               my $stitle = $snav->{title} || '';
+%                               my $confirm= $snav->{confirm} || '';
 %                               my $simage = $snav->{image} || '';
                                 <li>
 %                                       if ( $shref ) {
@@ -32,7 +33,11 @@
 %                                               } else {
                                                         &nbsp;&nbsp;&nbsp;&nbsp;
 %                                               }
-                                                <a href="<% $shref %>" ><% $stitle %></a><br />
+                                                        <a href="<% $shref %>"
+%                                                          if ( $confirm ) {
+                                                             onclick="return confirm('<% $confirm %>');"
+%                                                          }
+                                                        ><% $stitle %></a><br />
 %                                       }
 %                                       else {
                                                 <% $stitle %>

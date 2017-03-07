@@ -35,7 +35,7 @@ sub index :Path :Args(1)
 
         return unless $c->stash->{testrun}->testrun_scheduling;
 
-        $c->stash->{time}     = $c->stash->{testrun}->starttime_testrun ? "started at ".$c->stash->{testrun}->starttime_testrun : "Scheduled for ".($c->stash->{testrun}->starttime_earliest || '');
+        $c->stash->{time}     = $c->stash->{testrun}->starttime_testrun ? "started at ".$c->stash->{testrun}->starttime_testrun : $c->stash->{testrun}->testrun_scheduling->status." // ".($c->stash->{testrun}->starttime_earliest || '');
         $c->stash->{hostname} = $c->stash->{testrun}->testrun_scheduling->host ? $c->stash->{testrun}->testrun_scheduling->host->name : "unknown";
 
         $c->stash->{title} = "Testrun $testrun_id: ". $c->stash->{testrun}->topic_name . " @ ".$c->stash->{hostname};
@@ -74,6 +74,13 @@ sub prepare_navi : Private
 {
         my ( $self, $c, $testrun_id ) = @_;
 
+        my $tr;
+        my $job;
+        my $status = 'undefined';
+        $tr     = $c->model('TestrunDB')->resultset('Testrun')->find($testrun_id);
+        $job    = $tr->testrun_scheduling if $tr;
+        $status = $job->status if $job;
+
         $c->stash->{navi} =[
                             {
                              title  => "Testruns by date",
@@ -111,16 +118,39 @@ sub prepare_navi : Private
                              href   => "",
                              active => 0,
                              subnavi => [
-                                         {
-                                          title  => "Rerun this Testrun",
-                                          href   => "/tapper/testruns/$testrun_id/rerun",
-                                          confirm => 'Do you really want to re-start this testrun?',
-                                         },
-                                         {
-                                          title  => "Create new Testrun",
-                                          href   => "/tapper/testruns/create/",
-                                         },
-                                        ],
+                               ($status eq 'finished'
+                                  ? {
+                                    title  => "Rerun",
+                                    href   => "/tapper/testruns/$testrun_id/rerun",
+                                    confirm => 'Do you really want to RERUN this testrun?',
+                                  }
+                                  : ()),
+                               ($status =~ /^(running|schedule|prepare)$/
+                                  ? {
+                                    title  => "Cancel",
+                                    href   => "/tapper/testruns/$testrun_id/cancel",
+                                    confirm => 'Do you really want to CANCEL this testrun?',
+                                  }
+                                  : ()),
+                               ($status eq 'schedule'
+                                  ? {
+                                    title  => "Unschedule",
+                                    href   => "/tapper/testruns/$testrun_id/pause",
+                                    confirm => 'Do you really want to UNSCHEDULE this testrun?',
+                                  }
+                                  : ()),
+                               ($status eq 'prepare'
+                                  ? {
+                                    title  => "Reschedule",
+                                    href   => "/tapper/testruns/$testrun_id/continue",
+                                    confirm => 'Do you really want to RESCHEDULE this testrun?',
+                                  }
+                                  : ()),
+                               {
+                                 title  => "Create new testrun",
+                                 href   => "/tapper/testruns/create",
+                               },
+                             ],
                             },
                            ];
 }

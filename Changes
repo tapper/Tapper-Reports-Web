@@ -3,6 +3,7 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
         - fix sloppy grouping now needed for stricter MySQL 5.7
         - deactivate super-slow size info in reports
+        - testrun control: pause/continue/cancel
 
 5.0.12    2016-09-23
         - report list - fix rounding bugs in success ratio bar length

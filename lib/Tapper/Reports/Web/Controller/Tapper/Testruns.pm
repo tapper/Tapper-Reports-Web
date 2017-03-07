@@ -166,6 +166,32 @@ sub delete : Chained('id') PathPart('delete')
         $c->stash(force => 1);
 }
 
+sub pause : Chained('id') PathPart('pause')
+{
+        my ( $self, $c) = @_;
+
+        my $cmd = Tapper::Cmd::Testrun->new();
+        my $retval = $cmd->pause($c->stash->{testrun}->id);
+        if (not $retval) {
+                $c->response->body(qq(Can not pause testrun));
+                return;
+        }
+        $c->stash(testrun => $c->stash->{testrun}->id);
+}
+
+sub continue : Chained('id') PathPart('continue')
+{
+        my ( $self, $c) = @_;
+
+        my $cmd = Tapper::Cmd::Testrun->new();
+        my $retval = $cmd->continue($c->stash->{testrun}->id);
+        if (not $retval) {
+                $c->response->body(qq(Can not continue testrun));
+                return;
+        }
+        $c->stash(testrun => $c->stash->{testrun}->id);
+}
+
 sub rerun : Chained('id') PathPart('rerun') Args(0)
 {
         my ( $self, $c ) = @_;
@@ -177,6 +203,19 @@ sub rerun : Chained('id') PathPart('rerun') Args(0)
                 return;
         }
         $c->stash(testrun => $retval);
+}
+
+sub cancel : Chained('id') PathPart('cancel') Args(0)
+{
+        my ( $self, $c ) = @_;
+
+        my $cmd = Tapper::Cmd::Testrun->new();
+        my $retval = $cmd->cancel($c->stash->{testrun}->id, "Cancelled in Web GUI");
+        if ($retval) {
+                $c->response->body(qq(Can not cancel testrun: $retval));
+                return;
+        }
+        $c->stash(testrun => $c->stash->{testrun}->id);
 }
 
 sub preconditions : Chained('id') PathPart('preconditions') CaptureArgs(0)
