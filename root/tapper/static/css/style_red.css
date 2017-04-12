@@ -692,6 +692,15 @@ table.reportfile h5
   padding: 0.5em 0em 0em 0em;
   }
 
+table.reportfile a
+{
+  text-decoration: none;
+  }
+
+table.reportfile a:hover
+{
+  text-decoration: underline;
+  }
 
 /* ----- overview list ----- */
 
