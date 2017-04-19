@@ -334,8 +334,7 @@ sub new_create : Chained('base') :PathPart('create') :Args(0) :FormConfig
                 $c->res->redirect('/tapper/testruns/fill_usecase');
 
         } else {
-                my $select = $form->get_element({type => 'Select', name => 'topic'});
-                $select->options($self->get_topic_names());
+                my $select;
 
                 $select = $form->get_element({type => 'Select', name => 'owner'});
                 $select->options($self->get_owner_names());
@@ -446,7 +445,7 @@ sub parse_macro_precondition :Private
         my ($self, $c, $file) = @_;
         my $config;
         my $home = $c->path_to();
-
+        my ($shortfile, undef, undef) = File::Basename::fileparse($file, ('.mpc'));
 
         open my $fh, "<", $file or return "Can not open use case description $file:$!";
         my ($required, $optional, $mpc_config) = ('', '', '');
@@ -496,6 +495,20 @@ sub parse_macro_precondition :Private
                 }
                 $config->{mpc_config} = $mpc_config;
         }
+
+        # Default field "testrun_topic" in every form
+        if (not grep { $_->{name} eq "testrun_topic" } @{$config->{required}}) {
+            unshift @{$config->{required}},
+            {
+                type => "Text",
+                name => "testrun_topic",
+                label => "Testrun topic",
+                value =>  join("-", "usertest", ($shortfile || ())),
+                constraints => [ { type => 'Required', message_xml => '<span style="color:#B40404">Please fill mandatory field</span>' } ],
+                attributes => { size => 50 },
+            }
+        }
+
         return $config;
 }
 
@@ -596,6 +609,7 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
         my $form       = $c->stash->{form};
         my $position   = $form->get_element({type => 'Submit'});
         my $file       = $c->session->{usecase_file};
+        my ($shortfile, undef, undef) = File::Basename::fileparse($file, ('.mpc'));
         my %macros;
         $c->res->redirect('/tapper/testruns/create') unless $file;
 
@@ -622,10 +636,19 @@ sub fill_usecase : Chained('base') :PathPart('fill_usecase') :Args(0) :FormConfi
         $form->elements({type => 'Submit', name => 'submit', value => 'Submit'});
         $form->process();
 
-
         if ($form->submitted_and_valid) {
                 my $testrun_data = $c->session->{testrun_data};
                 my @testhosts;
+
+                # allow overwrite testrun topic
+                my $testrun_topic = $form->input->{testrun_topic};
+                if ($testrun_topic) {
+                    $testrun_data->{topic} = $testrun_topic;
+                } else {
+                    $testrun_data->{topic} = "undefined-topic";
+                }
+
+                # hosts
                 if ( defined ($testrun_data->{requested_hosts})){
                         if ( ref($testrun_data->{requested_hosts}) eq 'ARRAY') {
                                 @testhosts = @{$testrun_data->{requested_hosts}};
