@@ -348,13 +348,18 @@ sub new_create : Chained('base') :PathPart('create') :Args(0) :FormConfig
                 foreach my $file (glob "$path/*.mpc") {
                         open my $fh, "<", $file or $c->response->body(qq(Can not open $file: $!)), return;
                         my $desc;
+                        my $hide;
                         while (my $line = <$fh>) {
                                 ($desc) = $line =~/^#+ *(?:tapper[_-])?description:\s*(.+)/;
                                 last if $desc;
                         }
+                        while (my $line = <$fh>) {
+                                ($hide) = $line =~/^#+ *(?:tapper[_-])?hide-in-webgui:\s*(.+)/;
+                                last if $hide;
+                        }
 
                         my ($shortfile, undef, undef) = File::Basename::fileparse($file, ('.mpc'));
-                        push @use_cases, [$file, "$shortfile - $desc"];
+                        push @use_cases, [$file, "$shortfile - $desc"] unless $hide;
 
                 }
                 my $select = $form->get_element({type => 'Radiogroup', name => 'use_case'});
