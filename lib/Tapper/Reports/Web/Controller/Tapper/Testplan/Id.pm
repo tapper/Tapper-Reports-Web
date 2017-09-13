@@ -108,8 +108,8 @@ sub index :Path :Args(1)
         $c->stash->{instance}{plan}     = $inst_res->evaluated_testplan;
         $c->stash->{instance}{plan}     =~ s/^\n+//m;
         $c->stash->{instance}{plan}     =~ s/\n+/\n/m;
-        $c->stash->{instance}{path}     = $inst_res->path;
-        $c->stash->{instance}{overview} = $self->gen_testplan_overview($c, $c->stash->{instance}{plan});
+        #$c->stash->{instance}{path}     = $inst_res->path;
+        #$c->stash->{instance}{overview} = $self->gen_testplan_overview($c, $c->stash->{instance}{plan});
         $c->stash->{title} = "Testplan id $instance_id, ".$c->stash->{instance}{name};
         return;
 }
