@@ -58,7 +58,21 @@ sub delete : Chained('id') PathPart('delete')
                         return;
                 }
         }
+}
 
+sub cancel : Chained('id') PathPart('cancel')
+{
+        my ($self, $c) = @_;
+
+        my $cmd = Tapper::Cmd::Testplan->new;
+        my $testplan_id = $c->stash->{testplan}->id;
+        my $retval = $cmd->cancel($testplan_id, "Cancelled testplan in WebGUI");
+        if ($retval) {
+            $c->response->body(qq(Can not cancel testplan: $retval));
+            return;
+        }
+        $c->flash->{msg} = "<strong>Cancelling this testplan is in progress...</strong><br/><br/>";
+        $c->res->redirect("/tapper/testplan/id/$testplan_id");
 }
 
 

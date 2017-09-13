@@ -125,11 +125,11 @@ sub prepare_navi :Private
 
         push @{$c->stash->{navi}}, { title => 'Rerun this testplan',
                        href  => "/tapper/testplan/$id/rerun",
-                       confirm => 'Do you want to reapply this test plan?',
+                       confirm => 'Do you really want to RERUN this test plan?',
                      };
-        push @{$c->stash->{navi}}, { title => 'Delete this testplan',
-                       href  => "/tapper/testplan/$id/delete",
-                       confirm => "Do you want to delete this test plan?\nAll associated testruns will set to finished.",
+        push @{$c->stash->{navi}}, { title => 'Cancel this testplan',
+                                     href  => "/tapper/testplan/$id/cancel",
+                                     confirm => 'Do you really want to CANCEL this testplan?',
                      };
 }
 
