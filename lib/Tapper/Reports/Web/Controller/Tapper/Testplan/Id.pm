@@ -42,7 +42,7 @@ sub parse_testrun
 
         push @{$testrun{kernel}}, dpath('/preconditions/*/filename[ value =~ /linux-.*\d+.\d+/]')->match($description);
         push @{$testrun{test}},
-         map { basename($_) }
+         map { $? ? basename($_) : () }
           dpath('/preconditions/*/precondition_type[ value eq "testprogram"]/../program')->match($description);
         $testrun{shortname} = $description->{shortname};
         return \%testrun;
