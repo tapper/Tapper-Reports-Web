@@ -168,18 +168,22 @@ sub get_testrun_details
                 foreach my $col ($instance->columns) {
                         $details->{$col} = $instance->$col;
                 }
-                $details->{count_unfinished} = int grep {$_->testrun_scheduling and
-                                                           $_->testrun_scheduling->status ne 'finished'} $instance->testruns->all;
-
 
                 my $testruns = $instance->testruns;
         TESTRUN:
-                while ( my $testrun = $testruns->next) {
-                        next TESTRUN if $testrun->testrun_scheduling->status ne 'finished';
-                        my $stats   = model('TestrunDB')->resultset('ReportgroupTestrunStats')->search({testrun_id => $testrun->id}, {rows => 1})->first;
+                while (my $testrun = $testruns->next)
+                {
+                    my $job = $testrun->testrun_scheduling;
+                    $details->{count_unfinished}++ if $job and $job->status ne 'finished';
+                    $details->{count_running}++    if $job and $job->status eq 'running';
+                    $details->{count_schedule}++   if $job and $job->status eq 'schedule';
+                    $details->{count_prepare}++    if $job and $job->status eq 'prepare';
 
-                        $details->{count_fail}++ if $stats and $stats->success_ratio  < 100;
-                        $details->{count_pass}++ if $stats and $stats->success_ratio == 100;
+                    next TESTRUN if $job->status ne 'finished';
+                    my $stats   = model('TestrunDB')->resultset('ReportgroupTestrunStats')->search({testrun_id => $testrun->id}, {rows => 1})->first;
+
+                    $details->{count_fail}++ if $stats and $stats->success_ratio  < 100;
+                    $details->{count_pass}++ if $stats and $stats->success_ratio == 100;
                 }
                 push @testplan_instances, $details;
         }
