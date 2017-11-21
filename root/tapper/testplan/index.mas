@@ -23,7 +23,7 @@ unless its success state is exactly 100%.
         <thead>
                 <tr>
                          <th>ID</th>
-                         <th>Created At (GMT)</th>
+                         <th>Updated At (local)</th>
                          <th>Name</th>
                          <th>Path</th>
                          <th>Success</th>
