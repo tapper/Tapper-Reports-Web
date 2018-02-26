@@ -1403,9 +1403,7 @@ sub get_benchmark_operators : Private {
     my $balib = BenchmarkAnything::Storage::Frontend::Lib->new
       (cfgfile => Tapper::Config->subconfig->{_last_used_tapper_config_file});
 
-    my @operators = @{$balib->_get_benchmark_operators || []};
-
-    return (@operators, 'not like'); # backwards compatibility for stored queries
+    return @{$balib->_get_benchmark_operators || []};
 
 }
 
