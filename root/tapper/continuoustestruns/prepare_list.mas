@@ -48,9 +48,9 @@
                 <a title="Click to show details" href="/tapper/testruns/id/<% $hr_testrun->{testrun_id} %>">tr<% $hr_testrun->{testrun_id} %></a>
             </td>
             <td><% $hr_testrun->{testrun_date} %></td>
-            <td><% $hr_testrun->{topic_name} %></td>
+            <td><a class="ctlink" title="Show testruns with this name" href="/tapper/testruns/topic/<% $hr_testrun->{topic_name} %>"><% $hr_testrun->{topic_name} %></a></td>
             <td><% $hr_testrun->{queue_name} %></td>
-            <td><% join '<br />', split /,/, $hr_testrun->{hosts} | n %></td>
+            <td><a class="ctlink" title="Show hosts with this name" href="/tapper/testruns/host/<% $hr_testrun->{hosts} %>"><% join '<br />', split /,/, $hr_testrun->{hosts} | n %></a></td>
             <td><% $hr_testrun->{owner} %></td>
             <td>
 %               if ( $hr_testrun->{status} eq 'prepare' ) {
