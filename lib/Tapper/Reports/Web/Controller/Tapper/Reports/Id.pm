@@ -136,7 +136,7 @@ sub index :Path :Args(1)
                                 $c->stash->{failures}->{$r->id}{name} = $r->suite->name;
                                 $c->stash->{failures}->{$r->id}{machine_name} = $r->machine_name;
                                 my @descriptions = ();
-                                my $sections = $self->reportsections;
+                                my $sections = $r->reportsections;
                                 while (my $section = $sections->next) { my %col = $section->get_columns; push @descriptions, $col{description} if $col{description} };
                                 $c->stash->{failures}->{$r->id}{report_description} = join(",", @descriptions);
                                 push @{$c->stash->{failures}->{$r->id}{failures}}, @report_failures;
