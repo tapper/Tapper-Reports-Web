@@ -133,7 +133,7 @@ sub index :Path :Args()
                                                                          ]});
                 my @details = $self->get_testrun_details($todays_instances);
                 if (@details) {
-                        push @{$c->stash->{testplan_days}}, { date               => $today,
+                        push @{$c->stash->{testplan_days}}, { date               => $yesterday,
                                                               testplan_instances => \@details,
                                                             };
                 }
