@@ -57,7 +57,7 @@
                     S <img src="/tapper/static/images/continue.small.png" class="continue" title="SLEEPING - click to run" />
 %               }
 %               else {
-                    R <img src="/tapper/static/images/pause.small.png" class="pause" title="RUNNING - click to sleep" />
+                    <a class="ctlink" title="Show running testruns with this name" href="/tapper/testruns/topic/<% $hr_testrun->{topic_name} %>/state/running">R</a> <img src="/tapper/static/images/pause.small.png" class="pause" title="RUNNING - click to sleep" />
 %               }
             </td>
             <td>
