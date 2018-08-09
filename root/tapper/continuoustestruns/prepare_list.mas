@@ -54,7 +54,7 @@
             <td><% $hr_testrun->{owner} %></td>
             <td>
 %               if ( $hr_testrun->{status} eq 'prepare' ) {
-                    S <img src="/tapper/static/images/continue.small.png" class="continue" title="SLEEPING - click to run" />
+                    <a class="ctlink" title="Show remaining running testruns with this name" href="/tapper/testruns/topic/<% $hr_testrun->{topic_name} %>/state/running">S</a> <img src="/tapper/static/images/continue.small.png" class="continue" title="SLEEPING - click to run" />
 %               }
 %               else {
                     <a class="ctlink" title="Show running testruns with this name" href="/tapper/testruns/topic/<% $hr_testrun->{topic_name} %>/state/running">R</a> <img src="/tapper/static/images/pause.small.png" class="pause" title="RUNNING - click to sleep" />
