@@ -20,7 +20,7 @@ $precondition_string => ''
 
 % if (%reportlist_rgt) {
 <h4>Reports</h4>
-<& /tapper/reports/reportlist.mas, reportlist => \%reportlist_rgt &>
+<& /tapper/reports/reportlist.mas, reportlist => \%reportlist_rgt, testplan_id => $testrun->testplan_id  &>
 %}
 
     <!-- ************************************************************ -->
