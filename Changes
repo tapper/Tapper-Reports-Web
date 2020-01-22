@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
         - /tapper/reports/info/{firstid,lastid} - introduce info urls
+        - /tapper/testplan/*/rerun - adapt to API changes
 
 5.0.14    2019-03-01
         - testplans - lots of small tweaks everywhere
