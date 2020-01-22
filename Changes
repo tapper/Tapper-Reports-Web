@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.15    2020-01-22
         - /tapper/reports/info/{firstid,lastid} - introduce info urls
         - /tapper/testplan/*/rerun - adapt to API changes
 
