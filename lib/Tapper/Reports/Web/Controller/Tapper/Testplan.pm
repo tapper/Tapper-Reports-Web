@@ -36,7 +36,7 @@ sub rerun : Chained('id') PathPart('rerun') Args(0)
         my ( $self, $c ) = @_;
 
         my $cmd = Tapper::Cmd::Testplan->new();
-        my $retval = $cmd->rerun($c->stash->{testplan}->id);
+        my $retval = $cmd->rerun($c->stash->{testplan}->id)->{testplan_id};
         if (not $retval) {
                 $c->response->body(qq(Can not rerun testplan));
                 return;
