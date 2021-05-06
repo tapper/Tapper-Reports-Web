@@ -4,6 +4,7 @@ $testrun
 $overview
 $hostname
 $time
+$resources => []
 %reportlist_rgt => {}
 $precondition_string => ''
 </%args>
@@ -29,6 +30,11 @@ $precondition_string => ''
 	<ul class="post_info">
 		<li class="date"><% $time || '' %></li>
 		<li class="meta">Host: '<% $hostname || '' %>'</li>
+%       if ($resources) {
+%          foreach my $resource (@$resources) {
+		<li class="meta">Resource: '<% $resource->name %>'</li>
+%          }
+%       }
 	</ul>
 
     <!-- ************************************************************ -->

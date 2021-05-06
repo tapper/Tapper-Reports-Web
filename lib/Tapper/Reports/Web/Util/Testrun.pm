@@ -66,6 +66,8 @@ sub prepare_testrunlist
                         $status   = $testrun->testrun_scheduling->status;
                 }
 
+                my @resources = $testrun->claimed_resources;
+
                 my $tr = {
                           testrun_id            => $testrun->id,
                           success_ratio         => $testrun_report ? $testrun_report->success_ratio : 0,
@@ -77,6 +79,7 @@ sub prepare_testrunlist
                           created_at            => $testrun->created_at,
                           updated_at            => $updated_at || $testrun->updated_at,
                           owner                 => $testrun->owner->login || 'unknown user' ,
+                          resources             => \@resources,
                          };
                 push @testruns, $tr;
         }

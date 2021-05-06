@@ -58,6 +58,7 @@ sub index :Path  :Args()
         given ($type) {
                 when('suite') {$self->suite($c, $filter_condition)};
                 when('host')  {$self->host($c, $filter_condition)};
+                when('resource') {$self->resource($c, $filter_condition)};
         }
 }
 
@@ -92,7 +93,17 @@ sub host
         $c->stash->{title} = "Tapper report hosts";
 }
 
+sub resource
+{
+        my ( $self, $c, $filter_condition ) = @_;
 
+        my $resources = $c->model('TestrunDB')->resultset('Resource')->search($filter_condition->{early}, { columns => [ qw/name/ ] });
+
+        while ( my $resource = $resources->next ) {
+                $c->stash->{overviews}{$resource->name} = '/tapper/testruns/resource/'.$resource->name;
+        }
+        $c->stash->{title} = "Tapper resources";
+}
 
 sub prepare_navi : Private
 {

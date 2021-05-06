@@ -426,6 +426,21 @@ sub get_hostnames
 
 }
 
+=head2 get_resources
+
+Get an array of a all resources.
+
+@return success - array ref of resource db objects
+
+=cut
+
+sub get_resources
+{
+        my ($self) = @_;
+        my @all_resources = model("TestrunDB")->resultset('Resource')->all;
+        return \@all_resources;
+}
+
 
 =head2 parse_macro_precondition
 
@@ -706,6 +721,7 @@ sub prepare_testrunlists : Private {
             state               => $hr_filter_condition->{state},
             success             => $hr_filter_condition->{success},
             owner               => $hr_filter_condition->{owner},
+            resource            => $hr_filter_condition->{resource},
         };
 
         require DateTime;
@@ -756,11 +772,19 @@ sub prepare_testrunlists : Private {
             $or_c->stash->{head_overview}   = 'Testruns';
         }
 
-        $or_c->stash->{testruns} = $or_c->model('TestrunDB')->fetch_raw_sql({
+        my $ar_testruns = $or_c->model('TestrunDB')->fetch_raw_sql({
                 query_name  => 'testruns::web_list',
                 fetch_type  => '@%',
                 query_vals  => $hr_query_vals,
         });
+
+        foreach my $testrun (@$ar_testruns) {
+                my @res_requests = $or_c->model('TestrunDB')->resultset('TestrunRequestedResource')
+                  ->search({ testrun_id => $testrun->{testrun_id}, selected_resource_id => { '!=', undef } },{ prefetch => 'selected_resource' });
+                $testrun->{resources} = [ map { $_->selected_resource } @res_requests ];
+        }
+
+        $or_c->stash->{testruns} = $ar_testruns;
 
         return 1;
 

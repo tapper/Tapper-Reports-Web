@@ -68,6 +68,14 @@ sub index :Path :Args(1)
             join => [ 'reportgrouptestrun', ]
            }
            );
+
+        my @resource_requests = $c->model('TestrunDB')
+          ->resultset('TestrunRequestedResource')
+          ->search({ testrun_id => $testrun_id, selected_resource_id => { '!=', undef } },
+                 { 'prefetch' => 'selected_resource' })
+          ->all();
+
+        $c->stash->{resources} = [ map { $_->selected_resource } @resource_requests ];
 }
 
 sub prepare_navi : Private

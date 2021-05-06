@@ -145,6 +145,14 @@ sub index :Path :Args(1)
         }
 
         if (my $rgt = $c->stash->{report}->reportgrouptestrun) {
+
+                my @resource_requests = $c->model('TestrunDB')->resultset('TestrunRequestedResource')->search(
+                        { testrun_id => $rgt->testrun_id, 'selected_resource_id' => { '!=', undef } },
+                        { prefetch => 'selected_resource' }
+                      )->all();
+                my @resources = map { $_->selected_resource } @resource_requests;
+                $c->stash->{resources} = \@resources;
+
                 #my $rgt_reports = $c->model('TestrunDB')->resultset('ReportgroupTestrun')->search ({ testrun_id => $rgt->testrun_id });
                 my $rgt_reports = $c->model('TestrunDB')->resultset('Report')->search
                     (
