@@ -421,11 +421,16 @@ sub save : Local {
             }
 
             # insert testrun requested hosts
-            for my $i_host ( @{toarrayref( $or_c->req->params->{host} )} ) {
+            for my $s_host ( @{toarrayref( $or_c->req->params->{host} )} ) {
+                my $or_host = $or_schema->resultset('Host')->search({ name => $s_host })->first;
+
+                die "Host with name '$s_host' does not exist"
+                  unless defined $or_host;
+
                 $or_schema
                     ->resultset('TestrunRequestedHost')
                     ->new({
-                        host_id     => $i_host,
+                        host_id     => $or_host->id,
                         testrun_id  => $i_testrun_id,
                     })
                     ->insert()

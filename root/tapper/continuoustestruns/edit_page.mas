@@ -84,8 +84,7 @@
 %                   else {
                         <img src="/tapper/static/images/plus.png" class="addhost" />
 %                   }
-                    <input type="hidden" name="host" value="<% $ar_host->[0] %>" />
-                    <input type="text" class="achost" value="<% $ar_host->[1] %>" />
+                    <input type="text" class="achost" name="host" value="<% $ar_host->[1] %>" />
 %               }
             </td>
         </tr>
@@ -127,22 +126,9 @@
 
     $(document).ready(function(){
 
-        var acoptions = {
+        $('input.achost').autocomplete({
             source: available_hosts,
-            change: function (event, ui) {
-                if(! ui.item ){
-                    $(event.target).val('');
-                }
-                else {
-                    $(event.target).prevAll('input[type="hidden"]:first').val(ui.item.id);
-                }
-            },
-            focus: function (event, ui) {
-                return false;
-            }
-        };
-
-        $('input.achost').autocomplete(acoptions);
+        });
 
         $('input#resource').autocomplete({
             source: available_resources,
@@ -154,8 +140,7 @@
                 if ( $target.hasClass('addhost') ) {
                     $target.parent().append(
                           '<img src="/tapper/static/images/minus.png" class="delhost" /> '
-                        + '<input type="hidden" name="host" value="" />'
-                        + '<input type="text" class="achost" value="" />'
+                        + '<input type="text" class="achost" name="host" value="" />'
                     ).find('input:last').autocomplete(acoptions);
                 }
                 else if ( $target.hasClass('addprec') ) {
