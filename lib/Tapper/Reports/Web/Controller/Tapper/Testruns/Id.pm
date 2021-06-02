@@ -76,6 +76,8 @@ sub index :Path :Args(1)
           ->all();
 
         $c->stash->{resources} = [ map { $_->selected_resource } @resource_requests ];
+
+        $c->stash->{dependencies} = [ $c->stash->{testrun}->depending_testruns->all ];
 }
 
 sub prepare_navi : Private

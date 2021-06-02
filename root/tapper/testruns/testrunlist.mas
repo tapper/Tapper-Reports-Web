@@ -50,6 +50,15 @@
 %                         }
                         </td>
                         <td>
+%                         if (@{$testrun->{dependencies}} > 0) {
+%                           foreach my $dependency (@{$testrun->{dependencies}}) {
+                            <a href="/tapper/testruns/id/<% $dependency->id %>">tr<% $dependency->id %></a>
+%                           }
+%                         } else {
+                            &ndash;
+%                         }
+                        </td>
+                        <td>
                             <a title="Add <% $testrun->{status} %> to filter" href="/<% $c->req->path %>/status/<% $testrun->{status} %>">
                             <img src="/tapper/static/images/plus.png" size="16"></a>
                             <a title="Click to show testruns on '<% $testrun->{status} %>'"
@@ -88,6 +97,7 @@
                          <th>Topic</th>
                          <th>Machine</th>
                          <th>Resource</th>
+                         <th>Dependencies</th>
                          <th>state</th>
                          <th>Ratio</th>
                          <th>Owner</th>
