@@ -84,7 +84,8 @@
 %        if (@$external_attachments) {
         <h4>External Attachments</h4>
         <table class="reportfile" style="margin-bottom:5em">
-%               foreach my $att (@$external_attachments) {
+%               my @sorted_attachments = sort { $a->{filename} cmp $b->{filename} } @$external_attachments;
+%               foreach my $att (@sorted_attachments) {
           <tr>
             <td align="left"><a href="<% $att->{view_url} %>"><% $att->{filename} %></a></td>
             <td><a href="<% $att->{info_url} %>">info</a>&nbsp;|&nbsp;</td>
