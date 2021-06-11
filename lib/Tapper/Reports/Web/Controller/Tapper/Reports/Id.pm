@@ -86,8 +86,8 @@ Query OStore for attachments if configured.
 @param scalar - report id
 
 @return success - Arrayref of Hashrefs with filename and url key filled with the corresponding information
-@return ostore not configured - undef
-@return error - undef
+@return ostore not configured - empty arrayref
+@return error - empty arrayref
 
 =cut
 
@@ -97,7 +97,7 @@ sub get_ostore_attachments {
 
   my $endpoint = Tapper::Config->subconfig->{ostore}{endpoint};
 
-  return undef unless defined $endpoint;
+  return [] unless defined $endpoint;
 
   $endpoint =~ s,/$,,;
 
@@ -107,7 +107,7 @@ sub get_ostore_attachments {
     "q:report" => $report_id,
   });
 
-  return undef unless defined($result) && ref($result) eq "HASH" && defined($result->{success}) && $result->{success} && defined($result->{objects});
+  return [] unless defined($result) && ref($result) eq "HASH" && defined($result->{success}) && $result->{success} && defined($result->{objects});
 
   my @attachments;
   foreach my $obj (@{$result->{objects}}) {
