@@ -88,8 +88,13 @@
 %               foreach my $att (@sorted_attachments) {
           <tr>
             <td align="left"><a href="<% $att->{view_url} %>"><% $att->{filename} %></a></td>
-            <td><a href="<% $att->{info_url} %>">info</a>&nbsp;|&nbsp;</td>
-            <td><% $att->{size} %> Bytes</td>
+            <td>
+              view
+              <a href="<% $att->{view_url} %>?filter=ansi2txt">ansi2txt</a>&nbsp;|
+              <a href="<% $att->{view_url} %>?filter=ascii">ascii only</a>&nbsp;|
+              <a href="<% $att->{info_url} %>">info</a>&nbsp;|
+              <% $att->{size} %> Bytes
+            </td>
           </tr>
 %               }
           </table>
