@@ -6,6 +6,7 @@ use strict;
 use warnings;
 
 use DateTime::Format::Natural;
+use DateTime::Format::Strptime;
 use Data::Dumper;
 
 use Tapper::Reports::Web::Util::Filter::Report;
