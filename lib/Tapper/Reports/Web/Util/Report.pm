@@ -5,8 +5,6 @@ use Tapper::Model 'model';
 
 extends 'Tapper::Reports::Web::Util';
 
-use common::sense;
-
 sub prepare_simple_reportlist {
 
         my ( $self, $c, $reports ) = @_;

@@ -11,7 +11,6 @@ use Data::Dumper;
 
 use Tapper::Reports::Web::Util::Filter::Report;
 use Tapper::Reports::Web::Util::Report;
-use common::sense;
 
 
 sub index :Path :Args() {

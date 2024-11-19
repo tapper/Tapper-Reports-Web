@@ -4,7 +4,6 @@ use parent 'Tapper::Reports::Web::Controller::Base';
 use DateTime;
 use Tapper::Reports::Web::Util::Filter::Overview;
 
-use common::sense;
 ## no critic (RequireUseStrict)
 
 sub auto :Private

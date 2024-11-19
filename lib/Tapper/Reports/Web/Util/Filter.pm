@@ -10,8 +10,6 @@ use Moose;
 
 
 
-use common::sense;
-
 has 'context'         => (is => 'rw');
 has 'requested_day'   => (is => 'rw');
 has 'dispatch'        => (is        => 'rw',

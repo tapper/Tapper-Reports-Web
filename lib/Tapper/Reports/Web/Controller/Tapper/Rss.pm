@@ -6,7 +6,6 @@ use Tapper::Reports::Web::Util::Filter::Report;
 
 use parent 'Catalyst::Controller';
 
-use common::sense;
 ## no critic (RequireUseStrict)
 
 =head2 index

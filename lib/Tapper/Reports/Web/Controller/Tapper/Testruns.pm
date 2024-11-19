@@ -18,7 +18,6 @@ use Tapper::Model 'model';
 use Tapper::Reports::Web::Util::Testrun;
 use Tapper::Reports::Web::Util::Filter::Testrun;
 
-use common::sense;
 ## no critic (RequireUseStrict)
 
 

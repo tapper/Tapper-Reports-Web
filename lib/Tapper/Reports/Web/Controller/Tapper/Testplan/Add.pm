@@ -2,7 +2,6 @@ package Tapper::Reports::Web::Controller::Tapper::Testplan::Add;
 
 use parent 'Tapper::Reports::Web::Controller::Base';
 
-use common::sense;
 ## no critic (RequireUseStrict)
 
 =head2 index

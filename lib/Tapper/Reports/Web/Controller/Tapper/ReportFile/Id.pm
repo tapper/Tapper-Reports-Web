@@ -3,7 +3,6 @@ package Tapper::Reports::Web::Controller::Tapper::ReportFile::Id;
 use parent 'Tapper::Reports::Web::Controller::Base';
 use HTML::FromANSI ();
 
-use common::sense;
 ## no critic (RequireUseStrict)
 
 #use HTML::FromANSI (); # avoid exports if using OO

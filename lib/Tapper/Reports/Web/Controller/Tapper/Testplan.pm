@@ -2,7 +2,6 @@ package Tapper::Reports::Web::Controller::Tapper::Testplan;
 
 use parent 'Tapper::Reports::Web::Controller::Base';
 
-use common::sense;
 ## no critic (RequireUseStrict)
 
 use DateTime::Format::Natural;

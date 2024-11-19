@@ -2,7 +2,6 @@ package Tapper::Reports::Web::Controller::Tapper::Start;
 
 use parent 'Tapper::Reports::Web::Controller::Base';
 
-use common::sense;
 ## no critic (RequireUseStrict)
 
 sub auto :Private

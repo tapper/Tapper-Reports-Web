@@ -2,7 +2,6 @@ package Tapper::Reports::Web::Controller::Tapper::Testplan::Id;
 
 use parent 'Tapper::Reports::Web::Controller::Base';
 
-use common::sense;
 ## no critic (RequireUseStrict)
 use Tapper::Model 'model';
 use Tapper::Reports::Web::Util::Testrun;
