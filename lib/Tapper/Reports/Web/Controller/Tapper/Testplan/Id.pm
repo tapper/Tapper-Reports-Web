@@ -74,10 +74,8 @@ sub gen_testplan_overview
         my @testplan_elements;
 
         foreach my $plan (@plans) {
-                given ($plan->{type})
-                {
-                        when(['multitest', 'testrun'])  { push @testplan_elements, $self->parse_testrun($plan) }
-                }
+                my $type = $plan->{type};
+                        if ($type =~ /^(multitest|testrun)$/)  { push @testplan_elements, $self->parse_testrun($plan) }
         }
         return \@testplan_elements;
 }

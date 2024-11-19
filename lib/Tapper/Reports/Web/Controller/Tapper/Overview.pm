@@ -55,11 +55,9 @@ sub index :Path  :Args()
           defined($filter_condition->{early}) and
             ref($filter_condition->{early}) eq 'HASH' ;
 
-        given ($type) {
-                when('suite') {$self->suite($c, $filter_condition)};
-                when('host')  {$self->host($c, $filter_condition)};
-                when('resource') {$self->resource($c, $filter_condition)};
-        }
+                if    ($type eq 'suite') {$self->suite($c, $filter_condition)}
+                elsif ($type eq 'host')  {$self->host($c, $filter_condition)}
+                elsif ($type eq 'resource') {$self->resource($c, $filter_condition)}
 }
 
 sub suite
