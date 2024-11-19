@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.17    2024-11-19
         - throw common::sense out the air lock
 
 5.0.16    2024-11-19
