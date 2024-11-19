@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - drop deprecated given/when
+        - deps - require Readonly (not ::XS)
 
 5.0.15    2020-01-22
         - /tapper/reports/info/{firstid,lastid} - introduce info urls
