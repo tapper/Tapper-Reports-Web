@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.0.16    2024-11-19
         - drop deprecated given/when
         - deps - require Readonly (not ::XS)
 
